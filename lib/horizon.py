@@ -1,13 +1,28 @@
-"""Horizon scanning — curated feed of recent regulatory updates per jurisdiction.
+"""Horizon scanning — curated + live feed of recent regulatory updates per jurisdiction.
 
-For v0, the feed is a static curated list. Production roadmap: pull from
-RSS feeds where available (MAS, HKMA, AUSTRAC, BNM all publish news feeds),
-plus LLM summarization of regulatory bulletins.
+The feed combines two sources:
+  - Curated (static) — hand-written items in HORIZON_ITEMS, refreshed manually
+  - Live (RSS) — fetched from regulator RSS feeds, cached with TTL
+
+For RSS feeds, we use feedparser which handles RSS 1/2 + Atom + most variants.
+Network failures fall through gracefully — live results just empty, curated still shows.
+
+Note: regulator RSS URLs change. The URLs below are best-effort and may need
+periodic verification. When in doubt, use the regulator's news landing page URL
+and check for an RSS link in the page header.
 """
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
+from typing import Iterable
+
+try:
+    import feedparser
+    FEEDPARSER_AVAILABLE = True
+except ImportError:
+    FEEDPARSER_AVAILABLE = False
 
 
 @dataclass(frozen=True)
@@ -487,8 +502,134 @@ HORIZON_ITEMS: list[HorizonItem] = [
 
 
 def items_for_jurisdiction(jurisdiction: str | None = None) -> list[HorizonItem]:
-    """Return items for the given jurisdiction, or all if None."""
+    """Return curated items for the given jurisdiction, or all if None."""
     items = sorted(HORIZON_ITEMS, key=lambda i: i.date, reverse=True)
     if jurisdiction is None:
         return items
     return [i for i in items if i.jurisdiction == jurisdiction]
+
+
+# ============================================================================
+# Live RSS feeds — best-effort URLs per regulator. Fetched with TTL cache.
+# ============================================================================
+
+RSS_FEEDS: dict[str, list[tuple[str, str, str]]] = {
+    # (label, url, category)
+    "Singapore (STRO)": [
+        ("MAS news", "https://www.mas.gov.sg/news/rss", "Regulatory"),
+        ("MAS enforcement", "https://www.mas.gov.sg/news/enforcement-actions/rss", "Enforcement"),
+        ("Singapore Police Force", "https://www.police.gov.sg/Newsroom/News?feed=rss", "Industry"),
+    ],
+    "Hong Kong (JFIU)": [
+        ("HKMA press releases", "https://www.hkma.gov.hk/eng/rss/press-releases.xml", "Regulatory"),
+        ("SFC news", "https://www.sfc.hk/-/media/EN/files/News-and-announcements/News/rss/news.xml", "Regulatory"),
+        ("ICAC news", "https://www.icac.org.hk/en/press/rss.xml", "Industry"),
+    ],
+    "Malaysia (FIED)": [
+        ("BNM announcements", "https://www.bnm.gov.my/rss-announcement", "Regulatory"),
+        ("SC Malaysia media releases", "https://www.sc.com.my/api/rss/MediaRelease", "Regulatory"),
+    ],
+    "Australia (AUSTRAC SMR)": [
+        ("AUSTRAC media", "https://www.austrac.gov.au/about-us/news-and-media/media-releases/feed", "Enforcement"),
+        ("ASIC media releases", "https://asic.gov.au/about-asic/news-centre/find-a-media-release/feed/", "Regulatory"),
+        ("APRA news", "https://www.apra.gov.au/news-and-publications/feed", "Regulatory"),
+    ],
+}
+
+_FEED_CACHE: dict[str, tuple[float, list[HorizonItem]]] = {}
+_FEED_TTL_SECONDS = 1800  # 30 minutes
+
+
+def fetch_live_items(
+    jurisdiction: str,
+    max_per_feed: int = 5,
+    force_refresh: bool = False,
+) -> tuple[list[HorizonItem], dict[str, str]]:
+    """Fetch live items from RSS feeds for a jurisdiction.
+
+    Returns (items, status_per_feed). status_per_feed maps feed-label to either
+    "OK (N items)" or an error message.
+
+    TTL-cached: subsequent calls within 30 minutes return cached results unless
+    force_refresh=True.
+    """
+    if not FEEDPARSER_AVAILABLE:
+        return [], {"_overall": "feedparser package not installed"}
+
+    cache_key = jurisdiction
+    now = time.time()
+    if not force_refresh and cache_key in _FEED_CACHE:
+        ts, cached = _FEED_CACHE[cache_key]
+        if now - ts < _FEED_TTL_SECONDS:
+            return cached, {"_cache": f"cached {int((now - ts) / 60)} min ago"}
+
+    feeds = RSS_FEEDS.get(jurisdiction, [])
+    all_items: list[HorizonItem] = []
+    statuses: dict[str, str] = {}
+
+    for label, url, category in feeds:
+        try:
+            parsed = feedparser.parse(url, request_headers={"User-Agent": "AML-Agents/0.1"})
+            if parsed.bozo and parsed.bozo_exception:
+                statuses[label] = f"error: {type(parsed.bozo_exception).__name__}"
+                continue
+            entries = parsed.entries[:max_per_feed]
+            count = 0
+            for entry in entries:
+                title = entry.get("title", "(no title)")
+                summary = entry.get("summary", entry.get("description", ""))
+                # Strip HTML tags from summary
+                import re as _re
+                summary = _re.sub(r"<[^>]+>", "", summary)[:500]
+                published = entry.get("published", entry.get("updated", "")) or ""
+                # Try to coerce to YYYY-MM-DD; fall back to first 10 chars
+                date_str = ""
+                if hasattr(entry, "published_parsed") and entry.published_parsed:
+                    pp = entry.published_parsed
+                    date_str = f"{pp.tm_year:04d}-{pp.tm_mon:02d}-{pp.tm_mday:02d}"
+                elif published:
+                    date_str = published[:10]
+                else:
+                    date_str = "unknown"
+                link = entry.get("link", url)
+                all_items.append(HorizonItem(
+                    date=date_str,
+                    jurisdiction=jurisdiction,
+                    title=f"[LIVE] {title}",
+                    summary=summary or "(no summary in feed)",
+                    source=label,
+                    url=link,
+                    impact="Medium",  # default; could be tuned per source
+                    category=category,
+                ))
+                count += 1
+            statuses[label] = f"OK ({count} items)"
+        except Exception as e:
+            statuses[label] = f"error: {type(e).__name__}: {str(e)[:80]}"
+
+    _FEED_CACHE[cache_key] = (now, all_items)
+    return all_items, statuses
+
+
+def all_items_for_jurisdiction(
+    jurisdiction: str | None,
+    include_live: bool = True,
+    force_refresh: bool = False,
+) -> tuple[list[HorizonItem], dict[str, str]]:
+    """Combined curated + live items, sorted by date desc."""
+    curated = items_for_jurisdiction(jurisdiction)
+    live: list[HorizonItem] = []
+    statuses: dict[str, str] = {}
+
+    if include_live:
+        if jurisdiction is None:
+            for jur in RSS_FEEDS.keys():
+                items, st_map = fetch_live_items(jur, force_refresh=force_refresh)
+                live.extend(items)
+                for k, v in st_map.items():
+                    statuses[f"{jur} — {k}"] = v
+        else:
+            live, statuses = fetch_live_items(jurisdiction, force_refresh=force_refresh)
+
+    combined = sorted(curated + live, key=lambda i: i.date, reverse=True)
+    return combined, statuses
