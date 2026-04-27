@@ -58,9 +58,32 @@ The customer may be told that an account is restricted or closed for "compliance
 - Tipping-off: up to **S$250,000** fine, 3 years imprisonment
 - Corporate liability under MAS Notice regimes; supervisory action separate from criminal liability
 
-### Sources
-- CDSA (Cap. 65A), TSOFA (Cap. 325)
-- MAS Notices 626, 824, 1014, 314
-- STRO: police.gov.sg → STRO Online portal
+### Useful resources
+
+**Filing & FIU**
+- [STRO portal — file an STR](https://www.police.gov.sg/sonline) — Singapore Police Force STRO Online
+- [STRO landing page](https://www.police.gov.sg/Advisories/Crime/Commercial-Crimes/Suspicious-Transaction-Reporting-Office)
+- [Commercial Affairs Department (CAD)](https://www.police.gov.sg/About-Us/Organisational-Structure/Specialist-Staff-Departments/Commercial-Affairs-Department) — STRO sits within CAD
+
+**Regulator (MAS)**
+- [MAS notices index](https://www.mas.gov.sg/regulation/notices)
+- [MAS Notice 626 — banks](https://www.mas.gov.sg/regulation/notices/notice-626)
+- [MAS Notice 1014 — DPT service providers](https://www.mas.gov.sg/regulation/notices/notice-psn02)
+- [MAS Notice 824 — insurers](https://www.mas.gov.sg/regulation/notices/notice-824)
+- [MAS Notice 314 — capital markets](https://www.mas.gov.sg/regulation/notices/notice-cmg-n01)
+- [MAS AML/CFT enforcement actions](https://www.mas.gov.sg/news/enforcement-actions)
+
+**Statutes (Singapore Statutes Online — AGC)**
+- [CDSA — Corruption, Drug Trafficking and Other Serious Crimes Act](https://sso.agc.gov.sg/Act/CDTSCCBA1992)
+- [TSOFA — Terrorism (Suppression of Financing) Act](https://sso.agc.gov.sg/Act/TSFA2002)
+
+**Industry & FATF**
+- [FATF mutual evaluation — Singapore (2016)](https://www.fatf-gafi.org/en/publications/Mutualevaluations/Mer-singapore-2016.html)
+- [Association of Banks in Singapore (ABS)](https://www.abs.org.sg/)
+- [ACCA / ICA Singapore — fraud and AML standards](https://www.ica.org.sg/)
+
+**Screening & data**
+- [OpenSanctions — sanctions, PEP, and watchlist screening](https://www.opensanctions.org/) (used in this app)
+- [MAS targeted financial sanctions list](https://www.mas.gov.sg/regulation/anti-money-laundering/targeted-financial-sanctions)
 
 > **Not legal advice.** Regulatory text and MAS guidance update periodically. Verify against the source statutes and any subsequent MAS bulletins before filing.

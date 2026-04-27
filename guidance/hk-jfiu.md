@@ -62,9 +62,30 @@ Under OSCO s.25A(2)(a), if you receive consent from JFIU to deal with reported p
 - Tipping-off: up to **HK$500,000** fine, 3 years imprisonment
 - Dealing with proceeds without filing (s.25): up to **HK$5 million** fine, 14 years imprisonment
 
-### Sources
-- OSCO (Cap. 455), DTROP (Cap. 405), UNATMO (Cap. 575), AMLO (Cap. 615)
-- HKMA Guideline on AML/CFT (banks), SFC AML/CFT Guideline, IA Guideline GL3
-- JFIU: jfiu.gov.hk
+### Useful resources
+
+**Filing & FIU**
+- [JFIU — Joint Financial Intelligence Unit](https://www.jfiu.gov.hk/)
+- [STREAMS — STR Electronic Auto-Reporting System](https://www.jfiu.gov.hk/en/str_what.html)
+
+**Regulators**
+- [HKMA AML/CFT page](https://www.hkma.gov.hk/eng/key-functions/banking/anti-money-laundering-and-counter-financing-of-terrorism/)
+- [SFC AML/CFT page](https://www.sfc.hk/en/Rules-and-standards/Anti-money-laundering-and-counter-financing-of-terrorism)
+- [Insurance Authority (IA) AML/CFT](https://www.ia.org.hk/en/legislative_framework/aml.html)
+- [Customs & Excise (MSO/DPMS regulator)](https://www.customs.gov.hk/en/trade_facilitation/aml/index.html)
+
+**Statutes (Hong Kong e-Legislation)**
+- [OSCO — Organized and Serious Crimes Ordinance](https://www.elegislation.gov.hk/hk/cap455)
+- [DTROP — Drug Trafficking (Recovery of Proceeds) Ordinance](https://www.elegislation.gov.hk/hk/cap405)
+- [UNATMO — UN (Anti-Terrorism Measures) Ordinance](https://www.elegislation.gov.hk/hk/cap575)
+- [AMLO — AML and Counter-Terrorist Financing Ordinance](https://www.elegislation.gov.hk/hk/cap615)
+
+**Industry & FATF**
+- [FATF mutual evaluation — Hong Kong (2019)](https://www.fatf-gafi.org/en/publications/Mutualevaluations/Mer-hong-kong-2019.html)
+- [Hong Kong Association of Banks (HKAB)](https://www.hkab.org.hk/)
+
+**Screening & data**
+- [OpenSanctions](https://www.opensanctions.org/) (used in this app)
+- [HK Securities and Futures Commission enforcement news](https://www.sfc.hk/en/News-and-announcements)
 
 > **Not legal advice.** Regulatory text and HKMA/SFC/IA guidance update periodically. Verify against current source materials before filing.

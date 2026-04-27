@@ -69,9 +69,30 @@ Limited exceptions exist for internal AML/CTF Program purposes and for legal pro
 - **Cryptocurrency** — DCEs must report SMRs the same way; Tranche 2 expansion adds new entity types from 2026.
 - **AUSTRAC's "key risks" priorities** updated annually — align internal red-flag indicators to the current focus areas (e.g., scams, child exploitation, sanctions evasion).
 
-### Sources
-- AML/CTF Act 2006 (Cth) and AML/CTF Rules
-- AUSTRAC Compliance Guide and Industry Guidance
-- AUSTRAC: austrac.gov.au
+### Useful resources
+
+**Filing & FIU**
+- [AUSTRAC Online — file an SMR](https://online.austrac.gov.au/)
+- [AUSTRAC reporting obligations](https://www.austrac.gov.au/business/how-comply-and-report-guidance-and-resources/reporting)
+- [Submit an SMR — guidance](https://www.austrac.gov.au/business/how-comply-and-report-guidance-and-resources/reporting/suspicious-matter-reports-smr)
+
+**Regulator**
+- [AUSTRAC homepage](https://www.austrac.gov.au/)
+- [AUSTRAC industry guidance](https://www.austrac.gov.au/business/how-comply-and-report-guidance-and-resources)
+- [AUSTRAC enforcement actions](https://www.austrac.gov.au/about-us/news-and-media/media-releases)
+
+**Statutes**
+- [AML/CTF Act 2006](https://www.legislation.gov.au/C2006A00169/latest/text)
+- [AML/CTF Rules](https://www.legislation.gov.au/F2007L01000/latest/text)
+- [Tranche 2 reform information](https://www.austrac.gov.au/business/new-to-the-regulated-sector)
+
+**Industry & FATF**
+- [FATF mutual evaluation — Australia (2015) and follow-up](https://www.fatf-gafi.org/en/countries/detail/Australia.html)
+- [Australian Banking Association (ABA) — AML resources](https://www.ausbanking.org.au/)
+- [ACAMS Australia chapter](https://www.acams.org/en/chapters/australia)
+
+**Screening & data**
+- [OpenSanctions](https://www.opensanctions.org/) (used in this app)
+- [DFAT consolidated sanctions list](https://www.dfat.gov.au/international-relations/security/sanctions/consolidated-list)
 
 > **Not legal advice.** AML/CTF Act and AUSTRAC guidance update frequently — Tranche 2 reforms in particular are rolling out through 2026. Verify against current source materials before filing.

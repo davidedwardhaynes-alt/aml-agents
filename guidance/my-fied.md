@@ -64,9 +64,27 @@ Filing is electronic via FINS Online. Reporting institutions must register with 
 - **Sanctions screening** — separate AMLA s.66B obligations for UN/MOHA-listed entities. Sanctions hits typically also generate STRs.
 - **Halal-compliant institutions** — Islamic banks under same AMLA regime.
 
-### Sources
-- AMLA 2001 (Act 613)
-- BNM AML/CFT Sectoral Guidelines (Banking, Insurance, MSB, DNFBPs, etc.)
-- FIED: bnm.gov.my → FIED → FINS
+### Useful resources
+
+**Filing & FIU**
+- [BNM Financial Intelligence and Enforcement Department (FIED)](https://www.bnm.gov.my/financial-intelligence-and-enforcement-department)
+- [FINS — Financial Intelligence Network System](https://amlcft.bnm.gov.my/) — reporting institution portal
+
+**Regulators**
+- [BNM AML/CFT page](https://amlcft.bnm.gov.my/)
+- [Securities Commission Malaysia AML/CFT](https://www.sc.com.my/regulation/guidelines/anti-money-laundering)
+- [Labuan FSA AML/CFT](https://www.labuanfsa.gov.my/)
+
+**Statutes**
+- [AMLA — Anti-Money Laundering, Anti-Terrorism Financing and Proceeds of Unlawful Activities Act 2001](https://www.bnm.gov.my/-/amla)
+- [BNM AML/CFT Sectoral Guidelines](https://amlcft.bnm.gov.my/policy)
+
+**Industry & FATF**
+- [FATF mutual evaluation — Malaysia (2015) and follow-ups](https://www.fatf-gafi.org/en/countries/detail/Malaysia.html)
+- [Compliance Officers' Networking Group (CONG) Malaysia](https://www.cong.org.my/)
+
+**Screening & data**
+- [OpenSanctions](https://www.opensanctions.org/) (used in this app)
+- [Ministry of Home Affairs sanctions list (MOHA)](https://www.moha.gov.my/index.php/en/maklumat-perkhidmatan/perkhidmatan-pengurusan-sumber-manusia/sekuriti)
 
 > **Not legal advice.** Regulatory text and BNM sectoral guidelines update periodically. Verify against current source materials before filing.
