@@ -1591,6 +1591,24 @@ with tab_draft:
                 height=110,
             )
 
+            # Supporting documents upload — KYC, statements, source-of-funds, ID
+            st.markdown(
+                '<div style="font-size: 0.78rem; font-weight: 600; color: #475569; '
+                'margin: 0.6rem 0 0.3rem 0;">Supporting documents (optional)</div>',
+                unsafe_allow_html=True,
+            )
+            uploaded_docs = st.file_uploader(
+                "Attach ID cards, bank statements, KYC letters, source-of-funds documents, screenshots",
+                accept_multiple_files=True,
+                type=["pdf", "png", "jpg", "jpeg", "docx", "txt", "eml", "csv", "xlsx"],
+                key="input_supporting_docs",
+                label_visibility="collapsed",
+                help="v0: document names included in narrative context. v1: full content extraction via Claude vision/PDF.",
+            )
+            if uploaded_docs:
+                for doc in uploaded_docs:
+                    st.caption(f"Attached: {doc.name} ({doc.size:,} bytes)")
+
         st.markdown('<div class="section-label">Triggering activity</div>', unsafe_allow_html=True)
         with st.container(border=True):
             # Alert source dropdown — TrustSphere Risk Index featured first
