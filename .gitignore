@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .streamlit/
+
+# User credentials — never commit (demo-grade local file with bcrypt hashes)
+auth/credentials.yaml

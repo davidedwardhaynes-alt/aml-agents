@@ -6,10 +6,17 @@ from pathlib import Path
 
 import markdown as md_pkg
 import streamlit as st
+import streamlit_authenticator as stauth
 from anthropic import Anthropic
 from dotenv import load_dotenv
 from fpdf import FPDF
 
+from auth.users import (
+    get_user_profile,
+    load_config,
+    save_config,
+    update_user_profile,
+)
 from lib.sanctions import classify_match, search_sanctions, summarize_entity
 
 # override=True ensures .env changes are picked up on every Streamlit rerun
@@ -360,6 +367,77 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# ============================================================================
+# Authentication — demo-grade login via streamlit-authenticator + local YAML.
+# Sits at the top so unauthenticated users only see the login screen.
+# ============================================================================
+auth_config = load_config()
+authenticator = stauth.Authenticate(
+    auth_config["credentials"],
+    auth_config["cookie"]["name"],
+    auth_config["cookie"]["key"],
+    auth_config["cookie"]["expiry_days"],
+)
+
+# Render login form. streamlit-authenticator updates st.session_state with
+# 'authentication_status' (True / False / None), 'name', 'username'.
+try:
+    authenticator.login(location="main")
+except Exception as login_err:
+    st.error(f"Login error: {login_err}")
+
+auth_status = st.session_state.get("authentication_status")
+
+if not auth_status:
+    # Login / signup view — short-circuit the rest of the app
+    st.markdown(
+        """
+<div style="max-width: 520px; margin: 1rem auto 1.5rem auto; padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1e40af 100%);
+            border-radius: 12px; color: #fff;">
+    <h2 style="color: #fff; margin: 0;">AML Agents</h2>
+    <p style="color: #cbd5e1; margin: 0.4rem 0 0 0; font-size: 0.92rem;">
+        AI-drafted STR narratives for compliance teams. Sign in to continue.
+    </p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    if auth_status is False:
+        st.error("Username or password is incorrect.")
+    elif auth_status is None:
+        st.info(
+            "**Demo credentials**: username `demo` · password `demo123`  \n"
+            "Or create your own account below."
+        )
+
+    with st.expander("Create a new account", expanded=False):
+        try:
+            (
+                email_new,
+                username_new,
+                name_new,
+            ) = authenticator.register_user(
+                location="main",
+                pre_authorization=False,
+                merge_username_email=False,
+            )
+            if email_new:
+                save_config(auth_config)
+                st.success(
+                    f"Account created for **{name_new}** (username: `{username_new}`). "
+                    "Sign in above with your new credentials."
+                )
+        except Exception as reg_err:
+            st.error(str(reg_err))
+
+    st.stop()
+
+# From this point on the user is authenticated.
+auth_username = st.session_state["username"]
+auth_name = st.session_state.get("name", auth_username)
+
 # Polish CSS — branded header, card layout, hide default Streamlit chrome
 st.markdown(
     """
@@ -539,12 +617,77 @@ for k in SAMPLE_CASE.keys():
 if "input_recommendation" not in st.session_state:
     st.session_state["input_recommendation"] = "File STR"
 
-# Filing metadata — pre-fill from env-var defaults if available
+# Filing metadata — first-run defaults come from user profile in credentials.yaml
+# (overrides env vars if present). Subsequent runs preserve whatever the user
+# has typed in the form.
+if "_profile_loaded_for" not in st.session_state or st.session_state["_profile_loaded_for"] != auth_username:
+    profile = get_user_profile(auth_config, auth_username)
+    profile_defaults = {
+        "input_reporting_institution": profile["reporting_institution"]
+            or os.getenv("DEFAULT_REPORTING_INSTITUTION", ""),
+        "input_str_reference": "",
+        "input_prepared_by": profile["analyst_name"]
+            or os.getenv("DEFAULT_ANALYST_NAME", ""),
+        "input_mlro_signoff": profile["mlro_name"]
+            or os.getenv("DEFAULT_MLRO_NAME", ""),
+        "input_entity_category": profile["entity_category"] or "— Select —",
+    }
+    for k, v in profile_defaults.items():
+        st.session_state[k] = v
+    st.session_state["_profile_loaded_for"] = auth_username
+
 for k, v in FILING_METADATA_DEFAULTS.items():
     if k not in st.session_state:
         st.session_state[k] = v
 if "input_date_of_filing" not in st.session_state:
     st.session_state["input_date_of_filing"] = date.today()
+
+# ============================================================================
+# Sidebar — user identity, profile editor, logout. Rendered before the main
+# column so the user has access to it even before scrolling the form.
+# ============================================================================
+with st.sidebar:
+    st.markdown(f"### Signed in as")
+    st.markdown(f"**{auth_name}**  \n`{auth_username}`")
+
+    try:
+        authenticator.logout("Sign out", location="sidebar", use_container_width=True)
+    except Exception as logout_err:
+        st.error(f"Logout error: {logout_err}")
+
+    st.markdown("---")
+    st.markdown("### Profile defaults")
+    st.caption("Auto-fill the Filing metadata fields on every case.")
+
+    profile_now = get_user_profile(auth_config, auth_username)
+    new_inst = st.text_input(
+        "Reporting Institution",
+        value=profile_now["reporting_institution"],
+        key="profile_inst",
+    )
+    new_analyst = st.text_input(
+        "Your name + role",
+        value=profile_now["analyst_name"],
+        key="profile_analyst",
+    )
+    new_mlro = st.text_input(
+        "MLRO name",
+        value=profile_now["mlro_name"],
+        key="profile_mlro",
+    )
+
+    if st.button("Save profile", use_container_width=True):
+        update_user_profile(
+            auth_config,
+            auth_username,
+            reporting_institution=new_inst,
+            analyst_name=new_analyst,
+            mlro_name=new_mlro,
+        )
+        save_config(auth_config)
+        # Force re-load on next rerun so Filing metadata picks up new defaults
+        st.session_state.pop("_profile_loaded_for", None)
+        st.success("Profile saved. New defaults active on next case.")
 
 # Initialize jurisdiction + model in session_state so the toolbar (rendered after
 # the header) can drive the header content via st.session_state lookups.
