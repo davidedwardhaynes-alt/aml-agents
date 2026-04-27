@@ -1,16 +1,68 @@
+import io
 import os
+import re
 from datetime import date
 from pathlib import Path
 
+import markdown as md_pkg
 import streamlit as st
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from fpdf import FPDF
 
 from lib.sanctions import classify_match, search_sanctions, summarize_entity
 
 # override=True ensures .env changes are picked up on every Streamlit rerun
 # (without needing a full server restart). Critical for API key updates.
 load_dotenv(override=True)
+
+
+def narrative_to_pdf(
+    narrative: str,
+    str_reference: str,
+    reporting_institution: str,
+    jurisdiction: str,
+) -> bytes:
+    """Render the markdown narrative as a PDF via fpdf2's write_html.
+
+    Strips non-Latin-1 chars (fpdf2 core fonts only support Latin-1) and
+    converts the markdown to HTML, then renders.
+    """
+
+    def ascii_safe(s: str) -> str:
+        replacements = {
+            "—": "-", "–": "-", "·": "|", "•": "-",
+            "“": '"', "”": '"', "‘": "'", "’": "'",
+            "…": "...", "→": "->", "←": "<-",
+            "✓": "[OK]", "✗": "[X]", "⚠": "[!]",
+        }
+        for k, v in replacements.items():
+            s = s.replace(k, v)
+        return s.encode("latin-1", errors="replace").decode("latin-1")
+
+    safe_narrative = ascii_safe(narrative)
+    body_html = md_pkg.markdown(safe_narrative, extensions=["extra"])
+
+    header_html = (
+        f"<h2>Suspicious Transaction Report</h2>"
+        f"<p><i>{ascii_safe(jurisdiction)}  |  Ref: {ascii_safe(str_reference)}</i></p>"
+    )
+    if reporting_institution:
+        header_html += f"<p><i>{ascii_safe(reporting_institution)}</i></p>"
+    header_html += "<hr/>"
+
+    full_html = header_html + body_html
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.add_page()
+    pdf.set_font("Helvetica", size=10)
+    pdf.write_html(full_html)
+
+    output = pdf.output()
+    if isinstance(output, str):
+        return output.encode("latin-1")
+    return bytes(output)
 
 ROOT = Path(__file__).parent
 RUBRICS = {
@@ -127,34 +179,130 @@ ENTITY_CATEGORIES = {
     ],
 }
 
-SAMPLE_CASE = {
-    "customer_name": "ACME Trading Pte Ltd",
-    "customer_id": "A123456789",
-    "customer_kyc": (
-        "Singapore-incorporated, electronics wholesale. Declared source of funds: "
-        "trading revenue. Expected monthly turnover SGD 200k. Risk rating: Medium "
-        "at onboarding (Oct 2025)."
-    ),
-    "transactions": (
-        "2026-04-15 | 480,000 | SGD | HK-XYZ Ltd (Hong Kong shell) | wire\n"
-        "2026-04-16 | 350,000 | SGD | Mohammed A. (UAE individual) | wire\n"
-        "2026-04-17 | 420,000 | USD | Beach Holdings (Cayman) | wire"
-    ),
-    "alert_reason": "3x expected monthly volume in 72 hours; new high-risk-jurisdiction counterparties",
-    "red_flags": (
-        "Rapid-fire international transfers to HK shell, UAE individual, and Cayman entity. "
-        "Each transaction structured below the SGD 500k internal threshold. No prior commercial "
-        "relationship with any beneficiary. Volume spike inconsistent with declared profile."
-    ),
-    "analyst_notes": (
-        "Relationship manager contacted customer 2026-04-18. Customer stated transfers were for "
-        "'new supplier deals' but could not produce contracts or invoices when requested. "
-        "Adverse media check on Mohammed A. returned a UN sanctions watchlist hit (Feb 2026). "
-        "Account opened 2025-10-15; activity prior to April 2026 was consistent with declared "
-        "business (avg SGD 180k/month, predominantly SG counterparties). Customer's explanation "
-        "deemed implausible by analyst given lack of documentation and watchlist match."
-    ),
+# Per-jurisdiction sample cases. Each one is a plausible AML typology so an
+# MLRO recognizes the pattern when demoing.
+SAMPLE_CASES = {
+    "Singapore (STRO)": {
+        "customer_name": "ACME Trading Pte Ltd",
+        "customer_id": "A123456789",
+        "customer_kyc": (
+            "Singapore-incorporated, electronics wholesale. Declared source of funds: "
+            "trading revenue. Expected monthly turnover SGD 200k. Risk rating: Medium "
+            "at onboarding (Oct 2025)."
+        ),
+        "transactions": (
+            "2026-04-15 | 480,000 | SGD | HK-XYZ Ltd (Hong Kong shell) | wire\n"
+            "2026-04-16 | 350,000 | SGD | Mohammed A. (UAE individual) | wire\n"
+            "2026-04-17 | 420,000 | USD | Beach Holdings (Cayman) | wire"
+        ),
+        "alert_reason": "3x expected monthly volume in 72 hours; new high-risk-jurisdiction counterparties",
+        "red_flags": (
+            "Rapid-fire international transfers to HK shell, UAE individual, and Cayman entity. "
+            "Each transaction structured below the SGD 500k internal threshold. No prior commercial "
+            "relationship with any beneficiary. Volume spike inconsistent with declared profile."
+        ),
+        "analyst_notes": (
+            "Relationship manager contacted customer 2026-04-18. Customer stated transfers were for "
+            "'new supplier deals' but could not produce contracts or invoices when requested. "
+            "Adverse media check on Mohammed A. returned a UN sanctions watchlist hit (Feb 2026). "
+            "Account opened 2025-10-15; activity prior to April 2026 was consistent with declared "
+            "business (avg SGD 180k/month, predominantly SG counterparties). Customer's explanation "
+            "deemed implausible by analyst given lack of documentation and watchlist match."
+        ),
+    },
+    "Hong Kong (JFIU)": {
+        "customer_name": "Golden Harbor Holdings Ltd",
+        "customer_id": "HK-CR-9876543",
+        "customer_kyc": (
+            "Hong Kong-incorporated, jewelry and precious stones trading. "
+            "Declared SoF: import/export of polished diamonds and gold. "
+            "Expected monthly turnover HKD 1,500,000. Risk rating: Medium-High at onboarding (Jan 2025)."
+        ),
+        "transactions": (
+            "2026-04-12 | 2,800,000 | HKD | Shenzhen Lihua Trading Co. Ltd (mainland CN) | wire\n"
+            "2026-04-13 | 1,950,000 | HKD | Mohammad Rezaie (Iran-resident individual) | wire\n"
+            "2026-04-14 | 3,200,000 | HKD | Macau Lucky Gold Pawn Shop | cash deposit then transfer"
+        ),
+        "alert_reason": "Volume 4x expected; mainland CN + Iranian counterparties; cash component inconsistent with B2B jewelry trade",
+        "red_flags": (
+            "Trade-based money laundering pattern: jewelry invoices appear over-priced vs. market. "
+            "Counterparty Mohammad Rezaie matches OFAC SDN list. Macau pawn shop counterparty "
+            "associated with cross-border casino-junket flows. Cash deposit immediately wired out "
+            "(structured layering)."
+        ),
+        "analyst_notes": (
+            "Customer outreach 2026-04-15; customer claimed a 'new high-volume buyer' but could not "
+            "produce shipping documents, customs forms, or product photographs. EDD review found "
+            "beneficial-owner Mr Chan Wai-Lung holds 51% via a BVI nominee structure undisclosed at "
+            "onboarding. Adverse media: Hong Kong Free Press article (March 2026) names Golden Harbor "
+            "in a casino-junket-linked layering ring. Mainland CN counterparty Shenzhen Lihua flagged "
+            "by HKMA peer-bank inter-bank intelligence (informal)."
+        ),
+    },
+    "Malaysia (FIED)": {
+        "customer_name": "Selangor Maju Sdn Bhd",
+        "customer_id": "MY-SSM-1234567-A",
+        "customer_kyc": (
+            "Malaysian-incorporated (Shah Alam), crude palm oil (CPO) trading and export. "
+            "Declared SoF: CPO sales to ASEAN buyers. Expected monthly turnover MYR 8,000,000. "
+            "Risk rating: Medium at onboarding (March 2025). PEP screening clear at onboarding."
+        ),
+        "transactions": (
+            "2026-04-10 | 4,200,000 | MYR | Bayu Logistics Pte Ltd (Singapore) | wire\n"
+            "2026-04-11 | 3,800,000 | MYR | Pacific Lotus Holdings (Cayman shell) | wire\n"
+            "2026-04-12 | 1,600,000 | MYR | Cash deposit (Kuala Lumpur branch) | cash"
+        ),
+        "alert_reason": "Cash deposit inconsistent with B2B CPO trade; trade-based ML invoice mismatch flagged by trade-finance ops",
+        "red_flags": (
+            "Trade-finance team flagged invoices showing CPO at MYR 6,500/tonne when spot price was "
+            "MYR 4,200/tonne — significant over-invoicing. Singapore counterparty Bayu Logistics shares "
+            "registered address with three other unrelated trading companies. Cayman shell beneficial "
+            "owner not disclosed. MYR 1.6M cash deposit at KL branch unusual for declared B2B model."
+        ),
+        "analyst_notes": (
+            "Branch RM contacted Director En. Ahmad Razali on 2026-04-13. Customer stated cash deposit "
+            "'from director's personal property sale' but no SPA produced. EDD found Director En. Ahmad "
+            "Razali holds shares in two other entities both with adverse media on illegal gambling "
+            "(Sin Chew Daily, Feb 2026). Shipping documents requested; only PDF copies provided, "
+            "found to be visually inconsistent with genuine bills of lading. Activity suggests TBML + "
+            "potential proceeds-of-unlawful-activity layering."
+        ),
+    },
+    "Australia (AUSTRAC SMR)": {
+        "customer_name": "Coastal Crypto Exchange Pty Ltd",
+        "customer_id": "AU-ABN-12-345-678-901",
+        "customer_kyc": (
+            "Australian-registered DCE (digital currency exchange), AUSTRAC-registered. "
+            "Retail crypto-to-AUD exchange. Declared SoF: customer trading fees, market-making revenue. "
+            "Expected daily processed volume AUD 2,000,000. Risk rating: High (DCE category)."
+        ),
+        "transactions": (
+            "2026-04-20 | 9,800 | AUD | Customer ID 88421 (retail) | bank deposit\n"
+            "2026-04-20 | 9,950 | AUD | Customer ID 88421 (retail) | bank deposit\n"
+            "2026-04-20 | 9,500 | AUD | Customer ID 88421 (retail) | bank deposit\n"
+            "2026-04-20 | onward to mixer wallet bc1q...x9k2 | BTC equivalent ~AUD 28,500 | crypto withdrawal"
+        ),
+        "alert_reason": "Structuring below AUD 10,000 TTR threshold; immediate conversion and transfer to known mixer wallet",
+        "red_flags": (
+            "Three deposits totalling AUD 29,250 from same customer within 2 hours, each structured "
+            "below the AUD 10,000 TTR threshold. Funds immediately converted to BTC and withdrawn to "
+            "wallet bc1q...x9k2 — flagged by Chainalysis as a Tornado Cash-style mixer with prior "
+            "associations to investment-scam typologies. Customer KYC review found the three source "
+            "bank accounts all opened within last 30 days."
+        ),
+        "analyst_notes": (
+            "Customer outreach attempted 2026-04-21; customer (online retail user) did not respond. "
+            "Source bank accounts trace to three different banks, all in the same victim-acquisition "
+            "scam pattern AUSTRAC flagged in its 2025 'Pig Butchering' typology bulletin. KYC docs at "
+            "onboarding (passport, utility bill) appear genuine but customer-completed risk "
+            "questionnaire described occupation as 'student' — inconsistent with sudden AUD 30k flow. "
+            "Suspect customer is a money mule victim of a romance/investment scam."
+        ),
+    },
 }
+
+# Default sample for fallback (when jurisdiction not yet in SAMPLE_CASES)
+SAMPLE_CASE = SAMPLE_CASES["Singapore (STRO)"]
 
 # Filing metadata defaults — per-institution values pulled from env vars so the
 # user doesn't retype their institution and MLRO name on every case.
@@ -166,12 +314,44 @@ FILING_METADATA_DEFAULTS = {
     "input_entity_category": "— Select —",
 }
 
-SAMPLE_FILING_METADATA = {
-    "input_reporting_institution": "Demo Bank Singapore Pte Ltd (MAS-licensed bank)",
-    "input_str_reference": "STR-2026-04-0042",
-    "input_prepared_by": "Lim Wei Ling, Senior Compliance Analyst",
-    "input_mlro_signoff": "Tan Boon Heng, MLRO",
-    "input_entity_category": "Bank (full / wholesale / merchant)",
+SAMPLE_FILING_METADATAS = {
+    "Singapore (STRO)": {
+        "input_reporting_institution": "Demo Bank Singapore Pte Ltd (MAS-licensed bank)",
+        "input_str_reference": "STR-2026-04-0042",
+        "input_prepared_by": "Lim Wei Ling, Senior Compliance Analyst",
+        "input_mlro_signoff": "Tan Boon Heng, MLRO",
+        "input_entity_category": "Bank (full / wholesale / merchant)",
+    },
+    "Hong Kong (JFIU)": {
+        "input_reporting_institution": "Demo Bank Hong Kong Ltd (HKMA-authorized institution)",
+        "input_str_reference": "STR-HK-2026-Q2-0117",
+        "input_prepared_by": "Cheung Mei-Ling, AML Analyst",
+        "input_mlro_signoff": "Wong Kwok-Hei, MLRO",
+        "input_entity_category": "Authorized institution — bank",
+    },
+    "Malaysia (FIED)": {
+        "input_reporting_institution": "Maybank Demo Berhad (BNM-licensed bank)",
+        "input_str_reference": "STR-MY-2026-0289",
+        "input_prepared_by": "Nurul Aishah binti Hassan, AML Officer",
+        "input_mlro_signoff": "Encik Rahman bin Ibrahim, MLRO",
+        "input_entity_category": "Licensed bank / Islamic bank",
+    },
+    "Australia (AUSTRAC SMR)": {
+        "input_reporting_institution": "Coastal Crypto Exchange Pty Ltd (AUSTRAC-registered DCE)",
+        "input_str_reference": "SMR-AU-2026-04-0834",
+        "input_prepared_by": "Sarah O'Brien, Compliance Manager",
+        "input_mlro_signoff": "James Patterson, AML/CTF Compliance Officer",
+        "input_entity_category": "Digital currency exchange (DCE)",
+    },
+}
+
+# Direct filing-portal links per jurisdiction — appears as a button after the
+# narrative is generated so analysts can jump straight to the filing system.
+FILING_PORTALS = {
+    "Singapore (STRO)": ("SONAR (Singapore Police Force)", "https://eservices.police.gov.sg/sonar"),
+    "Hong Kong (JFIU)": ("STREAMS (JFIU)", "https://www.jfiu.gov.hk/en/str_what.html"),
+    "Malaysia (FIED)": ("FINS (BNM AML/CFT portal)", "https://amlcft.bnm.gov.my/"),
+    "Australia (AUSTRAC SMR)": ("AUSTRAC Online", "https://online.austrac.gov.au/"),
 }
 
 st.set_page_config(
@@ -422,10 +602,15 @@ with st.container(border=True):
     with tool_col3:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
         if st.button("Load sample case", use_container_width=True):
-            for k, v in SAMPLE_CASE.items():
+            current_jur = st.session_state["jurisdiction"]
+            sample = SAMPLE_CASES.get(current_jur, SAMPLE_CASES["Singapore (STRO)"])
+            sample_filing = SAMPLE_FILING_METADATAS.get(
+                current_jur, SAMPLE_FILING_METADATAS["Singapore (STRO)"]
+            )
+            for k, v in sample.items():
                 st.session_state[f"input_{k}"] = v
             st.session_state["input_recommendation"] = "File STR"
-            for k, v in SAMPLE_FILING_METADATA.items():
+            for k, v in sample_filing.items():
                 st.session_state[k] = v
             st.session_state["input_date_of_filing"] = date.today()
             st.rerun()
@@ -729,7 +914,26 @@ Draft the STR narrative following the rubric. Use only facts stated in the input
         with st.container(border=True):
             st.markdown(narrative)
 
-        col_a, col_b, col_c = st.columns([1, 1, 3])
+        # Direct filing-portal link — high-impact UX so analysts jump straight
+        # to the FIU's filing system after reviewing the draft narrative.
+        portal_name, portal_url = FILING_PORTALS.get(jurisdiction, ("FIU portal", "#"))
+        st.markdown(
+            f'<div style="margin-top: 1rem; margin-bottom: 0.5rem;">'
+            f'<a href="{portal_url}" target="_blank" '
+            f'style="display: block; background: #1e40af; color: white; '
+            f'padding: 0.85rem 1.5rem; border-radius: 8px; text-decoration: none; '
+            f'font-weight: 600; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">'
+            f'File this STR via {portal_name} →'
+            f'</a></div>',
+            unsafe_allow_html=True,
+        )
+        st.caption(
+            f"Opens the {portal_name} filing system in a new tab. "
+            "You'll need your institution's credentials to authenticate."
+        )
+
+        # Download buttons — three formats
+        col_a, col_b, col_c, col_d = st.columns([1, 1, 1, 2])
         with col_a:
             st.download_button(
                 "Download .txt",
@@ -744,6 +948,20 @@ Draft the STR narrative following the rubric. Use only facts stated in the input
                 data=narrative,
                 file_name=f"STR_{customer_id or 'draft'}.md",
                 mime="text/markdown",
+                use_container_width=True,
+            )
+        with col_c:
+            pdf_bytes = narrative_to_pdf(
+                narrative,
+                str_reference or f"STR-{date_of_filing}",
+                reporting_institution,
+                jurisdiction,
+            )
+            st.download_button(
+                "Download .pdf",
+                data=pdf_bytes,
+                file_name=f"STR_{customer_id or 'draft'}.pdf",
+                mime="application/pdf",
                 use_container_width=True,
             )
 
