@@ -18,14 +18,27 @@ if [ -f .env ] && grep -q "ANTHROPIC_API_KEY=sk-ant-" .env && ! grep -q "sk-ant-
 fi
 
 if [ "$NEEDS_KEY" = true ]; then
-    echo "First-time setup — your API key is needed."
+    echo "Anthropic API key needed."
     echo ""
-    echo "Paste your Anthropic API key below."
-    echo "(The cursor will NOT move as you type — that is normal, for security)"
+    echo "Get one from: https://console.anthropic.com/settings/keys"
+    echo "It looks like:  sk-ant-api03-XXXXXXXX..."
     echo ""
-    read -r -s -p "API key: " KEY
+    echo "Paste it below. The cursor will NOT move as you type/paste — that is normal."
     echo ""
-    echo ""
+
+    KEY=""
+    ATTEMPT=0
+    while [[ "$KEY" != sk-ant-* ]] && [ $ATTEMPT -lt 3 ]; do
+        if [ $ATTEMPT -gt 0 ]; then
+            echo ""
+            echo "✗ That does not look like an Anthropic API key (must start with 'sk-ant-')."
+            echo "  Try again — copy the key fresh from console.anthropic.com."
+            echo ""
+        fi
+        read -r -s -p "API key: " KEY
+        echo ""
+        ATTEMPT=$((ATTEMPT + 1))
+    done
 
     if [ -z "$KEY" ]; then
         echo "✗ No key entered. Run this script again when ready."
@@ -33,13 +46,28 @@ if [ "$NEEDS_KEY" = true ]; then
     fi
 
     if [[ "$KEY" != sk-ant-* ]]; then
-        echo "⚠  Warning: key does not start with 'sk-ant-'. Anthropic keys usually do."
-        echo "   Continuing anyway. If the app errors, run this script again with the right key."
         echo ""
+        echo "✗ After 3 attempts the key still doesn't start with 'sk-ant-'."
+        echo "  Edit ~/dev/amlagents/.env manually, or run this script again."
+        exit 1
     fi
 
-    echo "ANTHROPIC_API_KEY=$KEY" > .env
-    echo "✓ API key saved."
+    # Preserve any other env vars (e.g. OPENSANCTIONS_API_KEY) when overwriting
+    OTHER_VARS=""
+    if [ -f .env ]; then
+        OTHER_VARS=$(grep -v "^ANTHROPIC_API_KEY=" .env | grep -v "^$" || true)
+    fi
+
+    {
+        echo "ANTHROPIC_API_KEY=$KEY"
+        if [ -n "$OTHER_VARS" ]; then
+            echo ""
+            echo "$OTHER_VARS"
+        fi
+    } > .env
+
+    echo ""
+    echo "✓ API key saved (preview: ${KEY:0:14}...${KEY: -4})"
     echo ""
 fi
 
