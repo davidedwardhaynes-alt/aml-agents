@@ -9,13 +9,34 @@
 
 ### Who must file
 - Authorized institutions — banks (HKMA-regulated)
-- Licensed corporations (SFC) — securities and futures dealers, asset managers
+- **Virtual banks** — HKMA-licensed digital banks. Eight licensees as at 2026: ZA Bank, Mox, livi, WeLab, Ant Bank HK, Airstar, Fusion, Welab. Same AML obligations as conventional banks plus heightened expectations on e-KYC and real-time TM
+- Licensed corporations (SFC) — securities and futures dealers, asset managers (Type 1–12)
 - Authorized insurers and licensed insurance intermediaries (IA-regulated)
 - Money service operators — remitters, money changers (C&ED-licensed)
-- Trust or company service providers (TCSPs)
+- Trust or company service providers (TCSPs) — TCSP licensing regime in effect since 2018
 - DNFBPs — solicitors, accountants, real estate agents, precious metals/stones dealers
-- Stored value facility (SVF) licensees
-- Virtual asset service providers (VASPs) — under the new licensing regime (SFC)
+- Stored value facility (SVF) licensees (Cap. 584)
+- **Virtual asset service providers (VASPs)** — under the SFC VASP licensing regime (effective June 2023 via AMLO Part 5B amendment). Type 1 (dealing) + Type 7 (automated trading) licensure required to operate a VA exchange in HK
+
+### VASP licensing regime — additional context
+
+The SFC's VASP licensing regime (operative from 1 June 2023) represents one of the most significant AML expansions in HK in a decade:
+
+- All VA exchanges serving HK retail customers must be licensed (Type 1 + Type 7)
+- AML/CFT obligations under AMLO apply — including STR filing to JFIU
+- SFC explicitly expects **KYT (know-your-transaction) screening** of blockchain provenance — Chainalysis, TRM Labs, Elliptic, or equivalent
+- Hop-distance analysis (typically ≤ 3 hops to a sanctioned/darknet/mixer address) is industry practice
+- Active licensees include HashKey, OSL, Bullish, and others
+- 2024–2025 saw multiple enforcement actions for inadequate KYT controls
+
+### Mainland CN cross-border context
+
+HK's role as China's offshore financial centre creates legitimate cross-border flows but also specific AML typologies:
+
+- **Offshore RMB (CNH) hub:** large legitimate flows; pass-through structures without commercial nexus are red flags
+- **Casino-junket layering:** Macau VIP-room proceeds historically routed through HK trade shells to mainland CN beneficiaries
+- **Mainland CN UBO disclosure gaps:** customers often disclose only HK-resident directors while UBOs are mainland CN-resident; HKMA expects EDD on actual UBOs
+- **ICAC investigations** (Independent Commission Against Corruption) — when named subjects appear in customer KYC chain, STR is typically warranted
 
 ### Threshold for filing
 "Knows or **suspects**" that any property in whole or in part directly or indirectly represents:

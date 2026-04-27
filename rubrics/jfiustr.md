@@ -31,13 +31,17 @@ Date of Filing: {value}
 ```
 
 When the entity category is provided, tailor sectoral-guideline references in section 7 (Action taken) accordingly:
-- **Authorized institution (bank, RLB, DTC)** → reference HKMA Guideline on AML/CFT
-- **Licensed corporation (SFC Type 1–12)** → reference SFC AML/CFT Guideline
-- **Authorized insurer / broker** → reference IA Guideline GL3
-- **Money service operator (MSO)** → reference C&ED guidance on AML/CFT
-- **Stored value facility (SVF)** → HKMA Guideline on AML/CFT for SVF licensees
+- **Authorized institution — bank** → HKMA Guideline on AML/CFT (for Authorized Institutions); Banking Ordinance (Cap. 155) prudential framework
+- **Authorized institution — virtual bank** → same HKMA Guideline + the [HKMA Guideline on Authorization of Virtual Banks](https://www.hkma.gov.hk/eng/regulatory-resources/regulatory-guides/by-subject-current/banking-supervision/) (eight licensees: ZA Bank, Mox, livi, WeLab, Ant Bank HK, Airstar, Fusion, Welab) — pay attention to e-KYC controls and digital-onboarding mule risk
+- **Authorized institution — RLB / DTC** → HKMA Guideline on AML/CFT, scoped to deposit-taking activities
+- **Licensed corporation (SFC) Type 1 (dealing)** → SFC AML/CFT Guideline; Securities and Futures Ordinance (Cap. 571)
+- **Licensed corporation (SFC) Type 4 / 9 (advising / asset management)** → SFC AML/CFT Guideline; specific AUM-related risk indicators
+- **Licensed corporation (SFC) other types** → SFC AML/CFT Guideline (general)
+- **Authorized insurer / broker** → IA Guideline GL3
+- **Money service operator (MSO)** → C&ED Guideline on AML/CFT for MSOs (cash-intensive sector)
+- **Stored value facility (SVF)** → HKMA Guideline on AML/CFT for SVF licensees (Cap. 584 Payment Systems and Stored Value Facilities Ordinance)
 - **Trust or company service provider (TCSP)** → Companies Registry AML/CFT Guideline for TCSP
-- **Virtual asset service provider (VASP)** → SFC AML/CFT Guideline as applied to VA-related activities
+- **Virtual asset service provider (VASP)** → SFC AML/CFT Guideline as applied to VA activities; reference the **SFC VASP licensing regime** (effective June 2023 under the AMLO Part 5B amendment) — Type 1 (dealing) + Type 7 (automated trading) licensure model. Note 2024–2025 enforcement actions and the SFC's expectations on KYT (know-your-transaction) for blockchain provenance
 - **DNFBP** (solicitor, accountant, estate agent, PSDM) → respective supervisor guidelines (Law Society, HKICPA, EAA, C&ED)
 
 ### 1. Subject identification
@@ -68,11 +72,21 @@ List the specific red flags observed, mapped to FATF or HK-specific typologies w
 - Structuring or smurfing across multiple accounts
 - Pass-through / nominee account use
 - Inconsistent or refused CDD / EDD documentation
-- Adverse media match for predicate offence (corruption, fraud, drug, sanctions, casino-junket flows)
+- Adverse media match for predicate offence (corruption, fraud, drug, sanctions, casino-junket flows, ICAC investigations)
 - High-risk channel (cash, virtual assets, money mule indicators)
 - Trade-based ML — over/under-invoicing, phantom shipments, mismatched documentation
-- VASP-related — known mixer wallets, darknet exposure (Chainalysis / TRM tagging)
-- Casino-junket-linked layering
+- **VASP-specific:** known mixer wallets, darknet provenance (Chainalysis / TRM / Elliptic tagging), KYT score above risk threshold, withdrawal addresses not in customer's name, hop-distance to high-risk service ≤ 3
+- **Casino-junket-linked layering:** inbound from Macau junket-tied entities, Macau VIP-room references, multi-currency rotation (HKD/USD/CNH), round-tripping through trade shells, ICAC investigation-named subjects
+- **Virtual bank-specific:** rapid post-onboarding velocity spike, fully-digital e-KYC combined with high-risk profile shift, mule-account-cluster indicators (multiple accounts at same VB sharing IP / device fingerprint)
+- **Mainland CN cross-border patterns:** unrelated CN individual beneficiaries, no commercial nexus to declared HK business, trade-finance documentation that does not match shipping records
+
+### Hong Kong-specific typology context
+
+When the case fact pattern matches a known HK typology, reference it explicitly in the narrative:
+- **Casino-junket layering:** historical pattern of Macau VIP junket proceeds being moved through HK trade-shell accounts to mainland CN beneficiaries; HKMA peer-intel-sharing has flagged this since 2018
+- **VASP cash-out:** SFC's VASP licensing regime (effective June 2023) brought VAs into the AML perimeter; KYT screening expected; inbound darknet-tagged crypto + outbound to third-party bank accounts is the canonical indicia stack
+- **Cross-border RMB / CNH flows:** HK is the offshore RMB hub; legitimate flows are large, but pass-through structures with no commercial nexus warrant scrutiny
+- **TCSP shell formation:** HK's TCSP licensing regime (since 2018) addresses misuse of HK-incorporated shells for layering; nominee directors / mass-registered-address-shells are red flags
 
 ### 6. Reasonable grounds for suspicion
 A 3–5 sentence summary of WHY there is suspicion that the property in whole or in part represents:

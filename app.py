@@ -137,14 +137,17 @@ ENTITY_CATEGORIES = {
     "Hong Kong (JFIU)": [
         "— Select —",
         "Authorized institution — bank",
+        "Authorized institution — virtual bank (HKMA-licensed digital, e.g. ZA Bank, Mox, livi, WeLab)",
         "Authorized institution — restricted licence bank / DTC",
-        "Licensed corporation (SFC) — Types 1–12",
+        "Licensed corporation (SFC) — Type 1 (dealing in securities)",
+        "Licensed corporation (SFC) — Type 4 / 9 (advising / asset management)",
+        "Licensed corporation (SFC) — other Types 2/3/5/6/7/8/10/11/12",
         "Authorized insurer",
         "Insurance broker / agent",
         "Money service operator (MSO)",
-        "Stored value facility (SVF)",
+        "Stored value facility (SVF) — HKMA-licensed",
         "Trust or company service provider (TCSP)",
-        "Virtual asset service provider (VASP)",
+        "Virtual asset service provider (VASP) — SFC Type 1+7 licensed",
         "Solicitor / law firm (DNFBP)",
         "Accountant (DNFBP)",
         "Estate agent (DNFBP)",
@@ -197,7 +200,17 @@ SAMPLE_LIBRARY = {
         "Trade-based ML — fintech wholesale": ("Singapore (STRO)", "Singapore (STRO)"),
     },
     "Hong Kong (JFIU)": {
-        "Jewelry trading + sanctions hit": ("Hong Kong (JFIU)", "Hong Kong (JFIU)"),
+        "Jewelry trading + sanctions hit": (
+            "Hong Kong (JFIU)", "Hong Kong (JFIU)",
+        ),
+        "VASP — darknet-tagged inflow + third-party cash-out": (
+            "Hong Kong (JFIU) — VASP darknet flow",
+            "Hong Kong (JFIU) — VASP darknet flow",
+        ),
+        "Bank — Macau-junket layering through trade shell": (
+            "Hong Kong (JFIU) — Casino-junket bank layering",
+            "Hong Kong (JFIU) — Casino-junket bank layering",
+        ),
     },
     "Malaysia (FIED)": {
         "Palm oil TBML — conventional bank": (
@@ -273,6 +286,84 @@ SAMPLE_CASES = {
             "onboarding. Adverse media: Hong Kong Free Press article (March 2026) names Golden Harbor "
             "in a casino-junket-linked layering ring. Mainland CN counterparty Shenzhen Lihua flagged "
             "by HKMA peer-bank inter-bank intelligence (informal)."
+        ),
+    },
+    # HK variants — keyed by SAMPLE_LIBRARY entries
+    "Hong Kong (JFIU) — VASP darknet flow": {
+        "customer_name": "Cheung Ka-Wai",
+        "customer_id": "HK-HKID-A123456(7)",
+        "customer_kyc": (
+            "Hong Kong individual, age 31, declared occupation: freelance graphic designer. "
+            "Declared monthly income HKD 35,000. Source of funds: design work + personal trading. "
+            "Onboarded via in-app e-KYC (HKID + selfie liveness). "
+            "Expected transaction profile: retail crypto trading, sub-HKD 200k monthly. "
+            "Risk rating: Medium at onboarding (June 2025) — adjusted for crypto activity."
+        ),
+        "transactions": (
+            "2026-04-08 | 2.45 BTC (~HKD 1.62M) | inbound from external wallet bc1q...t8x | crypto deposit\n"
+            "2026-04-09 | 1.80 BTC (~HKD 1.19M) | inbound from external wallet 1Hu5...kPb | crypto deposit\n"
+            "2026-04-10 | 3.10 BTC (~HKD 2.05M) | inbound from external wallet 3Mq2...wRn | crypto deposit\n"
+            "2026-04-11 | 7.30 BTC sold | converted to HKD via order book | conversion\n"
+            "2026-04-11 | 2,400,000 | HKD | outbound to HSBC HK acct (third-party Mr Lau) | bank withdrawal\n"
+            "2026-04-11 | 2,450,000 | HKD | outbound to Standard Chartered HK acct (third-party Ms Wong) | bank withdrawal"
+        ),
+        "alert_reason": "Inbound BTC sources flagged 60% darknet provenance by Chainalysis; HKD withdrawals to third-party bank accounts (not customer's own); volume 30x declared profile",
+        "red_flags": (
+            "Internal KYT (Chainalysis-equivalent) screening flagged 60% of inbound BTC as having "
+            "darknet-market provenance — wallets bc1q...t8x and 3Mq2...wRn trace within 2 hops to "
+            "Hydra-successor markets. Withdrawal addresses are HK bank accounts NOT in the customer's "
+            "name (Mr Lau, Ms Wong) — inconsistent with retail crypto trading. Volume 30x declared "
+            "monthly profile. Pattern matches SFC/HKMA 2025 'crypto cash-out' typology bulletin: VASP "
+            "used as conversion layer between darknet proceeds and retail bank accounts."
+        ),
+        "analyst_notes": (
+            "Customer outreach 2026-04-12; customer claimed Mr Lau and Ms Wong are 'friends helping "
+            "with cash management' but provided no documentation of any business relationship. "
+            "Asked to explain crypto source-of-funds; customer stated 'private trading' and refused "
+            "EDD documentation. KYT screening details escalated to MLRO; SFC AML/CFT Guideline for "
+            "VASPs (Chapter 4) crystallises the obligation. Customer assessed as a knowing layering "
+            "agent (not a victim); third-party withdrawal pattern is the key indicia. STR + JFIU "
+            "consent request appropriate; recommend account freeze pending JFIU response."
+        ),
+    },
+    "Hong Kong (JFIU) — Casino-junket bank layering": {
+        "customer_name": "Pearl Maritime Trading Ltd",
+        "customer_id": "HK-CR-7654321",
+        "customer_kyc": (
+            "Hong Kong-incorporated, declared business: marine equipment B2B import/export. "
+            "Declared SoF: marine equipment sales to mainland CN buyers. "
+            "Expected monthly turnover HKD 8,000,000. "
+            "Directors: Mr Wong Tin-Lok (75%), Ms Lam Hui-Yi (25%). "
+            "Risk rating: Medium-High at onboarding (Aug 2024) — flagged for cross-border CN exposure."
+        ),
+        "transactions": (
+            "2026-04-15 | 12,500,000 | HKD | Macau Sky Tourism Ltd (junket-linked entity) | wire\n"
+            "2026-04-15 | 9,800,000  | USD | Macau Star Resort Travel Co (junket-linked entity) | wire\n"
+            "2026-04-16 | 6,200,000  | CNH | outbound to Mr Zhang Wei (Shenzhen individual) | wire\n"
+            "2026-04-16 | 5,800,000  | CNH | outbound to Ms Liu Mei (Guangzhou individual) | wire\n"
+            "2026-04-16 | 8,400,000  | CNH | outbound to Mr Chen Hua (Shanghai individual) | wire\n"
+            "2026-04-17 | round-trip 4,500,000 HKD inbound from Mr Zhang Wei (CN individual)"
+        ),
+        "alert_reason": "Inbound from Macau junket-tied entities; same-day outflow to multiple unrelated mainland CN individuals; round-trip pattern detected",
+        "red_flags": (
+            "Inbound counterparties Macau Sky Tourism and Macau Star Resort Travel are both "
+            "Macau-junket-linked entities per HKMA peer-bank intel-sharing (informal). "
+            "Mainland CN beneficiaries (Zhang Wei, Liu Mei, Chen Hua) are individuals with no apparent "
+            "commercial relationship to declared marine equipment business. Round-trip pattern: "
+            "Zhang Wei sent funds back to customer within 24 hours. Director Mr Wong Tin-Lok appears "
+            "in ICAC March 2026 press release related to cross-border junket licensing irregularities. "
+            "HKD/USD/CNH multi-currency layering matches 2025 HKMA typology bulletin on junket-derived "
+            "fund movement through trade-shell accounts."
+        ),
+        "analyst_notes": (
+            "EDD review 2026-04-18: customer outreach to Director Mr Wong; he claimed transfers were "
+            "for 'consulting services for new mainland CN clients' but produced no contracts, "
+            "engagement letters, or scope-of-work documentation. Marine equipment shipment records "
+            "for Q1 2026 do not match the volume of inflows. ICAC press release of 2026-03-22 names "
+            "Mr Wong in connection with a junket-licensing investigation; customer did not disclose "
+            "this at onboarding or upon EDD. Activity is consistent with junket-derived proceeds "
+            "being layered through a HK trading shell into mainland CN beneficiary accounts. "
+            "Recommend STR + JFIU consent request + account suspension pending response."
         ),
     },
     "Malaysia (FIED)": {
@@ -443,6 +534,20 @@ SAMPLE_FILING_METADATAS = {
         "input_str_reference": "STR-HK-2026-Q2-0117",
         "input_prepared_by": "Cheung Mei-Ling, AML Analyst",
         "input_mlro_signoff": "Wong Kwok-Hei, MLRO",
+        "input_entity_category": "Authorized institution — bank",
+    },
+    "Hong Kong (JFIU) — VASP darknet flow": {
+        "input_reporting_institution": "HashKey Exchange HK Ltd (SFC Type 1 + Type 7 VASP licensee)",
+        "input_str_reference": "STR-HK-VASP-2026-04-0089",
+        "input_prepared_by": "Lee Ka-Yan, KYT Analyst",
+        "input_mlro_signoff": "Tang Wing-Chiu, MLRO",
+        "input_entity_category": "Virtual asset service provider (VASP)",
+    },
+    "Hong Kong (JFIU) — Casino-junket bank layering": {
+        "input_reporting_institution": "Demo Commercial Bank HK Ltd (HKMA-authorized institution)",
+        "input_str_reference": "STR-HK-CB-2026-04-0341",
+        "input_prepared_by": "Yip Hoi-Lam, Senior FCC Analyst",
+        "input_mlro_signoff": "Datuk Cheng Wai-Man, MLRO",
         "input_entity_category": "Authorized institution — bank",
     },
     "Malaysia (FIED)": {
