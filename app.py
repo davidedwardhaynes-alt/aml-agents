@@ -12,8 +12,10 @@ from dotenv import load_dotenv
 from fpdf import FPDF
 
 from auth.users import (
+    get_user_avatar_path,
     get_user_profile,
     load_config,
+    save_avatar,
     save_config,
     update_user_profile,
 )
@@ -1230,8 +1232,44 @@ if "input_date_of_filing" not in st.session_state:
 # column so the user has access to it even before scrolling the form.
 # ============================================================================
 with st.sidebar:
-    st.markdown(f"### Signed in as")
-    st.markdown(f"**{auth_name}**  \n`{auth_username}`")
+    # ---- Profile header — avatar + name ----
+    avatar_path = get_user_avatar_path(auth_username)
+    if avatar_path:
+        st.image(str(avatar_path), width=88)
+    else:
+        # Initial-letter avatar placeholder
+        initial = (auth_name or auth_username or "?")[0].upper()
+        st.markdown(
+            f"""
+<div style="width: 88px; height: 88px; background: linear-gradient(135deg, #1e3a8a, #1e40af);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.25);">{initial}</div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(f"**{auth_name}**  \n<small style='color: #64748b;'>`{auth_username}`</small>",
+                unsafe_allow_html=True)
+
+    # Avatar upload
+    avatar_upload = st.file_uploader(
+        "Upload profile photo",
+        type=["png", "jpg", "jpeg"],
+        key="avatar_upload",
+        label_visibility="visible",
+        help="JPG or PNG, square ~200×200 px works best.",
+    )
+    if avatar_upload is not None:
+        # Streamlit returns the same UploadedFile across reruns until cleared,
+        # so guard with a session marker to avoid re-saving on every rerun.
+        marker_key = f"_avatar_saved_{avatar_upload.name}_{avatar_upload.size}"
+        if not st.session_state.get(marker_key):
+            ext = avatar_upload.name.rsplit(".", 1)[-1] if "." in avatar_upload.name else "png"
+            save_avatar(auth_username, avatar_upload.getvalue(), ext)
+            st.session_state[marker_key] = True
+            st.success("Profile photo updated.")
+            st.rerun()
 
     try:
         authenticator.logout("Sign out", location="sidebar", use_container_width=True)

@@ -13,6 +13,34 @@ from typing import Any
 import yaml
 
 CREDENTIALS_PATH = Path(__file__).parent / "credentials.yaml"
+AVATARS_DIR = Path(__file__).parent.parent / "data" / "avatars"
+
+
+def save_avatar(username: str, data: bytes, ext: str) -> Path:
+    """Save a user's profile photo. Replaces any existing avatar for the user."""
+    AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+    ext = (ext or "png").lower().lstrip(".")
+    if ext not in {"png", "jpg", "jpeg"}:
+        ext = "png"
+    target = AVATARS_DIR / f"{username}.{ext}"
+    # Remove any existing avatars with different extensions
+    for other_ext in {"png", "jpg", "jpeg"} - {ext}:
+        old = AVATARS_DIR / f"{username}.{other_ext}"
+        if old.exists():
+            old.unlink()
+    target.write_bytes(data)
+    return target
+
+
+def get_user_avatar_path(username: str) -> Path | None:
+    """Return path to the user's avatar, or None if not set."""
+    if not AVATARS_DIR.exists():
+        return None
+    for ext in ("png", "jpg", "jpeg"):
+        path = AVATARS_DIR / f"{username}.{ext}"
+        if path.exists():
+            return path
+    return None
 
 
 def load_config() -> dict[str, Any]:

@@ -7,3 +7,9 @@ __pycache__/
 
 # User credentials — never commit (demo-grade local file with bcrypt hashes)
 auth/credentials.yaml
+
+# User-uploaded profile photos
+data/avatars/
+
+# User obligations register — local-only persistence
+data/obligations.yaml
