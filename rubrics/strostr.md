@@ -22,9 +22,20 @@ Render at the very top of the document as a compact metadata block. Use the valu
 
 ```
 Reporting Institution: {value}
+Reporting Entity Category: {value}
 STR Reference: {value}
 Date of Filing: {value}
 ```
+
+When the entity category is provided, tailor sectoral-notice references in the narrative accordingly:
+- **Bank** → reference MAS Notice 626
+- **Payment institution / E-money issuer** → reference MAS Notice PSN02
+- **Digital payment token (DPT) service provider** → reference MAS Notice PSN02 (PSA Part VIII obligations)
+- **Insurer** → reference MAS Notice 824
+- **Capital markets services licensee / Fund manager** → reference MAS Notice CMG-N01 (formerly Notice 314)
+- **DNFBP** (lawyer, accountant, CSP, real estate, PSMD) → reference the applicable sectoral guidelines from the relevant supervisor (e.g., LSRA for legal practitioners, ACRA for CSPs, Council for Estate Agencies for real estate)
+
+If category is `[not provided]`, do not invent a sectoral reference.
 
 ### 1. Subject identification
 - Customer name, ID, account number, customer-since date (if provided)

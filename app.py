@@ -50,6 +50,81 @@ JURISDICTION_AUTHORITIES = {
     ],
 }
 
+# Reporting entity categories per jurisdiction. Picked by analyst at filing time
+# so the model can tailor narrative context (sectoral notice references, etc.).
+ENTITY_CATEGORIES = {
+    "Singapore (STRO)": [
+        "— Select —",
+        "Bank (full / wholesale / merchant)",
+        "Finance company",
+        "Payment institution (PI / MPI)",
+        "E-money issuer",
+        "Digital payment token (DPT) service provider",
+        "Money changer / remittance business",
+        "Capital markets services (CMS) licensee",
+        "Fund manager (LFMC / RFMC)",
+        "Insurer (life / general / composite)",
+        "Insurance broker",
+        "Financial adviser",
+        "Trust company",
+        "Lawyer / legal practice (DNFBP)",
+        "Accountant / public accounting entity (DNFBP)",
+        "Corporate service provider (DNFBP)",
+        "Real estate agent / salesperson (DNFBP)",
+        "Precious stones and metals dealer (PSMD)",
+    ],
+    "Hong Kong (JFIU)": [
+        "— Select —",
+        "Authorized institution — bank",
+        "Authorized institution — restricted licence bank / DTC",
+        "Licensed corporation (SFC) — Types 1–12",
+        "Authorized insurer",
+        "Insurance broker / agent",
+        "Money service operator (MSO)",
+        "Stored value facility (SVF)",
+        "Trust or company service provider (TCSP)",
+        "Virtual asset service provider (VASP)",
+        "Solicitor / law firm (DNFBP)",
+        "Accountant (DNFBP)",
+        "Estate agent (DNFBP)",
+        "Precious metals / stones dealer (DNFBP)",
+    ],
+    "Malaysia (FIED)": [
+        "— Select —",
+        "Licensed bank / Islamic bank",
+        "Investment bank",
+        "Development financial institution (DFI)",
+        "Money services business (MSB)",
+        "Insurance / takaful operator",
+        "Insurance broker",
+        "Capital market intermediary (SC-licensed)",
+        "E-money issuer",
+        "Digital asset exchange (DAE)",
+        "Trust company",
+        "Accountant / auditor (DNFBP)",
+        "Lawyer (DNFBP)",
+        "Company secretary (DNFBP)",
+        "Real estate agent (DNFBP)",
+        "Precious metals / stones dealer (DNFBP)",
+        "Casino / gaming operator",
+        "Pawnbroker",
+    ],
+    "Australia (AUSTRAC SMR)": [
+        "— Select —",
+        "Authorised deposit-taking institution (ADI)",
+        "Insurer / life insurance provider",
+        "Designated remittance service",
+        "Gambling service provider — casino / wagering / bookmaker",
+        "Bullion dealer",
+        "Digital currency exchange (DCE)",
+        "Securities / derivatives dealer",
+        "Solicitor (Tranche 2 — from 2026)",
+        "Accountant / conveyancer (Tranche 2 — from 2026)",
+        "Real estate agent (Tranche 2 — from 2026)",
+        "Precious metals dealer (Tranche 2 — from 2026)",
+    ],
+}
+
 SAMPLE_CASE = {
     "customer_name": "ACME Trading Pte Ltd",
     "customer_id": "A123456789",
@@ -86,6 +161,7 @@ FILING_METADATA_DEFAULTS = {
     "input_str_reference": "",
     "input_prepared_by": os.getenv("DEFAULT_ANALYST_NAME", ""),
     "input_mlro_signoff": os.getenv("DEFAULT_MLRO_NAME", ""),
+    "input_entity_category": "— Select —",
 }
 
 SAMPLE_FILING_METADATA = {
@@ -93,6 +169,7 @@ SAMPLE_FILING_METADATA = {
     "input_str_reference": "STR-2026-04-0042",
     "input_prepared_by": "Lim Wei Ling, Senior Compliance Analyst",
     "input_mlro_signoff": "Tan Boon Heng, MLRO",
+    "input_entity_category": "Bank (full / wholesale / merchant)",
 }
 
 st.set_page_config(
@@ -327,6 +404,23 @@ if guidance_path and guidance_path.exists():
 # Filing metadata — case header fields (reporting entity, STR ref, sign-off)
 st.markdown('<div class="section-label">Filing metadata</div>', unsafe_allow_html=True)
 with st.container(border=True):
+    # Entity category dropdown — driven by selected jurisdiction
+    categories = ENTITY_CATEGORIES.get(jurisdiction, ["— Select —"])
+    # If session state holds a category not valid for the new jurisdiction, reset
+    current_cat = st.session_state.get("input_entity_category", "— Select —")
+    if current_cat not in categories:
+        st.session_state["input_entity_category"] = "— Select —"
+
+    st.selectbox(
+        "Reporting Entity Category",
+        categories,
+        key="input_entity_category",
+        help=(
+            "Pick the category that matches your institution's licensing under "
+            "the selected jurisdiction. Drives sectoral-notice context in the narrative."
+        ),
+    )
+
     meta_col1, meta_col2 = st.columns(2, gap="large")
     with meta_col1:
         st.text_input(
@@ -507,10 +601,13 @@ if generate:
     analyst_notes = st.session_state["input_analyst_notes"]
     recommendation = st.session_state["input_recommendation"]
     reporting_institution = st.session_state["input_reporting_institution"]
+    entity_category = st.session_state["input_entity_category"]
     str_reference = st.session_state["input_str_reference"]
     prepared_by = st.session_state["input_prepared_by"]
     mlro_signoff = st.session_state["input_mlro_signoff"]
     date_of_filing = st.session_state["input_date_of_filing"]
+    if entity_category == "— Select —":
+        entity_category = "[not provided]"
 
     rubric_path = RUBRICS[jurisdiction]
 
@@ -524,6 +621,7 @@ if generate:
         rubric = rubric_path.read_text()
         user_input = f"""[FILING METADATA]
 Reporting Institution: {reporting_institution or '[not provided]'}
+Reporting Entity Category: {entity_category}
 STR Reference: {str_reference or '[not provided]'}
 Date of Filing: {date_of_filing.strftime('%Y-%m-%d') if date_of_filing else '[not provided]'}
 Prepared by: {prepared_by or '[not provided]'}
