@@ -8,14 +8,41 @@
 
 ### Who must file
 Reporting entities under the AML/CTF Act:
-- Authorised deposit-taking institutions (banks, credit unions, building societies)
+- Authorised deposit-taking institutions (banks, credit unions, building societies, neobanks)
 - Insurers, life insurance product providers
 - Designated remittance providers (remitters, money changers)
 - Gambling service providers (casinos, online wagering, bookmakers)
 - Bullion dealers
 - **Digital currency exchange providers (DCEs)** — registered with AUSTRAC
-- Securities and derivatives dealers
-- **Tranche 2 entities** (from 2026): lawyers, accountants, conveyancers, real estate agents, precious metals/stones dealers — phased
+- Securities and derivatives dealers (ASIC-licensed)
+- **Tranche 2 entities** (from 2026, phased): lawyers, accountants, conveyancers, real estate agents, precious metals/stones dealers
+
+### Tranche 2 reforms — phased rollout
+
+The **AML/CTF Amendment Act 2024** extended the AML/CTF Act to Tranche 2 entities. Key dates:
+
+- **Royal Assent**: November 2024
+- **Phase 1 (1 March 2026)**: pre-commencement registration window opens for Tranche 2 entities
+- **Phase 2 (1 July 2026)**: full obligations commence — CDD, TM, SMR, record-keeping
+- **Sectoral phasing** (per AUSTRAC industry guidance): legal practitioners, accountants, real estate agents, conveyancers, and precious metals/stones dealers all in scope from 2026
+
+Tranche 2 entity practical implications:
+- First-ever AML/CTF Programs required (Part A & Part B)
+- AML/CTF Compliance Officer appointment mandatory
+- Customer source-of-wealth diligence at engagement
+- SMR obligation under s.41 — note legal-professional-privilege carve-out is narrow
+- AUSTRAC has stated enforcement leniency in the first 12 months for genuine implementation efforts but no immunity for wilful non-compliance
+
+### AUSTRAC current enforcement priorities (2025–2026)
+
+Per AUSTRAC's published priorities and industry briefings:
+
+1. **Investment scams / "Pig Butchering" / romance scams** — AUD 2.7B+ stolen from Australians in 2024; focus on mule-account detection at ADIs and DCEs
+2. **Child sexual exploitation funding** — payments to high-risk jurisdictions
+3. **Sanctions evasion** — particularly Russia / Iran / DPRK exposure; DFAT consolidated list compliance
+4. **Casino sector compliance** — post-Star (AUD 100M+ penalty) and Crown (AUD 450M+ penalty) enforcement actions; ongoing monitoring
+5. **Tranche 2 readiness** — capability uplift across legal, accounting, real estate sectors
+6. **Wagering sector** — scam-mule deposits and source-of-wealth in online wagering
 
 ### Threshold for filing
 "Suspects on **reasonable grounds**" that information about a person, the matter, or a transaction may be relevant to:

@@ -179,13 +179,16 @@ ENTITY_CATEGORIES = {
     ],
     "Australia (AUSTRAC SMR)": [
         "— Select —",
-        "Authorised deposit-taking institution (ADI)",
-        "Insurer / life insurance provider",
+        "Authorised deposit-taking institution (ADI) — major bank",
+        "ADI — credit union / building society / mutual",
+        "ADI — neobank / digital-only bank",
+        "Insurer / life insurance product provider",
         "Designated remittance service",
         "Gambling service provider — casino / wagering / bookmaker",
+        "Online wagering platform",
         "Bullion dealer",
-        "Digital currency exchange (DCE)",
-        "Securities / derivatives dealer",
+        "Digital currency exchange (DCE) — AUSTRAC-registered",
+        "Securities / derivatives dealer (ASIC-licensed)",
         "Solicitor (Tranche 2 — from 2026)",
         "Accountant / conveyancer (Tranche 2 — from 2026)",
         "Real estate agent (Tranche 2 — from 2026)",
@@ -224,7 +227,17 @@ SAMPLE_LIBRARY = {
         ),
     },
     "Australia (AUSTRAC SMR)": {
-        "Crypto DCE — structuring + mule": ("Australia (AUSTRAC SMR)", "Australia (AUSTRAC SMR)"),
+        "Crypto DCE — structuring + mule victim": (
+            "Australia (AUSTRAC SMR)", "Australia (AUSTRAC SMR)",
+        ),
+        "Casino — chip-walking + cross-property redemption": (
+            "Australia (AUSTRAC SMR) — Casino chip-walking",
+            "Australia (AUSTRAC SMR) — Casino chip-walking",
+        ),
+        "Tranche 2 — real estate corruption-proceeds (post-2026)": (
+            "Australia (AUSTRAC SMR) — Tranche 2 real estate cash buyer",
+            "Australia (AUSTRAC SMR) — Tranche 2 real estate cash buyer",
+        ),
     },
 }
 
@@ -506,6 +519,87 @@ SAMPLE_CASES = {
             "Suspect customer is a money mule victim of a romance/investment scam."
         ),
     },
+    # AU variants — keyed by SAMPLE_LIBRARY entries
+    "Australia (AUSTRAC SMR) — Casino chip-walking": {
+        "customer_name": "Mark Anderson Reilly",
+        "customer_id": "AU-DriverLic-NSW-87234561",
+        "customer_kyc": (
+            "Australian individual, age 43, declared occupation: self-employed building contractor. "
+            "Loyalty program member since 2024. Source-of-wealth declared as 'business income, "
+            "occasional gambling'. Expected gambling profile: AUD 5–10k per visit, 2–3 visits/month. "
+            "Risk rating: Medium at last review (Jan 2026)."
+        ),
+        "transactions": (
+            "2026-04-19 | 9,800  | AUD | cash buy-in at Sydney Harbour Casino main floor (cage A) | cash\n"
+            "2026-04-19 | 9,500  | AUD | cash buy-in at same casino (cage C, 2hrs later) | cash\n"
+            "2026-04-19 | 9,900  | AUD | cash buy-in at same casino (cage F, 4hrs later) | cash\n"
+            "2026-04-19 | minimal play at table (12 hands of baccarat, ~AUD 600 total wagered)\n"
+            "2026-04-19 | chips removed from premises (chip-walking) — no redemption at exit\n"
+            "2026-04-22 | 28,500 | AUD | redemption of chips at sister-property casino (Melbourne) | cheque"
+        ),
+        "alert_reason": "Three structured cash buy-ins below AUD 10k TTR threshold same evening; chip-walking off premises; cross-property chip redemption — pattern matches AUSTRAC casino-sector enforcement priorities",
+        "red_flags": (
+            "Three cash buy-ins of AUD 9,800 / 9,500 / 9,900 same evening, each structured below the "
+            "AUD 10,000 TTR threshold. CCTV review confirmed minimal actual gambling activity (~AUD "
+            "600 wagered against AUD 29,200 in chips). Customer removed unredeemed chips from "
+            "premises (chip-walking) — non-standard behavior. Chips redeemed three days later at "
+            "sister property in Melbourne via cheque to bank account. Pattern matches AUSTRAC's "
+            "2024–2025 casino-sector enforcement priorities (parallel typology to the Star/Crown "
+            "regulatory actions). Customer's banking activity (separate review): inbound cash "
+            "deposits of AUD 8–9k three days prior to casino visit, source unknown."
+        ),
+        "analyst_notes": (
+            "Casino's TM team flagged the buy-in pattern via 'multi-cage same-day buy-in below "
+            "threshold' rule (AML/CTF Program Part B trigger). Loyalty program data shows customer "
+            "visit frequency increased 4x in the prior 60 days. Customer outreach via host: customer "
+            "claimed cash was from 'building contract payments' but no invoices produced when asked. "
+            "Sister-property redemption raises additional concern — suggests deliberate use of two "
+            "venues to obscure trail. Activity is consistent with third-party-sourced cash being "
+            "converted via casino as a layering mechanism (not customer's own gambling). "
+            "Recommend SMR + customer downgrade to Restricted status."
+        ),
+    },
+    "Australia (AUSTRAC SMR) — Tranche 2 real estate cash buyer": {
+        "customer_name": "Pacific Heights Holdings BVI Ltd",
+        "customer_id": "BVI-1234567",
+        "customer_kyc": (
+            "BVI-incorporated company (purchase vehicle). UBO declared as Mr Chan Ka-Lok, "
+            "Hong Kong resident, declared occupation: 'private investor'. "
+            "Property purchase: Sydney CBD apartment, agreed price AUD 4,500,000 (Apr 2026). "
+            "Conveyancing handled by Demo Lawyers Sydney (Tranche 2 reporting entity from 2026). "
+            "First-time client of the firm; introduced via offshore wealth-management referral."
+        ),
+        "transactions": (
+            "2026-04-15 | 4,500,000 | AUD | wire from Bank of East Asia HK to Demo Lawyers trust account | wire\n"
+            "2026-04-15 | 450,000   | AUD | deposit released to vendor's solicitor on exchange | wire\n"
+            "2026-04-22 | 4,050,000 | AUD | balance released on settlement | wire"
+        ),
+        "alert_reason": "First Tranche 2 SMR for the firm. BVI nominee structure; UBO has adverse media (HK ICAC); purchase price 30% above market comparables; no source-of-wealth documentation provided",
+        "red_flags": (
+            "BVI nominee company with no operating history. UBO Mr Chan Ka-Lok is named in HK ICAC "
+            "press release of 2026-03-22 in connection with a public-procurement corruption "
+            "investigation; UBO did not disclose this to the firm. Purchase price AUD 4.5M is "
+            "approximately 30% above recent comparable sales for the same building (RP Data review). "
+            "Source-of-wealth documentation requested at engagement; UBO replied 'family wealth' but "
+            "produced no bank statements, business accounts, or tax records. Transaction proceeded "
+            "with unusual speed — no standard pre-purchase building inspection or strata-records "
+            "review requested. AUSTRAC has flagged real-estate value-shifting as a Tranche 2 "
+            "priority typology in its 2025 sector briefing."
+        ),
+        "analyst_notes": (
+            "This is the firm's first SMR under the Tranche 2 obligations (effective for legal "
+            "practitioners from 2026 per the AML/CTF Amendment Act 2024). Firm's senior partner "
+            "and AML/CTF Compliance Officer reviewed jointly. UBO due diligence: HK ICAC press "
+            "release of 2026-03-22 names Mr Chan Ka-Lok in a public-procurement corruption "
+            "investigation; firm became aware only after settlement when conducting closing review. "
+            "Source-of-wealth gap remains unresolved despite three written requests to UBO. "
+            "Activity is consistent with potential proceeds-of-corruption being invested in "
+            "Australian residential real estate. Although settlement has occurred, the SMR "
+            "obligation under s.41 has crystallised. Tipping-off restrictions per s.123 strictly "
+            "observed in all UBO communications. Recommend retrospective SMR + internal escalation "
+            "to firm's risk committee + legal-professional-privilege carve-out review."
+        ),
+    },
 }
 
 # Default sample for fallback (when jurisdiction not yet in SAMPLE_CASES)
@@ -577,6 +671,20 @@ SAMPLE_FILING_METADATAS = {
         "input_prepared_by": "Sarah O'Brien, Compliance Manager",
         "input_mlro_signoff": "James Patterson, AML/CTF Compliance Officer",
         "input_entity_category": "Digital currency exchange (DCE)",
+    },
+    "Australia (AUSTRAC SMR) — Casino chip-walking": {
+        "input_reporting_institution": "Sydney Harbour Casino Pty Ltd (AUSTRAC-registered casino operator)",
+        "input_str_reference": "SMR-AU-CSO-2026-04-1247",
+        "input_prepared_by": "Emma Whitfield, Senior AML Analyst",
+        "input_mlro_signoff": "Damien Schultz, AML/CTF Compliance Officer",
+        "input_entity_category": "Gambling service provider — casino / wagering / bookmaker",
+    },
+    "Australia (AUSTRAC SMR) — Tranche 2 real estate cash buyer": {
+        "input_reporting_institution": "Demo Lawyers Sydney (Tranche 2 reporting entity from 2026)",
+        "input_str_reference": "SMR-AU-T2-2026-04-0007",
+        "input_prepared_by": "Olivia Chen, Senior Associate (AML/Conveyancing)",
+        "input_mlro_signoff": "Priya Sharma, Partner & AML/CTF Compliance Officer",
+        "input_entity_category": "Solicitor (Tranche 2 — from 2026)",
     },
 }
 
