@@ -311,6 +311,40 @@ st.markdown(
     section[data-testid="stSidebar"] .block-container {
         padding-top: 2rem;
     }
+
+    /* Make the collapsed-sidebar expand button highly visible.
+       Streamlit's default chevron is small and easy to miss. */
+    [data-testid="collapsedControl"] {
+        background-color: #1e40af !important;
+        border-radius: 8px !important;
+        padding: 0.5rem !important;
+        margin: 0.75rem !important;
+        box-shadow: 0 2px 8px rgba(30, 64, 175, 0.35) !important;
+        transition: all 0.15s ease-in-out !important;
+        z-index: 999 !important;
+    }
+    [data-testid="collapsedControl"]:hover {
+        background-color: #1e3a8a !important;
+        transform: scale(1.08) !important;
+        box-shadow: 0 4px 14px rgba(30, 64, 175, 0.5) !important;
+    }
+    [data-testid="collapsedControl"] svg,
+    [data-testid="collapsedControl"] path {
+        color: #ffffff !important;
+        fill: #ffffff !important;
+        stroke: #ffffff !important;
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    /* Sidebar's own collapse button (visible when sidebar is open) */
+    [data-testid="stSidebarCollapseButton"] button {
+        background-color: rgba(30, 64, 175, 0.1) !important;
+        border-radius: 6px !important;
+    }
+    [data-testid="stSidebarCollapseButton"] button:hover {
+        background-color: rgba(30, 64, 175, 0.2) !important;
+    }
 </style>
 """,
     unsafe_allow_html=True,
