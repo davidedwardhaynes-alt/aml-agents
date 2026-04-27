@@ -5,6 +5,8 @@ Not suitable for production multi-tenant deployment. For that, migrate to
 Supabase Auth or similar service-backed identity provider.
 """
 
+from __future__ import annotations  # Python 3.9 compatibility for `str | None`
+
 from pathlib import Path
 from typing import Any
 
