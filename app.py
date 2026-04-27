@@ -1668,15 +1668,25 @@ with tab_horizon:
         "Filter by jurisdiction. Items are colour-coded by impact level."
     )
 
-    horizon_jur = st.selectbox(
-        "Filter by jurisdiction",
-        ["All jurisdictions"] + list(RUBRICS.keys()),
-        key="horizon_jur_filter",
-    )
+    horizon_filter_col1, horizon_filter_col2 = st.columns(2)
+    with horizon_filter_col1:
+        horizon_jur = st.selectbox(
+            "Filter by jurisdiction",
+            ["All jurisdictions"] + list(RUBRICS.keys()),
+            key="horizon_jur_filter",
+        )
+    with horizon_filter_col2:
+        horizon_cat = st.selectbox(
+            "Filter by category",
+            ["All categories", "Regulatory", "Enforcement", "Industry", "Typology", "Sanctions"],
+            key="horizon_cat_filter",
+        )
 
     items = items_for_jurisdiction(
         None if horizon_jur == "All jurisdictions" else horizon_jur
     )
+    if horizon_cat != "All categories":
+        items = [i for i in items if i.category == horizon_cat]
 
     if not items:
         st.info("No items match your filter.")
@@ -1693,7 +1703,7 @@ with tab_horizon:
                     st.markdown(
                         f"**{item.title}**  \n"
                         f'<small style="color: #64748b;">'
-                        f"{item.date}  ·  {item.jurisdiction}  ·  Source: {item.source}"
+                        f"{item.date}  ·  {item.jurisdiction}  ·  {item.category}  ·  Source: {item.source}"
                         f"</small>",
                         unsafe_allow_html=True,
                     )
