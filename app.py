@@ -1667,8 +1667,43 @@ with tab_draft:
                     "What you reviewed, found, confirmed, could not verify. "
                     "Customer's explanation if obtained, and your assessment of plausibility."
                 ),
-                height=380,
+                height=320,
             )
+
+            # Adverse media findings — separate input so the model treats them
+            # as analyst-stated facts ([A]) tied to a verifiable source.
+            st.text_area(
+                "Adverse media findings (optional)",
+                key="input_adverse_media",
+                placeholder=(
+                    "Document any adverse media hits — source publication, date, headline, "
+                    "URL. e.g. 'Sin Chew Daily 2026-03-22: customer named in junket-licensing "
+                    "investigation. URL: ...'"
+                ),
+                height=110,
+                help=(
+                    "Production roadmap: integrated adverse-media API (ComplyAdvantage, "
+                    "Refinitiv, Dow Jones). For v0, paste findings manually."
+                ),
+            )
+
+            # Adverse media supporting documents (article PDFs, screenshots)
+            st.markdown(
+                '<div style="font-size: 0.78rem; font-weight: 600; color: #475569; '
+                'margin: 0.4rem 0 0.3rem 0;">Adverse media documents (optional)</div>',
+                unsafe_allow_html=True,
+            )
+            adverse_docs = st.file_uploader(
+                "Attach adverse media articles, court filings, regulator press releases, etc.",
+                accept_multiple_files=True,
+                type=["pdf", "png", "jpg", "jpeg", "html", "txt"],
+                key="input_adverse_docs",
+                label_visibility="collapsed",
+            )
+            if adverse_docs:
+                for doc in adverse_docs:
+                    st.caption(f"Attached: {doc.name} ({doc.size:,} bytes)")
+
             st.selectbox(
                 "Recommended action",
                 ["File STR", "No further action", "Enhanced monitoring", "Account closure"],
@@ -1697,6 +1732,16 @@ with tab_draft:
         alert_source = st.session_state.get("input_alert_source", "Internal transaction monitoring")
         ts_risk_score = st.session_state.get("input_ts_risk_score", 0)
         ts_risk_band = "Low" if ts_risk_score < 40 else ("Medium" if ts_risk_score < 70 else "High")
+        adverse_media = st.session_state.get("input_adverse_media", "")
+        # Document name lists for prompt context (content extraction is v1)
+        supporting_docs_list = (
+            ", ".join(d.name for d in (st.session_state.get("input_supporting_docs") or []))
+            or "[none attached]"
+        )
+        adverse_docs_list = (
+            ", ".join(d.name for d in (st.session_state.get("input_adverse_docs") or []))
+            or "[none attached]"
+        )
         if entity_category == "— Select —":
             entity_category = "[not provided]"
 
@@ -1734,6 +1779,13 @@ with tab_draft:
 
     [ANALYST NOTES]
     {analyst_notes or '[not provided]'}
+
+    [ADVERSE MEDIA]
+    {adverse_media or '[none documented by analyst]'}
+
+    [SUPPORTING DOCUMENTS REVIEWED]
+    Customer documents: {supporting_docs_list}
+    Adverse-media documents: {adverse_docs_list}
 
     [RECOMMENDATION]
     {recommendation}
@@ -1778,6 +1830,37 @@ with tab_draft:
             st.caption(
                 f"Opens the {portal_name} filing system in a new tab. "
                 "You'll need your institution's credentials to authenticate."
+            )
+
+            # Email forward — generates a mailto link with pre-filled subject + body.
+            # Note: browsers cannot auto-attach the PDF via mailto; user must
+            # download the PDF and drag-and-drop into their email client.
+            from urllib.parse import quote as _urlquote
+            _subject = f"STR draft for review — {str_reference or 'Untitled'} — {customer_name or 'Subject'}"
+            _body = (
+                f"Please review the attached STR draft for filing readiness.\n\n"
+                f"Reporting Institution: {reporting_institution or 'N/A'}\n"
+                f"Subject: {customer_name or 'N/A'}\n"
+                f"STR Reference: {str_reference or 'N/A'}\n"
+                f"Jurisdiction: {jurisdiction}\n"
+                f"Recommended action: {recommendation}\n\n"
+                f"Note: Please save the PDF locally and attach to this email "
+                f"(browsers cannot auto-attach via mailto).\n\n"
+                f"-- Drafted via AML Agents"
+            )
+            mailto_url = f"mailto:?subject={_urlquote(_subject)}&body={_urlquote(_body)}"
+            st.markdown(
+                f'<div style="margin-top: 0.75rem; margin-bottom: 0.5rem;">'
+                f'<a href="{mailto_url}" style="display: block; background: #475569; '
+                f'color: white; padding: 0.7rem 1.2rem; border-radius: 6px; '
+                f'text-decoration: none; font-weight: 500; text-align: center;">'
+                f'Email this STR (opens your mail client) →</a></div>',
+                unsafe_allow_html=True,
+            )
+            st.caption(
+                "**Important**: most regulators (STRO, JFIU, FIED, AUSTRAC) do **not** accept STRs "
+                "by email — formal filing must use the official portal above. Email forward is for "
+                "internal review only (e.g. send to your MLRO before filing)."
             )
 
             # Download buttons — three formats
