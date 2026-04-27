@@ -29,7 +29,11 @@
 - **Terrorism financing: file immediately** (TSOFA s.8) — and freeze the funds
 
 ### Filing channel
-**STRO Online** — secure portal operated by Singapore Police Force / Suspicious Transaction Reporting Office. Electronic filing only; paper by exception.
+**SONAR — Suspicious Transaction Online Notification And Reporting**, operated by Singapore Police Force / Suspicious Transaction Reporting Office.
+
+- Authentication via **Corppass** (for businesses / reporting institutions) or **SingPass** (for individuals).
+- Electronic filing only; paper filing accepted only by exception.
+- The reporting institution's MLRO (or designated officer) typically holds the Corppass role for STR submission.
 
 ### Required content
 1. Identity of subject and connected parties (incl. beneficial owners)
@@ -61,8 +65,10 @@ The customer may be told that an account is restricted or closed for "compliance
 ### Useful resources
 
 **Filing & FIU**
-- [STRO portal — file an STR](https://www.police.gov.sg/sonline) — Singapore Police Force STRO Online
-- [STRO landing page](https://www.police.gov.sg/Advisories/Crime/Commercial-Crimes/Suspicious-Transaction-Reporting-Office)
+- [SONAR — STR filing system](https://eservices.police.gov.sg/sonar) — login required (Corppass / SingPass)
+- [Corppass — authenticate as a reporting institution](https://www.corppass.gov.sg) — required to access SONAR for businesses
+- [SingPass — individual authentication](https://www.singpass.gov.sg) — alternative login route
+- [STRO official page](https://www.police.gov.sg/Advisories/Commercial-Crimes/Suspicious-Transaction-Reporting-Office/Suspicious-Transaction-Reporting) — overview, FAQs, contacts
 - [Commercial Affairs Department (CAD)](https://www.police.gov.sg/About-Us/Organisational-Structure/Specialist-Staff-Departments/Commercial-Affairs-Department) — STRO sits within CAD
 
 **Regulator (MAS)**
