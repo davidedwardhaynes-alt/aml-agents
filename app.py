@@ -8,7 +8,9 @@ from dotenv import load_dotenv
 
 from lib.sanctions import classify_match, search_sanctions, summarize_entity
 
-load_dotenv()
+# override=True ensures .env changes are picked up on every Streamlit rerun
+# (without needing a full server restart). Critical for API key updates.
+load_dotenv(override=True)
 
 ROOT = Path(__file__).parent
 RUBRICS = {
@@ -577,16 +579,28 @@ with col1:
 
                 for h in hits:
                     klass = classify_match(h["score"])
-                    badge = {"high": "🔴", "medium": "🟡", "low": "⚪"}[klass]
-                    with st.expander(
-                        f"{badge}  {h['caption']}  ·  score {h['score']:.2f}  ·  {h['schema']}",
-                        expanded=(klass == "high"),
-                    ):
+                    risk_label = {"high": "HIGH", "medium": "MEDIUM", "low": "LOW"}[klass]
+                    target_label = "SANCTIONED" if h["target"] else "PEP / RCA / other"
+                    expander_title = (
+                        f"[{risk_label}]  {h['caption']}  ·  "
+                        f"score {h['score']:.2f}  ·  {h['schema']}  ·  {target_label}"
+                    )
+                    with st.expander(expander_title, expanded=(klass == "high")):
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            st.markdown(f"**Match score:** {h['score']:.2f}")
+                            st.markdown(
+                                f"**OpenSanctions match flag:** {'Yes' if h['match'] else 'No'}"
+                            )
+                            st.markdown(
+                                f"**Sanctions target:** {'Yes (currently sanctioned)' if h['target'] else 'No'}"
+                            )
+                        with col_b:
+                            st.markdown(f"**Country:** {h['country']}")
+                            st.markdown(f"**Topics:** {h['topics']}")
                         st.markdown(f"**Datasets:** {h['datasets']}")
-                        st.markdown(f"**Topics:** {h['topics']}")
-                        st.markdown(f"**Country:** {h['country']}")
                         if h["url"]:
-                            st.markdown(f"[View on OpenSanctions →]({h['url']})")
+                            st.markdown(f"[View full record on OpenSanctions →]({h['url']})")
 
         st.text_area(
             "KYC summary",

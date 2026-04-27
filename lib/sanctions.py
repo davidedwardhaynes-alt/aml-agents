@@ -18,11 +18,17 @@ OPENSANCTIONS_BASE = "https://api.opensanctions.org"
 
 
 def search_sanctions(query: str, limit: int = 5) -> dict[str, Any]:
-    """Search OpenSanctions for entities matching a name query.
+    """Match a name against OpenSanctions for AML screening.
+
+    Uses the /match/default endpoint which is purpose-built for entity resolution
+    with confidence scores (vs /search which is keyword-based, no scores).
+
+    Queries the name as both Person and Organization since the customer name field
+    can hold either a natural person or a legal entity.
 
     Returns:
-        results — list of matched entities (caption, score, schema, datasets, properties)
-        total — total matches in the corpus
+        results — list of matched entities, deduped by id, sorted by score desc
+        total — number of unique matches returned
         error — present only if the request failed
         api_key_required — True if a 401 was returned (no/invalid key)
     """
@@ -34,13 +40,30 @@ def search_sanctions(query: str, limit: int = 5) -> dict[str, Any]:
     if not api_key:
         return {"results": [], "total": 0, "api_key_required": True}
 
-    headers = {"Authorization": f"ApiKey {api_key}"}
+    headers = {
+        "Authorization": f"ApiKey {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "queries": {
+            "person": {
+                "schema": "Person",
+                "properties": {"name": [query]},
+            },
+            "org": {
+                "schema": "Organization",
+                "properties": {"name": [query]},
+            },
+        }
+    }
 
     try:
-        with httpx.Client(timeout=10.0) as client:
-            response = client.get(
-                f"{OPENSANCTIONS_BASE}/search/default",
-                params={"q": query, "limit": limit},
+        with httpx.Client(timeout=15.0) as client:
+            response = client.post(
+                f"{OPENSANCTIONS_BASE}/match/default",
+                params={"limit": limit},
+                json=payload,
                 headers=headers,
             )
 
@@ -49,14 +72,24 @@ def search_sanctions(query: str, limit: int = 5) -> dict[str, Any]:
         response.raise_for_status()
         data = response.json()
 
-        results = data.get("results", [])
-        total_field = data.get("total", {})
-        if isinstance(total_field, dict):
-            total_count = total_field.get("value", len(results))
-        else:
-            total_count = int(total_field) if total_field else len(results)
+        # Merge results from both Person and Organization queries
+        unique: dict[str, dict] = {}
+        for query_response in data.get("responses", {}).values():
+            for r in query_response.get("results", []):
+                rid = r.get("id")
+                if not rid:
+                    continue
+                # Keep the highest-scoring result for each unique entity
+                if rid not in unique or (r.get("score") or 0) > (unique[rid].get("score") or 0):
+                    unique[rid] = r
 
-        return {"results": results, "total": total_count}
+        results = sorted(
+            unique.values(),
+            key=lambda x: x.get("score") or 0,
+            reverse=True,
+        )[:limit]
+
+        return {"results": results, "total": len(results)}
 
     except httpx.HTTPError as e:
         return {"results": [], "total": 0, "error": str(e)}
@@ -71,7 +104,7 @@ def classify_match(score: float) -> str:
     return "low"
 
 
-def summarize_entity(entity: dict[str, Any]) -> dict[str, str]:
+def summarize_entity(entity: dict[str, Any]) -> dict[str, Any]:
     """Pull out the fields most useful for a quick analyst review."""
     props = entity.get("properties", {}) or {}
     return {
@@ -79,7 +112,9 @@ def summarize_entity(entity: dict[str, Any]) -> dict[str, str]:
         "schema": entity.get("schema") or "Entity",
         "datasets": ", ".join(entity.get("datasets", [])[:4]) or "—",
         "score": float(entity.get("score") or 0.0),
-        "topics": ", ".join(props.get("topics", [])[:3]) or "—",
+        "match": bool(entity.get("match")),
+        "target": bool(entity.get("target")),
+        "topics": ", ".join(props.get("topics", [])[:4]) or "—",
         "country": ", ".join(props.get("country", [])[:3]) or "—",
         "url": f"https://www.opensanctions.org/entities/{entity.get('id', '')}/" if entity.get("id") else "",
     }
