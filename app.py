@@ -17,6 +17,15 @@ from auth.users import (
     save_config,
     update_user_profile,
 )
+from lib.connectors import by_category as connectors_by_category
+from lib.horizon import items_for_jurisdiction
+from lib.obligations import (
+    STATUSES,
+    add_obligation,
+    delete_obligation,
+    load_obligations,
+    update_obligation,
+)
 from lib.sanctions import classify_match, search_sanctions, summarize_entity
 
 # override=True ensures .env changes are picked up on every Streamlit rerun
@@ -1132,347 +1141,580 @@ with st.container(border=True):
 jurisdiction = st.session_state["jurisdiction"]
 model = st.session_state["model"]
 
-# Jurisdiction guidance panel — collapsible, jurisdiction-aware
-guidance_path = GUIDANCE.get(jurisdiction)
-if guidance_path and guidance_path.exists():
-    with st.expander(f"Filing guidance — {jurisdiction}", expanded=False):
-        st.markdown(guidance_path.read_text())
+# ============================================================================
+# Top-level tabs — Draft STR / Connectors / Obligation register / Horizon scanning
+# ============================================================================
+tab_draft, tab_connectors, tab_obligations, tab_horizon = st.tabs(
+    ["Draft STR", "Connectors", "Obligation register", "Horizon scanning"]
+)
 
-# Filing metadata — case header fields (reporting entity, STR ref, sign-off)
-st.markdown('<div class="section-label">Filing metadata</div>', unsafe_allow_html=True)
-with st.container(border=True):
-    # Entity category dropdown — driven by selected jurisdiction
-    categories = ENTITY_CATEGORIES.get(jurisdiction, ["— Select —"])
-    # If session state holds a category not valid for the new jurisdiction, reset
-    current_cat = st.session_state.get("input_entity_category", "— Select —")
-    if current_cat not in categories:
-        st.session_state["input_entity_category"] = "— Select —"
+with tab_draft:
+    # Jurisdiction guidance panel — collapsible, jurisdiction-aware
+    guidance_path = GUIDANCE.get(jurisdiction)
+    if guidance_path and guidance_path.exists():
+        with st.expander(f"Filing guidance — {jurisdiction}", expanded=False):
+            st.markdown(guidance_path.read_text())
 
-    st.selectbox(
-        "Reporting Entity Category",
-        categories,
-        key="input_entity_category",
-        help=(
-            "Pick the category that matches your institution's licensing under "
-            "the selected jurisdiction. Drives sectoral-notice context in the narrative."
-        ),
-    )
-
-    meta_col1, meta_col2 = st.columns(2, gap="large")
-    with meta_col1:
-        st.text_input(
-            "Reporting Institution",
-            key="input_reporting_institution",
-            placeholder="e.g. ACME Bank Singapore Pte Ltd (MAS-licensed)",
-            help="Set DEFAULT_REPORTING_INSTITUTION in .env to pre-fill across cases.",
-        )
-        st.text_input(
-            "STR Reference",
-            key="input_str_reference",
-            placeholder="e.g. STR-2026-04-0042",
-        )
-        st.date_input(
-            "Date of Filing",
-            key="input_date_of_filing",
-        )
-    with meta_col2:
-        st.text_input(
-            "Prepared by (analyst)",
-            key="input_prepared_by",
-            placeholder="e.g. Lim Wei Ling, Senior Compliance Analyst",
-            help="Set DEFAULT_ANALYST_NAME in .env to pre-fill.",
-        )
-        st.text_input(
-            "MLRO Sign-off",
-            key="input_mlro_signoff",
-            placeholder="e.g. Tan Boon Heng, MLRO",
-            help="Set DEFAULT_MLRO_NAME in .env to pre-fill.",
-        )
-
-# Input form
-col1, col2 = st.columns(2, gap="large")
-
-with col1:
-    st.markdown('<div class="section-label">Subject</div>', unsafe_allow_html=True)
+    # Filing metadata — case header fields (reporting entity, STR ref, sign-off)
+    st.markdown('<div class="section-label">Filing metadata</div>', unsafe_allow_html=True)
     with st.container(border=True):
-        st.text_input(
-            "Customer name",
-            key="input_customer_name",
-            placeholder="e.g. ACME Trading Pte Ltd",
-        )
-        st.text_input(
-            "Customer ID / Account",
-            key="input_customer_id",
-            placeholder="e.g. A123456789",
+        # Entity category dropdown — driven by selected jurisdiction
+        categories = ENTITY_CATEGORIES.get(jurisdiction, ["— Select —"])
+        # If session state holds a category not valid for the new jurisdiction, reset
+        current_cat = st.session_state.get("input_entity_category", "— Select —")
+        if current_cat not in categories:
+            st.session_state["input_entity_category"] = "— Select —"
+
+        st.selectbox(
+            "Reporting Entity Category",
+            categories,
+            key="input_entity_category",
+            help=(
+                "Pick the category that matches your institution's licensing under "
+                "the selected jurisdiction. Drives sectoral-notice context in the narrative."
+            ),
         )
 
-        # Sanctions / PEP / watchlist screening
-        current_name = st.session_state.get("input_customer_name", "")
-        screen_btn_col, _ = st.columns([1, 1])
-        with screen_btn_col:
-            screen = st.button(
-                "Screen against sanctions / PEP lists",
-                use_container_width=True,
-                disabled=len(current_name.strip()) < 3,
-                help="Searches OpenSanctions (UN, OFAC, EU, UK HMT, MAS, AUSTRAC, and 200+ other lists, plus PEPs).",
+        meta_col1, meta_col2 = st.columns(2, gap="large")
+        with meta_col1:
+            st.text_input(
+                "Reporting Institution",
+                key="input_reporting_institution",
+                placeholder="e.g. ACME Bank Singapore Pte Ltd (MAS-licensed)",
+                help="Set DEFAULT_REPORTING_INSTITUTION in .env to pre-fill across cases.",
+            )
+            st.text_input(
+                "STR Reference",
+                key="input_str_reference",
+                placeholder="e.g. STR-2026-04-0042",
+            )
+            st.date_input(
+                "Date of Filing",
+                key="input_date_of_filing",
+            )
+        with meta_col2:
+            st.text_input(
+                "Prepared by (analyst)",
+                key="input_prepared_by",
+                placeholder="e.g. Lim Wei Ling, Senior Compliance Analyst",
+                help="Set DEFAULT_ANALYST_NAME in .env to pre-fill.",
+            )
+            st.text_input(
+                "MLRO Sign-off",
+                key="input_mlro_signoff",
+                placeholder="e.g. Tan Boon Heng, MLRO",
+                help="Set DEFAULT_MLRO_NAME in .env to pre-fill.",
             )
 
-        if screen:
-            with st.spinner("Searching OpenSanctions…"):
-                result = search_sanctions(current_name)
-            st.session_state["screening_result"] = result
-            st.session_state["screening_query"] = current_name
+    # Input form
+    col1, col2 = st.columns(2, gap="large")
 
-        # Show screening results if they match the current name
-        if (
-            "screening_result" in st.session_state
-            and st.session_state.get("screening_query") == current_name
-            and current_name.strip()
-        ):
-            sr = st.session_state["screening_result"]
-            if sr.get("api_key_required"):
-                st.warning(
-                    "**OpenSanctions API key required.** "
-                    "Register free at [opensanctions.org/account/login](https://www.opensanctions.org/account/login), "
-                    "copy your API key, then add this line to `~/dev/amlagents/.env`:  \n"
-                    "`OPENSANCTIONS_API_KEY=your-key-here`  \n"
-                    "Then restart the app."
-                )
-            elif "error" in sr:
-                st.warning(f"Screening service unavailable: {sr['error']}")
-            elif sr["total"] == 0:
-                st.success(
-                    f"No matches found in OpenSanctions for '{current_name}'. "
-                    "Searched 200+ sanctions, PEP, and watchlist sources."
-                )
-            else:
-                hits = [summarize_entity(r) for r in sr["results"]]
-                top_score = max(h["score"] for h in hits)
-                top_class = classify_match(top_score)
+    with col1:
+        st.markdown('<div class="section-label">Subject</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.text_input(
+                "Customer name",
+                key="input_customer_name",
+                placeholder="e.g. ACME Trading Pte Ltd",
+            )
+            st.text_input(
+                "Customer ID / Account",
+                key="input_customer_id",
+                placeholder="e.g. A123456789",
+            )
 
-                if top_class == "high":
-                    st.error(
-                        f"**HIGH-CONFIDENCE MATCH** — {len(hits)} result(s), "
-                        f"top score {top_score:.2f}. Review before proceeding."
-                    )
-                elif top_class == "medium":
+            # Sanctions / PEP / watchlist screening
+            current_name = st.session_state.get("input_customer_name", "")
+            screen_btn_col, _ = st.columns([1, 1])
+            with screen_btn_col:
+                screen = st.button(
+                    "Screen against sanctions / PEP lists",
+                    use_container_width=True,
+                    disabled=len(current_name.strip()) < 3,
+                    help="Searches OpenSanctions (UN, OFAC, EU, UK HMT, MAS, AUSTRAC, and 200+ other lists, plus PEPs).",
+                )
+
+            if screen:
+                with st.spinner("Searching OpenSanctions…"):
+                    result = search_sanctions(current_name)
+                st.session_state["screening_result"] = result
+                st.session_state["screening_query"] = current_name
+
+            # Show screening results if they match the current name
+            if (
+                "screening_result" in st.session_state
+                and st.session_state.get("screening_query") == current_name
+                and current_name.strip()
+            ):
+                sr = st.session_state["screening_result"]
+                if sr.get("api_key_required"):
                     st.warning(
-                        f"**Possible match** — {len(hits)} result(s), "
-                        f"top score {top_score:.2f}. Likely worth investigating."
+                        "**OpenSanctions API key required.** "
+                        "Register free at [opensanctions.org/account/login](https://www.opensanctions.org/account/login), "
+                        "copy your API key, then add this line to `~/dev/amlagents/.env`:  \n"
+                        "`OPENSANCTIONS_API_KEY=your-key-here`  \n"
+                        "Then restart the app."
+                    )
+                elif "error" in sr:
+                    st.warning(f"Screening service unavailable: {sr['error']}")
+                elif sr["total"] == 0:
+                    st.success(
+                        f"No matches found in OpenSanctions for '{current_name}'. "
+                        "Searched 200+ sanctions, PEP, and watchlist sources."
                     )
                 else:
-                    st.info(
-                        f"{len(hits)} low-confidence match(es), top score "
-                        f"{top_score:.2f}. Likely false positives but review."
-                    )
+                    hits = [summarize_entity(r) for r in sr["results"]]
+                    top_score = max(h["score"] for h in hits)
+                    top_class = classify_match(top_score)
 
-                for h in hits:
-                    klass = classify_match(h["score"])
-                    risk_label = {"high": "HIGH", "medium": "MEDIUM", "low": "LOW"}[klass]
-                    target_label = "SANCTIONED" if h["target"] else "PEP / RCA / other"
-                    expander_title = (
-                        f"[{risk_label}]  {h['caption']}  ·  "
-                        f"score {h['score']:.2f}  ·  {h['schema']}  ·  {target_label}"
-                    )
-                    with st.expander(expander_title, expanded=(klass == "high")):
-                        col_a, col_b = st.columns(2)
-                        with col_a:
-                            st.markdown(f"**Match score:** {h['score']:.2f}")
-                            st.markdown(
-                                f"**OpenSanctions match flag:** {'Yes' if h['match'] else 'No'}"
-                            )
-                            st.markdown(
-                                f"**Sanctions target:** {'Yes (currently sanctioned)' if h['target'] else 'No'}"
-                            )
-                        with col_b:
-                            st.markdown(f"**Country:** {h['country']}")
-                            st.markdown(f"**Topics:** {h['topics']}")
-                        st.markdown(f"**Datasets:** {h['datasets']}")
-                        if h["url"]:
-                            st.markdown(f"[View full record on OpenSanctions →]({h['url']})")
+                    if top_class == "high":
+                        st.error(
+                            f"**HIGH-CONFIDENCE MATCH** — {len(hits)} result(s), "
+                            f"top score {top_score:.2f}. Review before proceeding."
+                        )
+                    elif top_class == "medium":
+                        st.warning(
+                            f"**Possible match** — {len(hits)} result(s), "
+                            f"top score {top_score:.2f}. Likely worth investigating."
+                        )
+                    else:
+                        st.info(
+                            f"{len(hits)} low-confidence match(es), top score "
+                            f"{top_score:.2f}. Likely false positives but review."
+                        )
 
-        st.text_area(
-            "KYC summary",
-            key="input_customer_kyc",
-            placeholder="Occupation, source of funds, expected activity, onboarding risk rating",
-            height=110,
-        )
+                    for h in hits:
+                        klass = classify_match(h["score"])
+                        risk_label = {"high": "HIGH", "medium": "MEDIUM", "low": "LOW"}[klass]
+                        target_label = "SANCTIONED" if h["target"] else "PEP / RCA / other"
+                        expander_title = (
+                            f"[{risk_label}]  {h['caption']}  ·  "
+                            f"score {h['score']:.2f}  ·  {h['schema']}  ·  {target_label}"
+                        )
+                        with st.expander(expander_title, expanded=(klass == "high")):
+                            col_a, col_b = st.columns(2)
+                            with col_a:
+                                st.markdown(f"**Match score:** {h['score']:.2f}")
+                                st.markdown(
+                                    f"**OpenSanctions match flag:** {'Yes' if h['match'] else 'No'}"
+                                )
+                                st.markdown(
+                                    f"**Sanctions target:** {'Yes (currently sanctioned)' if h['target'] else 'No'}"
+                                )
+                            with col_b:
+                                st.markdown(f"**Country:** {h['country']}")
+                                st.markdown(f"**Topics:** {h['topics']}")
+                            st.markdown(f"**Datasets:** {h['datasets']}")
+                            if h["url"]:
+                                st.markdown(f"[View full record on OpenSanctions →]({h['url']})")
 
-    st.markdown('<div class="section-label">Triggering activity</div>', unsafe_allow_html=True)
-    with st.container(border=True):
-        st.text_area(
-            "Transactions",
-            key="input_transactions",
-            placeholder="One per line:  date | amount | currency | counterparty | channel",
-            height=130,
-        )
-        st.text_input(
-            "Alert reason",
-            key="input_alert_reason",
-            placeholder="What flagged the case?",
-        )
-        st.text_area(
-            "Red flag indicators",
-            key="input_red_flags",
-            placeholder="Specific indicia observed — map to FATF / STRO typology",
-            height=100,
-        )
-
-with col2:
-    st.markdown('<div class="section-label">Analyst investigation</div>', unsafe_allow_html=True)
-    with st.container(border=True):
-        st.text_area(
-            "Investigation notes",
-            key="input_analyst_notes",
-            placeholder=(
-                "What you reviewed, found, confirmed, could not verify. "
-                "Customer's explanation if obtained, and your assessment of plausibility."
-            ),
-            height=380,
-        )
-        st.selectbox(
-            "Recommended action",
-            ["File STR", "No further action", "Enhanced monitoring", "Account closure"],
-            key="input_recommendation",
-        )
-
-# Generate button
-st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
-generate = st.button("Generate STR narrative", type="primary", use_container_width=True)
-
-if generate:
-    customer_name = st.session_state["input_customer_name"]
-    customer_id = st.session_state["input_customer_id"]
-    customer_kyc = st.session_state["input_customer_kyc"]
-    transactions = st.session_state["input_transactions"]
-    alert_reason = st.session_state["input_alert_reason"]
-    red_flags = st.session_state["input_red_flags"]
-    analyst_notes = st.session_state["input_analyst_notes"]
-    recommendation = st.session_state["input_recommendation"]
-    reporting_institution = st.session_state["input_reporting_institution"]
-    entity_category = st.session_state["input_entity_category"]
-    str_reference = st.session_state["input_str_reference"]
-    prepared_by = st.session_state["input_prepared_by"]
-    mlro_signoff = st.session_state["input_mlro_signoff"]
-    date_of_filing = st.session_state["input_date_of_filing"]
-    if entity_category == "— Select —":
-        entity_category = "[not provided]"
-
-    rubric_path = RUBRICS[jurisdiction]
-
-    if rubric_path is None or not rubric_path.exists():
-        st.error(f"Rubric for {jurisdiction} not yet implemented. v0 supports Singapore (STRO) only.")
-    elif not (customer_name or analyst_notes or transactions):
-        st.warning("Provide at least one of: customer name, transactions, or analyst notes.")
-    elif not os.getenv("ANTHROPIC_API_KEY"):
-        st.error("ANTHROPIC_API_KEY not set. Edit ~/dev/amlagents/.env and restart the app.")
-    else:
-        rubric = rubric_path.read_text()
-        user_input = f"""[FILING METADATA]
-Reporting Institution: {reporting_institution or '[not provided]'}
-Reporting Entity Category: {entity_category}
-STR Reference: {str_reference or '[not provided]'}
-Date of Filing: {date_of_filing.strftime('%Y-%m-%d') if date_of_filing else '[not provided]'}
-Prepared by: {prepared_by or '[not provided]'}
-MLRO Sign-off: {mlro_signoff or '[not provided]'}
-
-[SUBJECT]
-Name: {customer_name or '[not provided]'}
-ID: {customer_id or '[not provided]'}
-KYC: {customer_kyc or '[not provided]'}
-
-[TRANSACTIONS]
-{transactions or '[not provided]'}
-
-[ALERT]
-Reason: {alert_reason or '[not provided]'}
-Red flags: {red_flags or '[not provided]'}
-
-[ANALYST NOTES]
-{analyst_notes or '[not provided]'}
-
-[RECOMMENDATION]
-{recommendation}
-
-Draft the STR narrative following the rubric. Use only facts stated in the inputs. Never fabricate."""
-
-        client = Anthropic()
-
-        with st.spinner("Drafting narrative…"):
-            response = client.messages.create(
-                model=model,
-                max_tokens=2000,
-                system=[
-                    {
-                        "type": "text",
-                        "text": rubric,
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
-                messages=[{"role": "user", "content": user_input}],
+            st.text_area(
+                "KYC summary",
+                key="input_customer_kyc",
+                placeholder="Occupation, source of funds, expected activity, onboarding risk rating",
+                height=110,
             )
 
-        narrative = response.content[0].text
-
-        st.markdown('<div class="output-label">Generated narrative</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">Triggering activity</div>', unsafe_allow_html=True)
         with st.container(border=True):
-            st.markdown(narrative)
-
-        # Direct filing-portal link — high-impact UX so analysts jump straight
-        # to the FIU's filing system after reviewing the draft narrative.
-        portal_name, portal_url = FILING_PORTALS.get(jurisdiction, ("FIU portal", "#"))
-        st.markdown(
-            f'<div style="margin-top: 1rem; margin-bottom: 0.5rem;">'
-            f'<a href="{portal_url}" target="_blank" '
-            f'style="display: block; background: #1e40af; color: white; '
-            f'padding: 0.85rem 1.5rem; border-radius: 8px; text-decoration: none; '
-            f'font-weight: 600; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">'
-            f'File this STR via {portal_name} →'
-            f'</a></div>',
-            unsafe_allow_html=True,
-        )
-        st.caption(
-            f"Opens the {portal_name} filing system in a new tab. "
-            "You'll need your institution's credentials to authenticate."
-        )
-
-        # Download buttons — three formats
-        col_a, col_b, col_c, col_d = st.columns([1, 1, 1, 2])
-        with col_a:
-            st.download_button(
-                "Download .txt",
-                data=narrative,
-                file_name=f"STR_{customer_id or 'draft'}.txt",
-                mime="text/plain",
-                use_container_width=True,
+            st.text_area(
+                "Transactions",
+                key="input_transactions",
+                placeholder="One per line:  date | amount | currency | counterparty | channel",
+                height=130,
             )
-        with col_b:
-            st.download_button(
-                "Download .md",
-                data=narrative,
-                file_name=f"STR_{customer_id or 'draft'}.md",
-                mime="text/markdown",
-                use_container_width=True,
+            st.text_input(
+                "Alert reason",
+                key="input_alert_reason",
+                placeholder="What flagged the case?",
             )
-        with col_c:
-            pdf_bytes = narrative_to_pdf(
-                narrative,
-                str_reference or f"STR-{date_of_filing}",
-                reporting_institution,
-                jurisdiction,
-            )
-            st.download_button(
-                "Download .pdf",
-                data=pdf_bytes,
-                file_name=f"STR_{customer_id or 'draft'}.pdf",
-                mime="application/pdf",
-                use_container_width=True,
+            st.text_area(
+                "Red flag indicators",
+                key="input_red_flags",
+                placeholder="Specific indicia observed — map to FATF / STRO typology",
+                height=100,
             )
 
-        usage = response.usage
-        cache_read = getattr(usage, "cache_read_input_tokens", 0)
-        cache_write = getattr(usage, "cache_creation_input_tokens", 0)
-        st.caption(
-            f"Tokens — input {usage.input_tokens:,} · output {usage.output_tokens:,} · "
-            f"cache read {cache_read:,} · cache write {cache_write:,}"
+    with col2:
+        st.markdown('<div class="section-label">Analyst investigation</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.text_area(
+                "Investigation notes",
+                key="input_analyst_notes",
+                placeholder=(
+                    "What you reviewed, found, confirmed, could not verify. "
+                    "Customer's explanation if obtained, and your assessment of plausibility."
+                ),
+                height=380,
+            )
+            st.selectbox(
+                "Recommended action",
+                ["File STR", "No further action", "Enhanced monitoring", "Account closure"],
+                key="input_recommendation",
+            )
+
+    # Generate button
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+    generate = st.button("Generate STR narrative", type="primary", use_container_width=True)
+
+    if generate:
+        customer_name = st.session_state["input_customer_name"]
+        customer_id = st.session_state["input_customer_id"]
+        customer_kyc = st.session_state["input_customer_kyc"]
+        transactions = st.session_state["input_transactions"]
+        alert_reason = st.session_state["input_alert_reason"]
+        red_flags = st.session_state["input_red_flags"]
+        analyst_notes = st.session_state["input_analyst_notes"]
+        recommendation = st.session_state["input_recommendation"]
+        reporting_institution = st.session_state["input_reporting_institution"]
+        entity_category = st.session_state["input_entity_category"]
+        str_reference = st.session_state["input_str_reference"]
+        prepared_by = st.session_state["input_prepared_by"]
+        mlro_signoff = st.session_state["input_mlro_signoff"]
+        date_of_filing = st.session_state["input_date_of_filing"]
+        if entity_category == "— Select —":
+            entity_category = "[not provided]"
+
+        rubric_path = RUBRICS[jurisdiction]
+
+        if rubric_path is None or not rubric_path.exists():
+            st.error(f"Rubric for {jurisdiction} not yet implemented. v0 supports Singapore (STRO) only.")
+        elif not (customer_name or analyst_notes or transactions):
+            st.warning("Provide at least one of: customer name, transactions, or analyst notes.")
+        elif not os.getenv("ANTHROPIC_API_KEY"):
+            st.error("ANTHROPIC_API_KEY not set. Edit ~/dev/amlagents/.env and restart the app.")
+        else:
+            rubric = rubric_path.read_text()
+            user_input = f"""[FILING METADATA]
+    Reporting Institution: {reporting_institution or '[not provided]'}
+    Reporting Entity Category: {entity_category}
+    STR Reference: {str_reference or '[not provided]'}
+    Date of Filing: {date_of_filing.strftime('%Y-%m-%d') if date_of_filing else '[not provided]'}
+    Prepared by: {prepared_by or '[not provided]'}
+    MLRO Sign-off: {mlro_signoff or '[not provided]'}
+
+    [SUBJECT]
+    Name: {customer_name or '[not provided]'}
+    ID: {customer_id or '[not provided]'}
+    KYC: {customer_kyc or '[not provided]'}
+
+    [TRANSACTIONS]
+    {transactions or '[not provided]'}
+
+    [ALERT]
+    Reason: {alert_reason or '[not provided]'}
+    Red flags: {red_flags or '[not provided]'}
+
+    [ANALYST NOTES]
+    {analyst_notes or '[not provided]'}
+
+    [RECOMMENDATION]
+    {recommendation}
+
+    Draft the STR narrative following the rubric. Use only facts stated in the inputs. Never fabricate."""
+
+            client = Anthropic()
+
+            with st.spinner("Drafting narrative…"):
+                response = client.messages.create(
+                    model=model,
+                    max_tokens=2000,
+                    system=[
+                        {
+                            "type": "text",
+                            "text": rubric,
+                            "cache_control": {"type": "ephemeral"},
+                        }
+                    ],
+                    messages=[{"role": "user", "content": user_input}],
+                )
+
+            narrative = response.content[0].text
+
+            st.markdown('<div class="output-label">Generated narrative</div>', unsafe_allow_html=True)
+            with st.container(border=True):
+                st.markdown(narrative)
+
+            # Direct filing-portal link — high-impact UX so analysts jump straight
+            # to the FIU's filing system after reviewing the draft narrative.
+            portal_name, portal_url = FILING_PORTALS.get(jurisdiction, ("FIU portal", "#"))
+            st.markdown(
+                f'<div style="margin-top: 1rem; margin-bottom: 0.5rem;">'
+                f'<a href="{portal_url}" target="_blank" '
+                f'style="display: block; background: #1e40af; color: white; '
+                f'padding: 0.85rem 1.5rem; border-radius: 8px; text-decoration: none; '
+                f'font-weight: 600; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">'
+                f'File this STR via {portal_name} →'
+                f'</a></div>',
+                unsafe_allow_html=True,
+            )
+            st.caption(
+                f"Opens the {portal_name} filing system in a new tab. "
+                "You'll need your institution's credentials to authenticate."
+            )
+
+            # Download buttons — three formats
+            col_a, col_b, col_c, col_d = st.columns([1, 1, 1, 2])
+            with col_a:
+                st.download_button(
+                    "Download .txt",
+                    data=narrative,
+                    file_name=f"STR_{customer_id or 'draft'}.txt",
+                    mime="text/plain",
+                    use_container_width=True,
+                )
+            with col_b:
+                st.download_button(
+                    "Download .md",
+                    data=narrative,
+                    file_name=f"STR_{customer_id or 'draft'}.md",
+                    mime="text/markdown",
+                    use_container_width=True,
+                )
+            with col_c:
+                pdf_bytes = narrative_to_pdf(
+                    narrative,
+                    str_reference or f"STR-{date_of_filing}",
+                    reporting_institution,
+                    jurisdiction,
+                )
+                st.download_button(
+                    "Download .pdf",
+                    data=pdf_bytes,
+                    file_name=f"STR_{customer_id or 'draft'}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                )
+
+            usage = response.usage
+            cache_read = getattr(usage, "cache_read_input_tokens", 0)
+            cache_write = getattr(usage, "cache_creation_input_tokens", 0)
+            st.caption(
+                f"Tokens — input {usage.input_tokens:,} · output {usage.output_tokens:,} · "
+                f"cache read {cache_read:,} · cache write {cache_write:,}"
+            )
+
+
+# ============================================================================
+# Connectors tab — third-party platform catalogue (TM, KYC, sanctions, etc.)
+# ============================================================================
+with tab_connectors:
+    st.markdown('<div class="section-label">Platform connectors</div>', unsafe_allow_html=True)
+    st.markdown(
+        "AML Agents can integrate with the platforms below for transaction-monitoring alert "
+        "ingestion, KYC/EDD data lookup, sanctions / PEP / adverse-media screening, and case "
+        "management. Real integrations are commercial deals negotiated per-customer (each vendor "
+        "has its own API and pricing). Click any tile to learn more or contact us to request a "
+        "specific integration."
+    )
+
+    grouped = connectors_by_category()
+    for category, conns in grouped.items():
+        with st.container(border=True):
+            st.markdown(f"**{category}**")
+            cols = st.columns(2)
+            for i, c in enumerate(conns):
+                with cols[i % 2]:
+                    badge_color = "#10b981" if c.status.startswith("Connected") else "#94a3b8"
+                    st.markdown(
+                        f"""
+<div style="border-left: 3px solid {badge_color}; padding: 0.6rem 0.9rem; margin-bottom: 0.6rem;
+            background: #f8fafc; border-radius: 4px;">
+    <div style="font-weight: 600; color: #0f172a;">
+        <a href="{c.homepage}" target="_blank" style="color: #1e40af; text-decoration: none;">
+            {c.name}
+        </a>
+    </div>
+    <div style="font-size: 0.85rem; color: #475569; margin-top: 0.2rem;">
+        {c.description}
+    </div>
+    <div style="font-size: 0.72rem; color: {badge_color}; margin-top: 0.4rem;
+                font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+        {c.status}
+    </div>
+</div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+
+    st.caption(
+        "Don't see a platform you use? Contact us — most modern AML platforms have "
+        "REST APIs or webhook delivery, and we can usually wire a connector in 1-2 weeks."
+    )
+
+
+# ============================================================================
+# Obligation register tab — track regulatory obligations per institution
+# ============================================================================
+with tab_obligations:
+    st.markdown(
+        '<div class="section-label">Regulatory obligation register</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "Track regulatory obligations across all jurisdictions in one place — annual filings, "
+        "thematic reviews, statute deadlines, sectoral notice attestations. Persistent across "
+        "sessions. Filter by jurisdiction or status."
+    )
+
+    # Filter controls
+    filter_col1, filter_col2 = st.columns(2)
+    with filter_col1:
+        ob_jur_filter = st.selectbox(
+            "Filter by jurisdiction",
+            ["All jurisdictions"] + list(RUBRICS.keys()),
+            key="ob_jur_filter",
         )
+    with filter_col2:
+        ob_status_filter = st.selectbox(
+            "Filter by status",
+            ["All statuses"] + STATUSES,
+            key="ob_status_filter",
+        )
+
+    # Add new obligation
+    with st.expander("Add a new obligation", expanded=False):
+        with st.form("add_obligation_form", clear_on_submit=True):
+            new_title = st.text_input("Title", placeholder="e.g. MAS Notice 626 annual attestation")
+            new_description = st.text_area("Description", height=80)
+            ob_col1, ob_col2 = st.columns(2)
+            with ob_col1:
+                new_jurisdiction = st.selectbox("Jurisdiction", list(RUBRICS.keys()))
+                new_statute = st.text_input(
+                    "Statute / notice reference", placeholder="e.g. MAS Notice 626 §10"
+                )
+                new_due = st.date_input("Due date")
+            with ob_col2:
+                new_status = st.selectbox("Status", STATUSES)
+                new_owner = st.text_input("Owner", placeholder="e.g. MLRO / Head of Compliance")
+                new_notes = st.text_input("Notes (optional)")
+            submitted = st.form_submit_button("Add obligation", type="primary")
+            if submitted and new_title:
+                add_obligation(
+                    title=new_title,
+                    description=new_description,
+                    jurisdiction=new_jurisdiction,
+                    statute_or_notice=new_statute,
+                    due_date=new_due.isoformat() if new_due else "",
+                    status=new_status,
+                    owner=new_owner,
+                    notes=new_notes,
+                )
+                st.success(f"Added: {new_title}")
+                st.rerun()
+
+    # Render filtered list
+    obligations = load_obligations()
+    if ob_jur_filter != "All jurisdictions":
+        obligations = [o for o in obligations if o.jurisdiction == ob_jur_filter]
+    if ob_status_filter != "All statuses":
+        obligations = [o for o in obligations if o.status == ob_status_filter]
+
+    if not obligations:
+        st.info("No obligations match your filter. Add one above to start tracking.")
+    else:
+        for o in obligations:
+            status_color = {
+                "Open": "#64748b",
+                "In progress": "#1e40af",
+                "Closed": "#059669",
+                "Overdue": "#dc2626",
+            }.get(o.status, "#64748b")
+            with st.container(border=True):
+                top_row = st.columns([5, 1, 1])
+                with top_row[0]:
+                    st.markdown(
+                        f"**{o.title}** &nbsp; "
+                        f'<span style="color: {status_color}; font-size: 0.75rem; '
+                        f'font-weight: 600; text-transform: uppercase;">{o.status}</span>',
+                        unsafe_allow_html=True,
+                    )
+                    st.caption(
+                        f"{o.jurisdiction}  ·  Due: {o.due_date or '—'}  ·  Owner: {o.owner or '—'}"
+                    )
+                    if o.statute_or_notice:
+                        st.caption(f"Reference: {o.statute_or_notice}")
+                    if o.description:
+                        st.markdown(f"<small>{o.description}</small>", unsafe_allow_html=True)
+                    if o.notes:
+                        st.caption(f"Notes: {o.notes}")
+                with top_row[1]:
+                    new_ob_status = st.selectbox(
+                        "Status",
+                        STATUSES,
+                        index=STATUSES.index(o.status) if o.status in STATUSES else 0,
+                        key=f"ob_status_{o.id}",
+                        label_visibility="collapsed",
+                    )
+                    if new_ob_status != o.status:
+                        update_obligation(o.id, status=new_ob_status)
+                        st.rerun()
+                with top_row[2]:
+                    if st.button("Delete", key=f"ob_del_{o.id}", use_container_width=True):
+                        delete_obligation(o.id)
+                        st.rerun()
+
+
+# ============================================================================
+# Horizon scanning tab — recent regulatory updates per jurisdiction
+# ============================================================================
+with tab_horizon:
+    st.markdown(
+        '<div class="section-label">Regulatory horizon scanning</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "Curated feed of recent regulatory updates across all four jurisdictions. "
+        "Filter by jurisdiction. Items are colour-coded by impact level."
+    )
+
+    horizon_jur = st.selectbox(
+        "Filter by jurisdiction",
+        ["All jurisdictions"] + list(RUBRICS.keys()),
+        key="horizon_jur_filter",
+    )
+
+    items = items_for_jurisdiction(
+        None if horizon_jur == "All jurisdictions" else horizon_jur
+    )
+
+    if not items:
+        st.info("No items match your filter.")
+    else:
+        for item in items:
+            impact_color = {
+                "High": "#dc2626",
+                "Medium": "#d97706",
+                "Low": "#64748b",
+            }.get(item.impact, "#64748b")
+            with st.container(border=True):
+                row = st.columns([4, 1])
+                with row[0]:
+                    st.markdown(
+                        f"**{item.title}**  \n"
+                        f'<small style="color: #64748b;">'
+                        f"{item.date}  ·  {item.jurisdiction}  ·  Source: {item.source}"
+                        f"</small>",
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown(
+                        f"<small>{item.summary}</small>", unsafe_allow_html=True
+                    )
+                    st.markdown(
+                        f'[Open source →]({item.url})',
+                        unsafe_allow_html=True,
+                    )
+                with row[1]:
+                    st.markdown(
+                        f'<div style="text-align: right; padding-top: 0.4rem;">'
+                        f'<span style="background: {impact_color}; color: white; '
+                        f'padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; '
+                        f'font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">'
+                        f"{item.impact} impact</span></div>",
+                        unsafe_allow_html=True,
+                    )
+
+    st.caption(
+        "Curated to 2026-04-28. v0 uses a static catalogue; production roadmap pulls from "
+        "regulator RSS feeds (MAS, HKMA, BNM, AUSTRAC) with LLM-assisted summarization."
+    )
