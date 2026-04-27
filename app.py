@@ -1957,25 +1957,64 @@ with tab_horizon:
         "Filter by jurisdiction. Items are colour-coded by impact level."
     )
 
-    horizon_filter_col1, horizon_filter_col2 = st.columns(2)
-    with horizon_filter_col1:
+    h_col1, h_col2, h_col3, h_col4 = st.columns([2, 2, 1, 1])
+    with h_col1:
         horizon_jur = st.selectbox(
             "Filter by jurisdiction",
             ["All jurisdictions"] + list(RUBRICS.keys()),
             key="horizon_jur_filter",
         )
-    with horizon_filter_col2:
+    with h_col2:
         horizon_cat = st.selectbox(
             "Filter by category",
             ["All categories", "Regulatory", "Enforcement", "Industry", "Typology", "Sanctions"],
             key="horizon_cat_filter",
         )
+    with h_col3:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        include_live = st.toggle(
+            "Live feeds",
+            value=True,
+            key="horizon_include_live",
+            help="Fetch from regulator RSS feeds (cached 30 min). Toggle off for curated only.",
+        )
+    with h_col4:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        force_refresh = st.button(
+            "Refresh",
+            use_container_width=True,
+            help="Force-refresh live RSS feeds (bypasses 30-min cache).",
+        )
 
-    items = items_for_jurisdiction(
-        None if horizon_jur == "All jurisdictions" else horizon_jur
+    items, feed_statuses = all_items_for_jurisdiction(
+        None if horizon_jur == "All jurisdictions" else horizon_jur,
+        include_live=include_live,
+        force_refresh=force_refresh,
     )
     if horizon_cat != "All categories":
         items = [i for i in items if i.category == horizon_cat]
+
+    # Show feed-fetch status for transparency
+    if include_live and feed_statuses:
+        ok_count = sum(
+            1 for v in feed_statuses.values()
+            if v.startswith("OK") or v.startswith("cached")
+        )
+        err_count = sum(1 for v in feed_statuses.values() if v.startswith("error"))
+        if err_count == 0:
+            st.caption(f"Live feeds: {ok_count} responding · cache TTL 30 min")
+        else:
+            with st.expander(
+                f"Live feed status — {ok_count} OK, {err_count} unavailable",
+                expanded=False,
+            ):
+                for k, v in feed_statuses.items():
+                    icon = "OK" if (v.startswith("OK") or v.startswith("cached")) else "FAIL"
+                    st.markdown(f"- **{icon}** {k}: `{v}`")
+                st.caption(
+                    "Some regulator RSS URLs change without notice. Curated items still load. "
+                    "Update URLs in `lib/horizon.py` if a feed is consistently down."
+                )
 
     if not items:
         st.info("No items match your filter.")
