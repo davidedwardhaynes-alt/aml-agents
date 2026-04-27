@@ -74,9 +74,9 @@ def narrative_to_pdf(
 ROOT = Path(__file__).parent
 RUBRICS = {
     "Singapore (STRO)": ROOT / "rubrics" / "strostr.md",
-    "Hong Kong (JFIU)": None,
-    "Malaysia (FIED)": None,
-    "Australia (AUSTRAC SMR)": None,
+    "Hong Kong (JFIU)": ROOT / "rubrics" / "jfiustr.md",
+    "Malaysia (FIED)": ROOT / "rubrics" / "fiedstr.md",
+    "Australia (AUSTRAC SMR)": ROOT / "rubrics" / "austracsmr.md",
 }
 GUIDANCE = {
     "Singapore (STRO)": ROOT / "guidance" / "sg-stro.md",
