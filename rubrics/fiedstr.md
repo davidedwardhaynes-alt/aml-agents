@@ -33,16 +33,40 @@ Date of Filing: {value}
 ```
 
 When the entity category is provided, tailor sectoral-guideline references in section 7 (Action taken) accordingly:
-- **Licensed bank / Islamic bank / Investment bank** → BNM AML/CFT and CPF Sectoral Guidelines for Banking and Deposit-Taking Institutions
+- **Licensed bank — conventional / Investment bank** → BNM AML/CFT and CPF Sectoral Guidelines for Banking and Deposit-Taking Institutions; **FSA 2013** as primary financial-services statute
+- **Licensed Islamic bank (full-fledged)** → same BNM AML/CFT Sectoral Guidelines + **IFSA 2013** (Islamic Financial Services Act); also **Shariah Governance Framework** (BNM SGF) and Shariah Advisory Council (SAC) guidance where the suspected activity intersects Shariah-compliant products
+- **Islamic banking window** → both FSA 2013 and IFSA 2013 apply; reference the institution's Shariah Committee
+- **Digital bank — conventional** (BNM digital banking licensee per the 2022 framework — Boost Bank, GXBank, KAF Digital, Sea / YTL-Sea Money) → BNM AML/CFT Sectoral Guidelines + **BNM Policy Document on Licensing Framework for Digital Banks** (2020); pay particular attention to e-KYC controls, mule-account risk, and real-time TM
+- **Digital bank — Islamic** (e.g. AEON Bank) → IFSA 2013 + BNM digital banking framework + Shariah Governance Framework
 - **Development financial institution (DFI)** → DFI Sectoral Guidelines (BNM)
-- **Insurance / takaful operator** → BNM AML/CFT Sectoral Guidelines for Insurance and Takaful
-- **Money services business (MSB)** — remittance / money-changing / wholesale → BNM AML/CFT Sectoral Guidelines for Money Services Business
+- **Insurance / takaful operator** → BNM AML/CFT Sectoral Guidelines for Insurance and Takaful (takaful operators have parallel Shariah governance under IFSA 2013)
+- **Money services business (MSB)** → BNM AML/CFT Sectoral Guidelines for Money Services Business
 - **Capital market intermediary** → Securities Commission Malaysia (SC) AML/CFT Guidelines for Capital Market Intermediaries
 - **E-money issuer** → BNM AML/CFT Sectoral Guidelines for e-Money Issuers
-- **Digital asset exchange (DAE)** → SC Guidelines on Recognized Markets — DAEs (and BNM AML/CFT guidance as applicable)
-- **DNFBP** (lawyer, accountant, company secretary, real estate agent, PSDM) → respective sectoral guidelines under AMLA
+- **Digital asset exchange (DAE — SC-registered)** → SC Guidelines on Recognized Markets — DAEs (and BNM AML/CFT guidance as applicable)
+- **DNFBP** → respective sectoral guidelines under AMLA
 - **Casino / gaming operator** → AMLA First Schedule + BNM gaming-sector guidance
 - **Pawnbroker** → AMLA First Schedule + BNM pawnbroker-sector guidance
+
+### Islamic banking — additional considerations
+
+When the reporting institution is an Islamic bank, Islamic banking window, or Islamic digital bank, the narrative should also:
+
+- Reference Shariah-compliant product types where relevant (e.g. **Murabahah**, **Tawarruq**, **Wakalah**, **Mudharabah**, **Musharakah**, **Ijarah**, **Hibah**)
+- Note where the suspected activity intersects a Shariah-compliant product (e.g. abuse of Tawarruq commodity-financing for layering, misuse of charitable Hibah/zakat flows for TF)
+- Flag if the institution's **Shariah Committee** or **Shariah Audit** function has raised concerns separately from AML — Shariah non-compliance and AML suspicion can be parallel but distinct issues
+- Where Shariah Audit findings exist that are factually relevant (e.g. lack of underlying commodity ownership transfer in a Tawarruq), include them as analyst-stated facts (`[A]`)
+- Do **not** conflate Shariah non-compliance with money-laundering — they are separate regulatory regimes
+
+### Digital banking — additional considerations
+
+When the reporting institution is a BNM-licensed digital bank (conventional or Islamic):
+
+- Acknowledge fully-digital onboarding (e-KYC) constraints — note where customer was onboarded via NRIC liveness + bank-link verification without in-person interaction
+- Pay special attention to **money-mule** typologies (per BNM 2025–2026 typology bulletins on investment scams, romance scams, "Pig Butchering")
+- Flag **rapid in-out flow patterns** (deposit + immediate outbound to crypto exchange or external wallet)
+- Reference the digital-banking-specific TM controls expected under the 2020 BNM Licensing Framework
+- For mule-victim cases: note the customer's apparent role (knowing launderer vs. scam victim) — both still require STR filing under AMLA s.14 reason-to-suspect threshold
 
 ### 1. Subject identification
 - Customer name, NRIC / passport / Malaysian Business Registration Number (BRN) / SSM number, account number, customer-since date
@@ -78,7 +102,9 @@ List the specific red flags observed, mapped to FATF or BNM-specific typology wh
 - Adverse media for predicate offence (1MDB-linked, illegal gambling, scam syndicate, drug trafficking)
 - Domestic PEP exposure not disclosed at onboarding
 - Bumiputera-status front-company indicators
-- Money-mule / crypto scam-victim flows
+- Money-mule / crypto scam-victim flows (per BNM 2025–2026 typology bulletins)
+- **Digital bank-specific:** rapid post-onboarding velocity spike, multiple unrelated retail senders, immediate crypto exchange / mixer wallet outflow, e-KYC-only onboarding combined with high-risk profile shift
+- **Islamic bank-specific:** abuse of Shariah-compliant financing (Tawarruq drawdown without genuine commodity transfer; Murabahah price-padding; Wakalah agency funds redirected to undisclosed beneficiaries); Hibah / zakat flows that do not align with charitable-purpose declarations; UBO overlap between customer and Shariah-compliant facility "supplier" counterparties
 
 ### 6. Reasonable grounds for suspicion
 A 3–5 sentence summary of WHY the analyst has **reason to suspect** that the transaction or proposed transaction may:

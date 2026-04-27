@@ -8,13 +8,36 @@
 
 ### Who must file
 Reporting institutions per AMLA First Schedule:
-- Licensed banks, Islamic banks, investment banks, development financial institutions
-- Insurance and takaful operators
+- Licensed conventional banks, **licensed Islamic banks** (full-fledged), investment banks, development financial institutions
+- **Digital banks** under the 2022 BNM digital banking licensing framework — current licensees: **Boost Bank Berhad** (Axiata + RHB), **GXBank** (Grab + Singtel), **AEON Bank** (Islamic digital bank — AEON Financial Service + MoneyLion), **KAF Digital Bank** (KAF Investment Bank — Islamic digital), **Sea / YTL-Sea Money** (consortium with YTL Group)
+- Insurance and **takaful** operators (takaful = Shariah-compliant insurance, governed by IFSA 2013)
 - Capital market intermediaries (SC-licensed)
 - Money services businesses (remittance, money-changing, wholesale currency)
 - E-money issuers and payment system operators
 - Digital asset exchanges (DAEs) — SC-registered
 - DNFBPs — lawyers, accountants, company secretaries, trust companies, real estate agents, casinos and gaming operators (Genting), precious stones/metals dealers, registered estate agents
+
+### Islamic banking AML overlay
+
+Malaysia operates a **dual financial system** — conventional and Islamic — under parallel statutes:
+- **FSA 2013** (Financial Services Act) governs conventional banks
+- **IFSA 2013** (Islamic Financial Services Act) governs Islamic banks, takaful operators, and Islamic windows
+- Both are subject to the **same AMLA 2001 STR obligations** (AMLA First Schedule includes both)
+
+Key Islamic-AML interaction points:
+- **Shariah Governance Framework (SGF)** — issued by BNM, governs Shariah-compliance functions (Shariah Committee, Shariah Risk Management, Shariah Audit, Shariah Review)
+- **Shariah Advisory Council (SAC) of BNM** — apex body for Islamic finance, separate from AML enforcement
+- Shariah-compliant product abuse can be a **layering channel**: Tawarruq commodity-financing without genuine commodity transfer is a known typology
+- **Shariah non-compliance ≠ money laundering** — these are separate regimes; Shariah Audit findings that are factually relevant to AML can support an STR but should not be conflated
+
+### Digital banking framework
+
+BNM issued the [Licensing Framework for Digital Banks](https://www.bnm.gov.my/-/digital-bank-licensing-framework) in December 2020, with five licensees announced in April 2022. Key AML implications:
+- Fully-digital e-KYC onboarding (NRIC + liveness + bank-link verification)
+- Customer-acquisition velocity creates **mule-account risk** at scale
+- Real-time transaction monitoring (RTM) is a regulatory expectation, not a nice-to-have
+- BNM has issued multiple typology bulletins (2024–2026) specifically on **investment scams**, **romance scams ("Pig Butchering")**, and **money mules** in the digital banking context
+- Shariah-compliant digital banks (AEON Bank, KAF Digital) carry both digital-banking AND Islamic-banking compliance overlays
 
 ### Threshold for filing
 "Knows or **has reason to suspect**" that any transaction or proposed transaction may:
@@ -77,7 +100,11 @@ Filing is electronic via FINS Online. Reporting institutions must register with 
 
 **Statutes**
 - [AMLA — Anti-Money Laundering, Anti-Terrorism Financing and Proceeds of Unlawful Activities Act 2001](https://www.bnm.gov.my/-/amla)
+- [FSA 2013 — Financial Services Act](https://www.bnm.gov.my/-/financial-services-act-2013)
+- [IFSA 2013 — Islamic Financial Services Act](https://www.bnm.gov.my/-/islamic-financial-services-act-2013)
 - [BNM AML/CFT Sectoral Guidelines](https://amlcft.bnm.gov.my/policy)
+- [BNM Shariah Governance Framework](https://www.bnm.gov.my/-/shariah-governance)
+- [BNM Licensing Framework for Digital Banks (2020)](https://www.bnm.gov.my/-/digital-bank-licensing-framework)
 
 **Industry & FATF**
 - [FATF mutual evaluation — Malaysia (2015) and follow-ups](https://www.fatf-gafi.org/en/countries/detail/Malaysia.html)

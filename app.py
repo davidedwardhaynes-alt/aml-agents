@@ -152,7 +152,11 @@ ENTITY_CATEGORIES = {
     ],
     "Malaysia (FIED)": [
         "— Select —",
-        "Licensed bank / Islamic bank",
+        "Licensed bank — conventional",
+        "Licensed Islamic bank (full-fledged, e.g. Bank Islam, Maybank Islamic)",
+        "Islamic banking window (within a conventional bank)",
+        "Digital bank — conventional (BNM digital banking licensee, e.g. Boost Bank, GXBank)",
+        "Digital bank — Islamic (BNM digital Islamic licensee, e.g. AEON Bank, KAF Digital)",
         "Investment bank",
         "Development financial institution (DFI)",
         "Money services business (MSB)",
@@ -160,7 +164,7 @@ ENTITY_CATEGORIES = {
         "Insurance broker",
         "Capital market intermediary (SC-licensed)",
         "E-money issuer",
-        "Digital asset exchange (DAE)",
+        "Digital asset exchange (DAE — SC-registered)",
         "Trust company",
         "Accountant / auditor (DNFBP)",
         "Lawyer (DNFBP)",
@@ -184,6 +188,31 @@ ENTITY_CATEGORIES = {
         "Real estate agent (Tranche 2 — from 2026)",
         "Precious metals dealer (Tranche 2 — from 2026)",
     ],
+}
+
+# Library of named sample cases per jurisdiction. Each maps to (case_dict_key,
+# filing_dict_key) — keys into SAMPLE_CASES and SAMPLE_FILING_METADATAS.
+SAMPLE_LIBRARY = {
+    "Singapore (STRO)": {
+        "Trade-based ML — fintech wholesale": ("Singapore (STRO)", "Singapore (STRO)"),
+    },
+    "Hong Kong (JFIU)": {
+        "Jewelry trading + sanctions hit": ("Hong Kong (JFIU)", "Hong Kong (JFIU)"),
+    },
+    "Malaysia (FIED)": {
+        "Palm oil TBML — conventional bank": (
+            "Malaysia (FIED)", "Malaysia (FIED)",
+        ),
+        "Digital bank — money mule + investment scam victim": (
+            "Malaysia (FIED) — Digital bank mule", "Malaysia (FIED) — Digital bank mule",
+        ),
+        "Islamic bank — Tawarruq layering": (
+            "Malaysia (FIED) — Islamic Tawarruq", "Malaysia (FIED) — Islamic Tawarruq",
+        ),
+    },
+    "Australia (AUSTRAC SMR)": {
+        "Crypto DCE — structuring + mule": ("Australia (AUSTRAC SMR)", "Australia (AUSTRAC SMR)"),
+    },
 }
 
 # Per-jurisdiction sample cases. Each one is a plausible AML typology so an
@@ -275,6 +304,86 @@ SAMPLE_CASES = {
             "potential proceeds-of-unlawful-activity layering."
         ),
     },
+    # Malaysia variants — keyed by SAMPLE_LIBRARY entries
+    "Malaysia (FIED) — Digital bank mule": {
+        "customer_name": "Aiman bin Hassan",
+        "customer_id": "MY-NRIC-001124-10-7385",
+        "customer_kyc": (
+            "Malaysian individual, age 24, declared occupation: software engineer. "
+            "Declared monthly income MYR 4,500. Source of funds: salary + freelance projects. "
+            "Expected transaction profile: low — typical retail customer. "
+            "Onboarded via fully-digital e-KYC (NRIC + selfie liveness + bank link). "
+            "Risk rating: Low at onboarding (Feb 2026)."
+        ),
+        "transactions": (
+            "2026-04-08 | 18,500  | USD | inbound from Binance MY (own wallet) | crypto-to-bank\n"
+            "2026-04-09 | 22,000  | USD | inbound from CoinGecko exchange (own wallet) | crypto-to-bank\n"
+            "2026-04-10 | 15,800  | SGD | inbound from Wise (sender: Tan Wei, SG) | wire\n"
+            "2026-04-11 | 41,000  | MYR | inbound from individual ML (sender: Lim X.) | DuitNow\n"
+            "2026-04-11 | 38,500  | MYR | outbound to Luno MY (own crypto exchange wallet) | wire\n"
+            "2026-04-12 | 47,000  | MYR | outbound to bc1q...mx9 (Tornado Cash-tagged wallet) | crypto withdrawal"
+        ),
+        "alert_reason": "Volume 50x declared monthly income; rapid in-out flow with crypto exchange + mixer wallet outflow",
+        "red_flags": (
+            "Total volume MYR 200k+ in 5 days vs. declared monthly income MYR 4,500 — 50x profile. "
+            "Pattern matches BNM 2026 typology bulletin on 'investment scam mule accounts': inbound "
+            "from foreign retail (likely scam victims) consolidated, then outbound to crypto mixer. "
+            "Outbound wallet bc1q...mx9 flagged by Chainalysis as Tornado-Cash-derived address. "
+            "Customer onboarding is fully-digital (e-KYC) — no in-person interaction. "
+            "Multiple senders are unrelated retail individuals (potential pig-butchering scam victims)."
+        ),
+        "analyst_notes": (
+            "Customer contacted via in-app message 2026-04-13; replied that he is 'investing through "
+            "a Telegram trading group' and the inbound transfers are 'returns'. Could not name the "
+            "group, the platform, or any account documentation. Shown screenshots of Telegram group; "
+            "content matches 'pig-butchering' romance/investment scam playbook (fake portfolio "
+            "screenshots, urgent transfer requests). Senders Tan Wei (SG) and Lim X (MY) traced "
+            "via cross-bank intel sharing — both reported missing funds to their own banks last week. "
+            "Customer assessed as a money-mule victim of an investment scam, not a knowing launderer; "
+            "however, the activity meets the AMLA s.14 reason-to-suspect threshold and STR is required."
+        ),
+    },
+    "Malaysia (FIED) — Islamic Tawarruq": {
+        "customer_name": "Hijrah Holdings Sdn Bhd",
+        "customer_id": "MY-SSM-9988776-K",
+        "customer_kyc": (
+            "Malaysian-incorporated, halal F&B distribution (frozen halal poultry, packaged foods). "
+            "Declared SoF: B2B distribution revenue from supermarket chains. "
+            "Expected monthly turnover MYR 800,000. "
+            "Tawarruq commodity-financing facility: MYR 5,000,000 limit (granted Oct 2025). "
+            "Risk rating: Medium at onboarding (June 2025). Director: En. Razak bin Salleh."
+        ),
+        "transactions": (
+            "2026-04-02 | 5,000,000 | MYR | Tawarruq facility drawdown | internal\n"
+            "2026-04-02 | 1,250,000 | MYR | outbound to 'Berkat Niaga Trading' (SME a/c at same bank) | wire\n"
+            "2026-04-02 | 1,250,000 | MYR | outbound to 'Saudara Logistics Sdn Bhd' (SME a/c at same bank) | wire\n"
+            "2026-04-02 | 1,250,000 | MYR | outbound to 'Bumi Maju Enterprise' (SME a/c at same bank) | wire\n"
+            "2026-04-02 | 1,250,000 | MYR | outbound to 'Zahra Suppliers' (SME a/c at same bank) | wire\n"
+            "2026-04-04 | 4,950,000 | MYR | inbound from same four entities (combined) | wire — round-trip"
+        ),
+        "alert_reason": "Tawarruq drawdown + same-day disbursement to four 'suppliers' with funds round-tripping back within 48 hours; pattern repeated 3 times in 90 days",
+        "red_flags": (
+            "Tawarruq commodity-financing facility appears to be used as a layering channel rather "
+            "than for genuine commodity trade. The four 'supplier' SME accounts share UBO connections "
+            "to Director En. Razak (Berkat Niaga UBO is brother; Bumi Maju UBO is brother-in-law). "
+            "No genuine underlying commodity transfer evident — Shariah audit team requested "
+            "commodity ownership transfer documentation, only summary invoices provided. "
+            "Pattern (drawdown -> disburse -> round-trip) repeated three times in 90 days. "
+            "Halal F&B distribution business does not require this Tawarruq drawdown frequency — "
+            "monthly turnover MYR 800k vs. monthly facility utilization MYR 5M."
+        ),
+        "analyst_notes": (
+            "EDD review identified UBO overlap between customer and four 'supplier' counterparties — "
+            "all SME accounts at the same Islamic bank. Director En. Razak bin Salleh has adverse "
+            "media (Sin Chew Daily, March 2026) regarding alleged commodity-trade fraud at a separate "
+            "entity (Razak Trading Berhad, unrelated to Hijrah Holdings on paper). Shariah Audit "
+            "non-compliance: insufficient evidence of underlying commodity ownership transfer in the "
+            "Tawarruq mechanics; Shariah Committee referred to MLRO. Customer outreach 2026-04-15 — "
+            "Director claimed 'commodity trade is genuine' but could not produce LME warehouse receipts "
+            "or commodity broker confirmations. Activity is consistent with abuse of Shariah-compliant "
+            "financing structure for layering proceeds; AMLA s.14 reason-to-suspect threshold is met."
+        ),
+    },
     "Australia (AUSTRAC SMR)": {
         "customer_name": "Coastal Crypto Exchange Pty Ltd",
         "customer_id": "AU-ABN-12-345-678-901",
@@ -341,7 +450,21 @@ SAMPLE_FILING_METADATAS = {
         "input_str_reference": "STR-MY-2026-0289",
         "input_prepared_by": "Nurul Aishah binti Hassan, AML Officer",
         "input_mlro_signoff": "Encik Rahman bin Ibrahim, MLRO",
-        "input_entity_category": "Licensed bank / Islamic bank",
+        "input_entity_category": "Licensed bank — conventional",
+    },
+    "Malaysia (FIED) — Digital bank mule": {
+        "input_reporting_institution": "Boost Bank Berhad (BNM-licensed digital bank)",
+        "input_str_reference": "STR-MY-DB-2026-04-0521",
+        "input_prepared_by": "Nadia Mohd Yusof, Financial Crime Analyst",
+        "input_mlro_signoff": "Encik Hafiz bin Abdullah, Head of Financial Crime Compliance",
+        "input_entity_category": "Digital bank — conventional (BNM digital banking licensee, e.g. Boost Bank, GXBank)",
+    },
+    "Malaysia (FIED) — Islamic Tawarruq": {
+        "input_reporting_institution": "Bank Islam Malaysia Berhad (BNM-licensed Islamic bank)",
+        "input_str_reference": "STR-MY-IB-2026-04-0218",
+        "input_prepared_by": "Siti Khairiah binti Ramli, AML Analyst (Shariah-aligned)",
+        "input_mlro_signoff": "Datuk Yusof bin Mahmud, MLRO",
+        "input_entity_category": "Licensed Islamic bank (full-fledged, e.g. Bank Islam, Maybank Islamic)",
     },
     "Australia (AUSTRAC SMR)": {
         "input_reporting_institution": "Coastal Crypto Exchange Pty Ltd (AUSTRAC-registered DCE)",
