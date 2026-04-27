@@ -175,7 +175,7 @@ SAMPLE_FILING_METADATA = {
 st.set_page_config(
     page_title="AML Agents — STR Drafter",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Polish CSS — branded header, card layout, hide default Streamlit chrome
@@ -364,45 +364,14 @@ for k, v in FILING_METADATA_DEFAULTS.items():
 if "input_date_of_filing" not in st.session_state:
     st.session_state["input_date_of_filing"] = date.today()
 
-# Sidebar
-with st.sidebar:
-    st.markdown("#### Configuration")
-    jurisdiction = st.selectbox("Jurisdiction", list(RUBRICS.keys()))
-    model = st.selectbox(
-        "Model",
-        ["claude-sonnet-4-6", "claude-opus-4-7"],
-        index=0,
-        help="Sonnet for cost-efficient drafts. Opus for complex multi-jurisdiction cases.",
-    )
-
-    st.markdown("---")
-    st.markdown("#### Quick actions")
-    if st.button("Load sample case", use_container_width=True):
-        for k, v in SAMPLE_CASE.items():
-            st.session_state[f"input_{k}"] = v
-        st.session_state["input_recommendation"] = "File STR"
-        for k, v in SAMPLE_FILING_METADATA.items():
-            st.session_state[k] = v
-        st.session_state["input_date_of_filing"] = date.today()
-        st.rerun()
-
-    if st.button("Clear form", use_container_width=True):
-        for k in SAMPLE_CASE.keys():
-            st.session_state[f"input_{k}"] = ""
-        for k, v in FILING_METADATA_DEFAULTS.items():
-            st.session_state[k] = v
-        st.session_state["input_date_of_filing"] = date.today()
-        st.rerun()
-
-    st.markdown("---")
-    st.markdown("#### Jurisdiction coverage")
-    st.markdown(
-        "- Singapore STRO &nbsp;✓  \n"
-        "- Hong Kong JFIU &nbsp;<small>v0.1</small>  \n"
-        "- Malaysia FIED &nbsp;<small>v0.2</small>  \n"
-        "- Australia AUSTRAC &nbsp;<small>v0.2</small>",
-        unsafe_allow_html=True,
-    )
+# Initialize jurisdiction + model in session_state so the toolbar (rendered after
+# the header) can drive the header content via st.session_state lookups.
+if "jurisdiction" not in st.session_state:
+    st.session_state["jurisdiction"] = list(RUBRICS.keys())[0]
+if "model" not in st.session_state:
+    st.session_state["model"] = "claude-sonnet-4-6"
+jurisdiction = st.session_state["jurisdiction"]
+model = st.session_state["model"]
 
 # Branded header — jurisdiction-aware, with authority chips on the right
 authorities = JURISDICTION_AUTHORITIES.get(jurisdiction, [])
@@ -428,6 +397,49 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+
+# Top toolbar — jurisdiction, model, and quick actions, always visible in the
+# main column. Replaces the sidebar so the controls can never be hidden.
+st.markdown('<div class="section-label">Configuration</div>', unsafe_allow_html=True)
+with st.container(border=True):
+    tool_col1, tool_col2, tool_col3, tool_col4 = st.columns([2, 2, 1, 1], gap="medium")
+    with tool_col1:
+        st.selectbox(
+            "Jurisdiction",
+            list(RUBRICS.keys()),
+            key="jurisdiction",
+            help="Drives the rubric, filing guidance, authority chips, and entity categories.",
+        )
+    with tool_col2:
+        st.selectbox(
+            "Model",
+            ["claude-sonnet-4-6", "claude-opus-4-7"],
+            key="model",
+            help="Sonnet for cost-efficient drafts. Opus for complex cases.",
+        )
+    with tool_col3:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        if st.button("Load sample case", use_container_width=True):
+            for k, v in SAMPLE_CASE.items():
+                st.session_state[f"input_{k}"] = v
+            st.session_state["input_recommendation"] = "File STR"
+            for k, v in SAMPLE_FILING_METADATA.items():
+                st.session_state[k] = v
+            st.session_state["input_date_of_filing"] = date.today()
+            st.rerun()
+    with tool_col4:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        if st.button("Clear form", use_container_width=True):
+            for k in SAMPLE_CASE.keys():
+                st.session_state[f"input_{k}"] = ""
+            for k, v in FILING_METADATA_DEFAULTS.items():
+                st.session_state[k] = v
+            st.session_state["input_date_of_filing"] = date.today()
+            st.rerun()
+
+# After widgets render, re-read in case the user changed the dropdown this run
+jurisdiction = st.session_state["jurisdiction"]
+model = st.session_state["model"]
 
 # Jurisdiction guidance panel — collapsible, jurisdiction-aware
 guidance_path = GUIDANCE.get(jurisdiction)
