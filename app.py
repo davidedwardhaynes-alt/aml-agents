@@ -20,7 +20,7 @@ from auth.users import (
     update_user_profile,
 )
 from lib.connectors import by_category as connectors_by_category
-from lib.horizon import items_for_jurisdiction
+from lib.horizon import all_items_for_jurisdiction, items_for_jurisdiction
 from lib.obligations import (
     STATUSES,
     add_obligation,
