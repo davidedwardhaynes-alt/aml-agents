@@ -850,7 +850,9 @@ st.markdown(
 # main column. Replaces the sidebar so the controls can never be hidden.
 st.markdown('<div class="section-label">Configuration</div>', unsafe_allow_html=True)
 with st.container(border=True):
-    tool_col1, tool_col2, tool_col3, tool_col4 = st.columns([2, 2, 1, 1], gap="medium")
+    tool_col1, tool_col2, tool_col3, tool_col4, tool_col5 = st.columns(
+        [2, 2, 3, 1, 1], gap="medium"
+    )
     with tool_col1:
         st.selectbox(
             "Jurisdiction",
@@ -866,23 +868,46 @@ with st.container(border=True):
             help="Sonnet for cost-efficient drafts. Opus for complex cases.",
         )
     with tool_col3:
-        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
-        if st.button("Load sample case", use_container_width=True):
-            current_jur = st.session_state["jurisdiction"]
-            sample = SAMPLE_CASES.get(current_jur, SAMPLE_CASES["Singapore (STRO)"])
-            sample_filing = SAMPLE_FILING_METADATAS.get(
-                current_jur, SAMPLE_FILING_METADATAS["Singapore (STRO)"]
-            )
-            for k, v in sample.items():
-                st.session_state[f"input_{k}"] = v
-            st.session_state["input_recommendation"] = "File STR"
-            for k, v in sample_filing.items():
-                st.session_state[k] = v
-            st.session_state["input_date_of_filing"] = date.today()
-            st.rerun()
+        # Sample picker — filtered by current jurisdiction
+        current_jur_for_samples = st.session_state.get(
+            "jurisdiction", list(RUBRICS.keys())[0]
+        )
+        available_samples = list(
+            SAMPLE_LIBRARY.get(current_jur_for_samples, {}).keys()
+        )
+        if not available_samples:
+            available_samples = ["(no samples for this jurisdiction)"]
+        # Reset stale selection if jurisdiction changed
+        if st.session_state.get("sample_choice") not in available_samples:
+            st.session_state["sample_choice"] = available_samples[0]
+        st.selectbox(
+            "Sample case",
+            available_samples,
+            key="sample_choice",
+            help="Pick the typology that matches your demo audience. Then click Load.",
+        )
     with tool_col4:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
-        if st.button("Clear form", use_container_width=True):
+        if st.button("Load", use_container_width=True):
+            current_jur = st.session_state["jurisdiction"]
+            sample_name = st.session_state.get("sample_choice")
+            mapping = SAMPLE_LIBRARY.get(current_jur, {}).get(sample_name)
+            if mapping:
+                case_key, filing_key = mapping
+                sample = SAMPLE_CASES.get(case_key, SAMPLE_CASES["Singapore (STRO)"])
+                sample_filing = SAMPLE_FILING_METADATAS.get(
+                    filing_key, SAMPLE_FILING_METADATAS["Singapore (STRO)"]
+                )
+                for k, v in sample.items():
+                    st.session_state[f"input_{k}"] = v
+                st.session_state["input_recommendation"] = "File STR"
+                for k, v in sample_filing.items():
+                    st.session_state[k] = v
+                st.session_state["input_date_of_filing"] = date.today()
+                st.rerun()
+    with tool_col5:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        if st.button("Clear", use_container_width=True):
             for k in SAMPLE_CASE.keys():
                 st.session_state[f"input_{k}"] = ""
             for k, v in FILING_METADATA_DEFAULTS.items():
