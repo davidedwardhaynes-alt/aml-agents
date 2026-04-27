@@ -22,6 +22,32 @@ GUIDANCE = {
     "Malaysia (FIED)": ROOT / "guidance" / "my-fied.md",
     "Australia (AUSTRAC SMR)": ROOT / "guidance" / "au-austrac.md",
 }
+JURISDICTION_LABEL = {
+    "Singapore (STRO)": "Singapore",
+    "Hong Kong (JFIU)": "Hong Kong",
+    "Malaysia (FIED)": "Malaysia",
+    "Australia (AUSTRAC SMR)": "Australia",
+}
+JURISDICTION_AUTHORITIES = {
+    "Singapore (STRO)": [
+        {"abbr": "MAS", "name": "Monetary Authority of Singapore"},
+        {"abbr": "STRO", "name": "Suspicious Transaction Reporting Office"},
+        {"abbr": "SPF", "name": "Singapore Police Force"},
+    ],
+    "Hong Kong (JFIU)": [
+        {"abbr": "HKMA", "name": "Hong Kong Monetary Authority"},
+        {"abbr": "JFIU", "name": "Joint Financial Intelligence Unit"},
+        {"abbr": "SFC", "name": "Securities and Futures Commission"},
+    ],
+    "Malaysia (FIED)": [
+        {"abbr": "BNM", "name": "Bank Negara Malaysia"},
+        {"abbr": "FIED", "name": "Financial Intelligence Enforcement Dept"},
+        {"abbr": "SC", "name": "Securities Commission Malaysia"},
+    ],
+    "Australia (AUSTRAC SMR)": [
+        {"abbr": "AUSTRAC", "name": "AUS Transaction Reports & Analysis Centre"},
+    ],
+}
 
 SAMPLE_CASE = {
     "customer_name": "ACME Trading Pte Ltd",
@@ -79,6 +105,22 @@ st.markdown(
         border-radius: 12px;
         margin-bottom: 1.5rem;
         box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+    }
+    .brand-left {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .brand-right {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: flex-end;
+        max-width: 280px;
     }
     .brand-header h1 {
         color: #ffffff !important;
@@ -104,6 +146,41 @@ st.markdown(
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 0.6rem;
+    }
+    /* Authority chips on the right of the header */
+    .auth-chip {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 6px;
+        padding: 0.45rem 0.7rem;
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        white-space: nowrap;
+        backdrop-filter: blur(4px);
+    }
+    .auth-chip .auth-abbr {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+    }
+    .auth-chip .auth-name {
+        color: #cbd5e1;
+        font-size: 0.7rem;
+        font-weight: 400;
+    }
+    /* Stack header on narrow screens */
+    @media (max-width: 900px) {
+        .brand-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .brand-right {
+            align-items: flex-start;
+            max-width: 100%;
+            margin-top: 0.5rem;
+        }
     }
 
     /* Section labels above bordered containers */
@@ -186,13 +263,26 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-# Branded header
+# Branded header — jurisdiction-aware, with authority chips on the right
+authorities = JURISDICTION_AUTHORITIES.get(jurisdiction, [])
+auth_chips_html = "".join(
+    f'<div class="auth-chip"><span class="auth-abbr">{a["abbr"]}</span>'
+    f'<span class="auth-name">{a["name"]}</span></div>'
+    for a in authorities
+)
+jur_label = JURISDICTION_LABEL.get(jurisdiction, jurisdiction)
+
 st.markdown(
-    """
+    f"""
 <div class="brand-header">
-    <span class="badge">v0 · Singapore</span>
-    <h1>AML Agents — STR Narrative Drafter</h1>
-    <p class="subtitle">AI-drafted suspicious transaction reports. Analyst-supplied facts only — never fabricated. Per-sentence audit trail.</p>
+    <div class="brand-left">
+        <span class="badge">v0 · {jur_label}</span>
+        <h1>AML Agents — STR Narrative Drafter</h1>
+        <p class="subtitle">AI-drafted suspicious transaction reports. Analyst-supplied facts only — never fabricated. Per-sentence audit trail.</p>
+    </div>
+    <div class="brand-right">
+        {auth_chips_html}
+    </div>
 </div>
 """,
     unsafe_allow_html=True,
