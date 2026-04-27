@@ -14,6 +14,12 @@ RUBRICS = {
     "Malaysia (FIED)": None,
     "Australia (AUSTRAC SMR)": None,
 }
+GUIDANCE = {
+    "Singapore (STRO)": ROOT / "guidance" / "sg-stro.md",
+    "Hong Kong (JFIU)": ROOT / "guidance" / "hk-jfiu.md",
+    "Malaysia (FIED)": ROOT / "guidance" / "my-fied.md",
+    "Australia (AUSTRAC SMR)": ROOT / "guidance" / "au-austrac.md",
+}
 
 SAMPLE_CASE = {
     "customer_name": "ACME Trading Pte Ltd",
@@ -189,6 +195,12 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
+
+# Jurisdiction guidance panel — collapsible, jurisdiction-aware
+guidance_path = GUIDANCE.get(jurisdiction)
+if guidance_path and guidance_path.exists():
+    with st.expander(f"Filing guidance — {jurisdiction}", expanded=False):
+        st.markdown(guidance_path.read_text())
 
 # Input form
 col1, col2 = st.columns(2, gap="large")
