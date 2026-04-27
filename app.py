@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from pathlib import Path
 
 import streamlit as st
@@ -76,6 +77,22 @@ SAMPLE_CASE = {
         "business (avg SGD 180k/month, predominantly SG counterparties). Customer's explanation "
         "deemed implausible by analyst given lack of documentation and watchlist match."
     ),
+}
+
+# Filing metadata defaults — per-institution values pulled from env vars so the
+# user doesn't retype their institution and MLRO name on every case.
+FILING_METADATA_DEFAULTS = {
+    "input_reporting_institution": os.getenv("DEFAULT_REPORTING_INSTITUTION", ""),
+    "input_str_reference": "",
+    "input_prepared_by": os.getenv("DEFAULT_ANALYST_NAME", ""),
+    "input_mlro_signoff": os.getenv("DEFAULT_MLRO_NAME", ""),
+}
+
+SAMPLE_FILING_METADATA = {
+    "input_reporting_institution": "Demo Bank Singapore Pte Ltd (MAS-licensed bank)",
+    "input_str_reference": "STR-2026-04-0042",
+    "input_prepared_by": "Lim Wei Ling, Senior Compliance Analyst",
+    "input_mlro_signoff": "Tan Boon Heng, MLRO",
 }
 
 st.set_page_config(
@@ -229,6 +246,13 @@ for k in SAMPLE_CASE.keys():
 if "input_recommendation" not in st.session_state:
     st.session_state["input_recommendation"] = "File STR"
 
+# Filing metadata — pre-fill from env-var defaults if available
+for k, v in FILING_METADATA_DEFAULTS.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
+if "input_date_of_filing" not in st.session_state:
+    st.session_state["input_date_of_filing"] = date.today()
+
 # Sidebar
 with st.sidebar:
     st.markdown("#### Configuration")
@@ -246,11 +270,17 @@ with st.sidebar:
         for k, v in SAMPLE_CASE.items():
             st.session_state[f"input_{k}"] = v
         st.session_state["input_recommendation"] = "File STR"
+        for k, v in SAMPLE_FILING_METADATA.items():
+            st.session_state[k] = v
+        st.session_state["input_date_of_filing"] = date.today()
         st.rerun()
 
     if st.button("Clear form", use_container_width=True):
         for k in SAMPLE_CASE.keys():
             st.session_state[f"input_{k}"] = ""
+        for k, v in FILING_METADATA_DEFAULTS.items():
+            st.session_state[k] = v
+        st.session_state["input_date_of_filing"] = date.today()
         st.rerun()
 
     st.markdown("---")
@@ -293,6 +323,40 @@ guidance_path = GUIDANCE.get(jurisdiction)
 if guidance_path and guidance_path.exists():
     with st.expander(f"Filing guidance — {jurisdiction}", expanded=False):
         st.markdown(guidance_path.read_text())
+
+# Filing metadata — case header fields (reporting entity, STR ref, sign-off)
+st.markdown('<div class="section-label">Filing metadata</div>', unsafe_allow_html=True)
+with st.container(border=True):
+    meta_col1, meta_col2 = st.columns(2, gap="large")
+    with meta_col1:
+        st.text_input(
+            "Reporting Institution",
+            key="input_reporting_institution",
+            placeholder="e.g. ACME Bank Singapore Pte Ltd (MAS-licensed)",
+            help="Set DEFAULT_REPORTING_INSTITUTION in .env to pre-fill across cases.",
+        )
+        st.text_input(
+            "STR Reference",
+            key="input_str_reference",
+            placeholder="e.g. STR-2026-04-0042",
+        )
+        st.date_input(
+            "Date of Filing",
+            key="input_date_of_filing",
+        )
+    with meta_col2:
+        st.text_input(
+            "Prepared by (analyst)",
+            key="input_prepared_by",
+            placeholder="e.g. Lim Wei Ling, Senior Compliance Analyst",
+            help="Set DEFAULT_ANALYST_NAME in .env to pre-fill.",
+        )
+        st.text_input(
+            "MLRO Sign-off",
+            key="input_mlro_signoff",
+            placeholder="e.g. Tan Boon Heng, MLRO",
+            help="Set DEFAULT_MLRO_NAME in .env to pre-fill.",
+        )
 
 # Input form
 col1, col2 = st.columns(2, gap="large")
@@ -442,6 +506,11 @@ if generate:
     red_flags = st.session_state["input_red_flags"]
     analyst_notes = st.session_state["input_analyst_notes"]
     recommendation = st.session_state["input_recommendation"]
+    reporting_institution = st.session_state["input_reporting_institution"]
+    str_reference = st.session_state["input_str_reference"]
+    prepared_by = st.session_state["input_prepared_by"]
+    mlro_signoff = st.session_state["input_mlro_signoff"]
+    date_of_filing = st.session_state["input_date_of_filing"]
 
     rubric_path = RUBRICS[jurisdiction]
 
@@ -453,7 +522,14 @@ if generate:
         st.error("ANTHROPIC_API_KEY not set. Edit ~/dev/amlagents/.env and restart the app.")
     else:
         rubric = rubric_path.read_text()
-        user_input = f"""[SUBJECT]
+        user_input = f"""[FILING METADATA]
+Reporting Institution: {reporting_institution or '[not provided]'}
+STR Reference: {str_reference or '[not provided]'}
+Date of Filing: {date_of_filing.strftime('%Y-%m-%d') if date_of_filing else '[not provided]'}
+Prepared by: {prepared_by or '[not provided]'}
+MLRO Sign-off: {mlro_signoff or '[not provided]'}
+
+[SUBJECT]
 Name: {customer_name or '[not provided]'}
 ID: {customer_id or '[not provided]'}
 KYC: {customer_kyc or '[not provided]'}
