@@ -27,6 +27,7 @@ from lib.consortium import (
     submit as consortium_submit,
 )
 from lib.horizon import all_items_for_jurisdiction, items_for_jurisdiction
+from lib.news import TOPICS as NEWS_TOPICS, items_for as news_items_for
 from lib.obligations import (
     STATUSES,
     add_obligation,
@@ -1426,8 +1427,14 @@ model = st.session_state["model"]
 # ============================================================================
 # Top-level tabs — Draft STR / Connectors / Obligation register / Horizon scanning
 # ============================================================================
-tab_draft, tab_connectors, tab_obligations, tab_horizon = st.tabs(
-    ["Draft STR", "Connectors", "Obligation register", "Horizon scanning"]
+tab_draft, tab_connectors, tab_obligations, tab_horizon, tab_news = st.tabs(
+    [
+        "Draft STR",
+        "Connectors",
+        "Obligation register",
+        "Horizon scanning",
+        "Jurisdictional news",
+    ]
 )
 
 with tab_draft:
@@ -2299,4 +2306,110 @@ with tab_horizon:
     st.caption(
         "Curated to 2026-04-28. v0 uses a static catalogue; production roadmap pulls from "
         "regulator RSS feeds (MAS, HKMA, BNM, AUSTRAC) with LLM-assisted summarization."
+    )
+
+
+# ============================================================================
+# Jurisdictional news tab — broader compliance/fintech/regtech news per country
+# ============================================================================
+with tab_news:
+    st.markdown(
+        '<div class="section-label">Jurisdictional news</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "Industry news, market events, talent moves, M&A, fraud-trend coverage, and regulator "
+        "announcements across the four jurisdictions. Distinct from horizon scanning (which "
+        "tracks regulatory change). Filter by country and topic."
+    )
+
+    n_col1, n_col2, n_col3, n_col4 = st.columns([2, 2, 1, 1])
+    with n_col1:
+        news_jur = st.selectbox(
+            "Filter by country",
+            ["All jurisdictions"] + list(RUBRICS.keys()),
+            key="news_jur_filter",
+        )
+    with n_col2:
+        news_topic = st.selectbox(
+            "Filter by topic",
+            ["All topics"] + NEWS_TOPICS,
+            key="news_topic_filter",
+        )
+    with n_col3:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        news_include_live = st.toggle(
+            "Live feeds",
+            value=True,
+            key="news_include_live",
+            help="Pull from industry RSS (FinExtra, ACAMS Today, CoinDesk, etc.) — cached 30 min.",
+        )
+    with n_col4:
+        st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
+        news_refresh = st.button(
+            "Refresh",
+            use_container_width=True,
+            key="news_refresh_btn",
+            help="Force-refresh live feeds (bypass 30-min cache).",
+        )
+
+    news_items, news_statuses = news_items_for(
+        jurisdiction=news_jur,
+        topic=news_topic,
+        include_live=news_include_live,
+        force_refresh=news_refresh,
+    )
+
+    if news_include_live and news_statuses:
+        ok_count = sum(
+            1 for v in news_statuses.values()
+            if v.startswith("OK") or v.startswith("cached")
+        )
+        err_count = sum(1 for v in news_statuses.values() if v.startswith("error"))
+        if err_count == 0:
+            st.caption(f"Industry feeds: {ok_count} responding · cache TTL 30 min")
+        else:
+            with st.expander(
+                f"Live feed status — {ok_count} OK, {err_count} unavailable",
+                expanded=False,
+            ):
+                for k, v in news_statuses.items():
+                    icon = "OK" if (v.startswith("OK") or v.startswith("cached")) else "FAIL"
+                    st.markdown(f"- **{icon}** {k}: `{v}`")
+
+    if not news_items:
+        st.info("No news items match your filter.")
+    else:
+        for item in news_items:
+            with st.container(border=True):
+                row = st.columns([4, 1])
+                with row[0]:
+                    st.markdown(
+                        f"**{item.title}**  \n"
+                        f'<small style="color: #64748b;">'
+                        f"{item.date}  ·  {item.jurisdiction}  ·  {item.topic}  ·  "
+                        f"Source: {item.source}"
+                        f"</small>",
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown(f"<small>{item.summary}</small>", unsafe_allow_html=True)
+                    st.markdown(
+                        f'<a href="{item.url}" target="_blank" '
+                        f'style="font-size: 0.82rem;">Open source →</a>',
+                        unsafe_allow_html=True,
+                    )
+                with row[1]:
+                    st.markdown(
+                        f'<div style="text-align: right; padding-top: 0.4rem;">'
+                        f'<span style="background: #1e40af; color: white; '
+                        f'padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; '
+                        f'font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">'
+                        f"{item.topic.split(' / ')[0]}</span></div>",
+                        unsafe_allow_html=True,
+                    )
+
+    st.caption(
+        f"Curated to {time.strftime('%Y-%m-%d')}. v0 uses static + RSS-pulled feeds. "
+        "Production roadmap: per-country news APIs, LinkedIn/Twitter signals, "
+        "LLM-summarised industry intelligence."
     )
