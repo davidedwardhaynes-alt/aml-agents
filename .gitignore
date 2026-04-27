@@ -13,3 +13,6 @@ data/avatars/
 
 # User obligations register — local-only persistence
 data/obligations.yaml
+
+# Consortium log — local-only persistence (will be remote backend in production)
+data/consortium.yaml

@@ -20,6 +20,12 @@ from auth.users import (
     update_user_profile,
 )
 from lib.connectors import by_category as connectors_by_category
+from lib.consortium import (
+    amount_band,
+    extract_tags,
+    lookup as consortium_lookup,
+    submit as consortium_submit,
+)
 from lib.horizon import all_items_for_jurisdiction, items_for_jurisdiction
 from lib.obligations import (
     STATUSES,
@@ -1849,6 +1855,105 @@ with tab_draft:
                 f"Opens the {portal_name} filing system in a new tab. "
                 "You'll need your institution's credentials to authenticate."
             )
+
+            # ==============================================================
+            # Consortium (beta) — cross-institution STR intelligence sharing
+            # ==============================================================
+            st.markdown(
+                '<div class="output-label" style="margin-top: 1.5rem;">Consortium (beta)</div>',
+                unsafe_allow_html=True,
+            )
+            with st.container(border=True):
+                # Compute consortium fingerprint for the current case
+                _tags = extract_tags(red_flags, analyst_notes, alert_reason, adverse_media)
+                _amount_band = amount_band(transactions)
+
+                _lookup = consortium_lookup(
+                    subject_name=customer_name,
+                    subject_id=customer_id,
+                    jurisdiction=jurisdiction,
+                    entity_category=entity_category if entity_category != "[not provided]" else "",
+                    typology_tags=_tags,
+                    institution=reporting_institution,
+                )
+
+                cons_col1, cons_col2 = st.columns([2, 1])
+                with cons_col1:
+                    st.markdown(
+                        f"**Consortium hash for this STR:** `{_lookup['subject_hash']}`  \n"
+                        f"<small style='color: #64748b;'>"
+                        f"Anonymous hash of subject identifiers — same subject filed by another "
+                        f"institution would generate the same hash without revealing the original "
+                        f"name or ID."
+                        f"</small>",
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown(
+                        f"**Detected typology tags:** "
+                        f"{', '.join(f'`{t}`' for t in _tags) if _tags else '<i>none extracted</i>'}",
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown(f"**Amount band:** `{_amount_band}`")
+
+                with cons_col2:
+                    cs = _lookup["score"]
+                    cs_color = "#059669" if cs == 0 else ("#d97706" if cs < 50 else "#dc2626")
+                    cs_label = "No prior matches" if cs == 0 else (
+                        "Some pattern overlap" if cs < 50 else "Multi-institution pattern detected"
+                    )
+                    st.markdown(
+                        f'<div style="text-align: center; padding-top: 0.5rem;">'
+                        f'<div style="font-size: 0.7rem; font-weight: 600; color: #475569; '
+                        f'text-transform: uppercase; letter-spacing: 0.05em;">Consortium score</div>'
+                        f'<div style="font-size: 2.5rem; font-weight: 700; color: {cs_color};">'
+                        f'{cs}/100</div>'
+                        f'<div style="font-size: 0.78rem; color: {cs_color}; font-weight: 500;">'
+                        f'{cs_label}</div></div>',
+                        unsafe_allow_html=True,
+                    )
+
+                if _lookup["breakdown"]:
+                    with st.expander("Score breakdown", expanded=cs > 0):
+                        for b in _lookup["breakdown"]:
+                            st.markdown(f"- {b}")
+                        st.caption(
+                            "v0 placeholder scoring. Tomorrow's session: refine the algorithm "
+                            "with your methodology. Production deployment requires backend API "
+                            "+ legal framework (US Patriot Act 314(b), AMLA s.66B, etc.)."
+                        )
+
+                if _lookup["own_filings_for_this_subject"] > 0:
+                    st.info(
+                        f"You have previously filed {_lookup['own_filings_for_this_subject']} "
+                        f"STR(s) for this subject hash. Consider whether this is a continuation "
+                        f"or a new pattern."
+                    )
+
+                if st.button(
+                    "Submit this STR to the consortium",
+                    type="secondary",
+                    use_container_width=True,
+                    help=(
+                        "Logs the anonymized fingerprint (hashed subject + tags + jurisdiction + "
+                        "amount band) to the consortium. Original narrative is never shared."
+                    ),
+                ):
+                    submitted = consortium_submit(
+                        subject_name=customer_name,
+                        subject_id=customer_id,
+                        institution=reporting_institution,
+                        jurisdiction=jurisdiction,
+                        entity_category=entity_category if entity_category != "[not provided]" else "",
+                        alert_source=alert_source,
+                        typology_tags=_tags,
+                        amount_band_value=_amount_band,
+                        risk_score=ts_risk_score,
+                        str_reference=str_reference,
+                    )
+                    st.success(
+                        f"Submitted to consortium as `{submitted.id}` — "
+                        f"hash `{submitted.subject_hash_value}` logged."
+                    )
 
             # Email forward — generates a mailto link with pre-filled subject + body.
             # Note: browsers cannot auto-attach the PDF via mailto; user must
