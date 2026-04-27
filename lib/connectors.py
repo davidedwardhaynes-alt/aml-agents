@@ -20,6 +20,17 @@ class Connector:
 
 
 CONNECTORS: list[Connector] = [
+    # ---- TrustSphere proprietary (featured) ----
+    Connector(
+        "TrustSphere Risk Index",
+        "Risk scoring (proprietary)",
+        "Composite financial-crime risk score combining sanctions, PEP, adverse media, "
+        "transaction-pattern, and beneficial-owner signals into a single 0–100 risk band. "
+        "Powered by TrustSphere Partners.",
+        "https://trustsphere.partners/risk-index",
+        status="Native to AML Agents",
+    ),
+
     # Transaction monitoring
     Connector(
         "Hawk AI",

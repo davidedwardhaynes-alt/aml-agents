@@ -1372,6 +1372,9 @@ with tab_draft:
         prepared_by = st.session_state["input_prepared_by"]
         mlro_signoff = st.session_state["input_mlro_signoff"]
         date_of_filing = st.session_state["input_date_of_filing"]
+        alert_source = st.session_state.get("input_alert_source", "Internal transaction monitoring")
+        ts_risk_score = st.session_state.get("input_ts_risk_score", 0)
+        ts_risk_band = "Low" if ts_risk_score < 40 else ("Medium" if ts_risk_score < 70 else "High")
         if entity_category == "— Select —":
             entity_category = "[not provided]"
 
