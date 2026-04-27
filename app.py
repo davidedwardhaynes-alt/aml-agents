@@ -1317,6 +1317,52 @@ with tab_draft:
 
         st.markdown('<div class="section-label">Triggering activity</div>', unsafe_allow_html=True)
         with st.container(border=True):
+            # Alert source dropdown — TrustSphere Risk Index featured first
+            from lib.connectors import CONNECTORS as _ALL_CONNECTORS
+            _alert_source_options = ["TrustSphere Risk Index", "Internal transaction monitoring"] + [
+                c.name for c in _ALL_CONNECTORS
+                if c.category in (
+                    "Transaction monitoring",
+                    "Transaction monitoring & case management",
+                    "Transaction monitoring (enterprise)",
+                    "Transaction monitoring & contextual decisioning",
+                    "Transaction monitoring & fraud",
+                )
+                and c.name != "TrustSphere Risk Index"
+            ] + ["Other / external referral"]
+
+            if st.session_state.get("input_alert_source") not in _alert_source_options:
+                st.session_state["input_alert_source"] = _alert_source_options[0]
+
+            st.selectbox(
+                "Alert source",
+                _alert_source_options,
+                key="input_alert_source",
+                help="Which connected platform raised this alert. TrustSphere Risk Index is the featured composite signal.",
+            )
+
+            # TrustSphere Risk Index — score slider with band badge
+            ts_col1, ts_col2 = st.columns([2, 1])
+            with ts_col1:
+                ts_score_val = st.slider(
+                    "TrustSphere Risk Index score (0–100)",
+                    min_value=0,
+                    max_value=100,
+                    value=st.session_state.get("input_ts_risk_score", 0),
+                    key="input_ts_risk_score",
+                    help="Composite risk score from TrustSphere Risk Index. 0–39 Low, 40–69 Medium, 70–100 High.",
+                )
+            with ts_col2:
+                _band = "Low" if ts_score_val < 40 else ("Medium" if ts_score_val < 70 else "High")
+                _band_color = {"Low": "#059669", "Medium": "#d97706", "High": "#dc2626"}[_band]
+                st.markdown(
+                    f'<div style="margin-top: 1.85rem; text-align: center;">'
+                    f'<span style="background: {_band_color}; color: white; padding: 0.4rem 0.9rem; '
+                    f'border-radius: 6px; font-weight: 600; font-size: 0.85rem;">'
+                    f'{ts_score_val} — {_band}</span></div>',
+                    unsafe_allow_html=True,
+                )
+
             st.text_area(
                 "Transactions",
                 key="input_transactions",
@@ -1405,6 +1451,8 @@ with tab_draft:
     {transactions or '[not provided]'}
 
     [ALERT]
+    Source: {alert_source}
+    TrustSphere Risk Index: {ts_risk_score}/100 ({ts_risk_band})
     Reason: {alert_reason or '[not provided]'}
     Red flags: {red_flags or '[not provided]'}
 
