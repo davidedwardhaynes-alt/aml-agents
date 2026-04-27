@@ -5,6 +5,8 @@ import streamlit as st
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
+from lib.sanctions import classify_match, search_sanctions, summarize_entity
+
 load_dotenv()
 
 ROOT = Path(__file__).parent
@@ -218,6 +220,80 @@ with col1:
             key="input_customer_id",
             placeholder="e.g. A123456789",
         )
+
+        # Sanctions / PEP / watchlist screening
+        current_name = st.session_state.get("input_customer_name", "")
+        screen_btn_col, _ = st.columns([1, 1])
+        with screen_btn_col:
+            screen = st.button(
+                "Screen against sanctions / PEP lists",
+                use_container_width=True,
+                disabled=len(current_name.strip()) < 3,
+                help="Searches OpenSanctions (UN, OFAC, EU, UK HMT, MAS, AUSTRAC, and 200+ other lists, plus PEPs).",
+            )
+
+        if screen:
+            with st.spinner("Searching OpenSanctions…"):
+                result = search_sanctions(current_name)
+            st.session_state["screening_result"] = result
+            st.session_state["screening_query"] = current_name
+
+        # Show screening results if they match the current name
+        if (
+            "screening_result" in st.session_state
+            and st.session_state.get("screening_query") == current_name
+            and current_name.strip()
+        ):
+            sr = st.session_state["screening_result"]
+            if sr.get("api_key_required"):
+                st.warning(
+                    "**OpenSanctions API key required.** "
+                    "Register free at [opensanctions.org/account/login](https://www.opensanctions.org/account/login), "
+                    "copy your API key, then add this line to `~/dev/amlagents/.env`:  \n"
+                    "`OPENSANCTIONS_API_KEY=your-key-here`  \n"
+                    "Then restart the app."
+                )
+            elif "error" in sr:
+                st.warning(f"Screening service unavailable: {sr['error']}")
+            elif sr["total"] == 0:
+                st.success(
+                    f"No matches found in OpenSanctions for '{current_name}'. "
+                    "Searched 200+ sanctions, PEP, and watchlist sources."
+                )
+            else:
+                hits = [summarize_entity(r) for r in sr["results"]]
+                top_score = max(h["score"] for h in hits)
+                top_class = classify_match(top_score)
+
+                if top_class == "high":
+                    st.error(
+                        f"**HIGH-CONFIDENCE MATCH** — {len(hits)} result(s), "
+                        f"top score {top_score:.2f}. Review before proceeding."
+                    )
+                elif top_class == "medium":
+                    st.warning(
+                        f"**Possible match** — {len(hits)} result(s), "
+                        f"top score {top_score:.2f}. Likely worth investigating."
+                    )
+                else:
+                    st.info(
+                        f"{len(hits)} low-confidence match(es), top score "
+                        f"{top_score:.2f}. Likely false positives but review."
+                    )
+
+                for h in hits:
+                    klass = classify_match(h["score"])
+                    badge = {"high": "🔴", "medium": "🟡", "low": "⚪"}[klass]
+                    with st.expander(
+                        f"{badge}  {h['caption']}  ·  score {h['score']:.2f}  ·  {h['schema']}",
+                        expanded=(klass == "high"),
+                    ):
+                        st.markdown(f"**Datasets:** {h['datasets']}")
+                        st.markdown(f"**Topics:** {h['topics']}")
+                        st.markdown(f"**Country:** {h['country']}")
+                        if h["url"]:
+                            st.markdown(f"[View on OpenSanctions →]({h['url']})")
+
         st.text_area(
             "KYC summary",
             key="input_customer_kyc",
