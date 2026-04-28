@@ -1765,14 +1765,109 @@ with tab_draft:
         ts_risk_score = st.session_state.get("input_ts_risk_score", 0)
         ts_risk_band = "Low" if ts_risk_score < 40 else ("Medium" if ts_risk_score < 70 else "High")
         adverse_media = st.session_state.get("input_adverse_media", "")
-        # Document name lists for prompt context (content extraction is v1)
+        # Document lists for prompt context AND multi-modal content blocks
+        supporting_files = st.session_state.get("input_supporting_docs") or []
+        adverse_files = st.session_state.get("input_adverse_docs") or []
         supporting_docs_list = (
-            ", ".join(d.name for d in (st.session_state.get("input_supporting_docs") or []))
-            or "[none attached]"
+            ", ".join(d.name for d in supporting_files) or "[none attached]"
         )
         adverse_docs_list = (
-            ", ".join(d.name for d in (st.session_state.get("input_adverse_docs") or []))
-            or "[none attached]"
+            ", ".join(d.name for d in adverse_files) or "[none attached]"
+        )
+
+        # ============================================================
+        # Build multi-modal content blocks: Claude reads PDFs / images natively.
+        # ============================================================
+        import base64 as _b64
+
+        def _file_to_block(uploaded_file, label: str):
+            """Convert a Streamlit UploadedFile to an Anthropic content block.
+
+            Returns None if the file type is unsupported.
+            Supported: PDF (document block), images (image block), text (text block).
+            """
+            try:
+                data = uploaded_file.getvalue()
+            except Exception:
+                return None
+            name = uploaded_file.name
+            mime = (uploaded_file.type or "").lower()
+            ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
+
+            # PDF — Anthropic native PDF support
+            if mime == "application/pdf" or ext == "pdf":
+                return {
+                    "type": "document",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "application/pdf",
+                        "data": _b64.b64encode(data).decode("ascii"),
+                    },
+                    "title": f"{label}: {name}",
+                }
+            # Images
+            if mime.startswith("image/") or ext in ("png", "jpg", "jpeg", "gif", "webp"):
+                # Normalize media type
+                if ext in ("jpg", "jpeg"):
+                    media_type = "image/jpeg"
+                elif ext == "png":
+                    media_type = "image/png"
+                elif ext == "gif":
+                    media_type = "image/gif"
+                elif ext == "webp":
+                    media_type = "image/webp"
+                else:
+                    media_type = mime or "image/png"
+                return {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": media_type,
+                        "data": _b64.b64encode(data).decode("ascii"),
+                    },
+                }
+            # Plain text — pass content directly
+            if mime.startswith("text/") or ext in ("txt", "csv", "eml"):
+                try:
+                    text = data.decode("utf-8", errors="replace")
+                except Exception:
+                    text = ""
+                if text.strip():
+                    snippet = text[:5000]  # cap per-doc text size
+                    return {
+                        "type": "text",
+                        "text": f"\n\n[{label}: {name}]\n{snippet}\n",
+                    }
+            # Unsupported type — skip
+            return None
+
+        # Cap total docs to keep cost reasonable. Skipped docs noted in prompt.
+        MAX_DOCS = 6
+        document_blocks = []
+        skipped_docs: list[str] = []
+        for f in supporting_files[:MAX_DOCS]:
+            b = _file_to_block(f, "Customer document")
+            if b is None:
+                skipped_docs.append(f.name)
+            else:
+                document_blocks.append(b)
+        for f in adverse_files[: max(0, MAX_DOCS - len(document_blocks))]:
+            b = _file_to_block(f, "Adverse-media document")
+            if b is None:
+                skipped_docs.append(f.name)
+            else:
+                document_blocks.append(b)
+        if len(supporting_files) + len(adverse_files) > MAX_DOCS:
+            overflow = supporting_files[MAX_DOCS:] + adverse_files[
+                max(0, MAX_DOCS - len(supporting_files)):
+            ]
+            for f in overflow:
+                skipped_docs.append(f"{f.name} (over MAX_DOCS={MAX_DOCS} limit)")
+
+        skipped_note = (
+            f"\n\n[Documents skipped — unsupported type or over per-case limit]: "
+            f"{', '.join(skipped_docs)}"
+            if skipped_docs else ""
         )
         if entity_category == "— Select —":
             entity_category = "[not provided]"
@@ -1818,15 +1913,29 @@ with tab_draft:
     [SUPPORTING DOCUMENTS REVIEWED]
     Customer documents: {supporting_docs_list}
     Adverse-media documents: {adverse_docs_list}
+    {skipped_note}
 
     [RECOMMENDATION]
     {recommendation}
 
-    Draft the STR narrative following the rubric. Use only facts stated in the inputs. Never fabricate."""
+    Draft the STR narrative following the rubric. Use only facts stated in the inputs and any uploaded documents. Never fabricate.
+
+    For uploaded documents (PDFs, images, text): extract specific facts that support the narrative — transaction amounts, dates, named parties, addresses, signatures, watermarks, source-of-wealth declarations. Tag any fact extracted from a document as `[A]` (analyst-supplied via the document) and identify the source document by name."""
 
             client = Anthropic()
 
-            with st.spinner("Drafting narrative…"):
+            # Build the user message: text input + any document/image content blocks.
+            # Anthropic accepts a list of content blocks for multi-modal input.
+            user_content_blocks = [{"type": "text", "text": user_input}]
+            user_content_blocks.extend(document_blocks)
+
+            spinner_msg = (
+                f"Drafting narrative + analysing {len(document_blocks)} document(s)…"
+                if document_blocks
+                else "Drafting narrative…"
+            )
+
+            with st.spinner(spinner_msg):
                 response = client.messages.create(
                     model=model,
                     max_tokens=2000,
@@ -1837,7 +1946,7 @@ with tab_draft:
                             "cache_control": {"type": "ephemeral"},
                         }
                     ],
-                    messages=[{"role": "user", "content": user_input}],
+                    messages=[{"role": "user", "content": user_content_blocks}],
                 )
 
             narrative = response.content[0].text
