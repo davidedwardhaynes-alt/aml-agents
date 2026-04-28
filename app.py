@@ -20,7 +20,11 @@ from auth.users import (
     save_config,
     update_user_profile,
 )
-from lib.connectors import by_category as connectors_by_category
+from lib.connectors import (
+    ALL_STATUSES as CONNECTOR_STATUSES,
+    STATUS_COLOURS as CONNECTOR_STATUS_COLOURS,
+    by_status as connectors_by_status,
+)
 from lib.consortium import (
     amount_band,
     extract_tags,
@@ -2146,50 +2150,85 @@ with tab_draft:
 
 
 # ============================================================================
-# Connectors tab — third-party platform catalogue (TM, KYC, sanctions, etc.)
+# Connectors tab — integration roadmap. Each connector populates specific STR
+# form sections when wired up (KYC → Subject, alerts → Triggering activity,
+# screening hits → Sanctions screening, etc.). Status reflects build state.
 # ============================================================================
 with tab_connectors:
-    st.markdown('<div class="section-label">Platform connectors</div>', unsafe_allow_html=True)
     st.markdown(
-        "AML Agents can integrate with the platforms below for transaction-monitoring alert "
-        "ingestion, KYC/EDD data lookup, sanctions / PEP / adverse-media screening, and case "
-        "management. Real integrations are commercial deals negotiated per-customer (each vendor "
-        "has its own API and pricing). Click any tile to learn more or contact us to request a "
-        "specific integration."
+        '<div class="section-label">Integration roadmap</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "Native APIs to leading **AML / Transaction Monitoring / KYC / Sanctions screening** "
+        "platforms. Connectors don't just integrate — they **populate the STR**: KYC data flows "
+        "into Subject, alerts into Triggering activity, screening hits into the Sanctions panel, "
+        "wallet KYT scores into the Risk Index. Status reflects current build state."
     )
 
-    grouped = connectors_by_category()
-    for category, conns in grouped.items():
-        with st.container(border=True):
-            st.markdown(f"**{category}**")
-            cols = st.columns(2)
-            for i, c in enumerate(conns):
-                with cols[i % 2]:
-                    badge_color = "#10b981" if c.status.startswith("Connected") else "#94a3b8"
-                    st.markdown(
-                        f"""
-<div style="border-left: 3px solid {badge_color}; padding: 0.6rem 0.9rem; margin-bottom: 0.6rem;
-            background: #f8fafc; border-radius: 4px;">
+    cn_filter = st.selectbox(
+        "Filter by status",
+        ["All statuses"] + CONNECTOR_STATUSES,
+        key="connector_status_filter",
+    )
+
+    grouped = connectors_by_status()
+    if cn_filter != "All statuses":
+        grouped = {k: v for k, v in grouped.items() if k == cn_filter}
+
+    if not grouped:
+        st.info("No connectors match this filter.")
+    else:
+        for status, conns in grouped.items():
+            badge_color = CONNECTOR_STATUS_COLOURS.get(status, "#64748b")
+            with st.container(border=True):
+                st.markdown(
+                    f'<div style="margin-bottom: 0.6rem;">'
+                    f'<span style="background: {badge_color}; color: white; '
+                    f'padding: 0.25rem 0.7rem; border-radius: 4px; font-size: 0.78rem; '
+                    f'font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">'
+                    f'{status}</span>'
+                    f'<span style="color: #64748b; margin-left: 0.6rem; font-size: 0.85rem;">'
+                    f'{len(conns)} connector{"s" if len(conns) != 1 else ""}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+                cols = st.columns(2)
+                for i, c in enumerate(conns):
+                    with cols[i % 2]:
+                        populates_html = (
+                            "<div style='font-size: 0.72rem; color: #1e40af; margin-top: 0.4rem;'>"
+                            "<strong>Populates:</strong> "
+                            + " · ".join(c.populates)
+                            + "</div>"
+                            if c.populates else ""
+                        )
+                        st.markdown(
+                            f"""
+<div style="border-left: 3px solid {badge_color}; padding: 0.6rem 0.9rem;
+            margin-bottom: 0.5rem; background: #f8fafc; border-radius: 4px;">
     <div style="font-weight: 600; color: #0f172a;">
         <a href="{c.homepage}" target="_blank" style="color: #1e40af; text-decoration: none;">
             {c.name}
         </a>
     </div>
-    <div style="font-size: 0.85rem; color: #475569; margin-top: 0.2rem;">
+    <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.15rem;">
+        {c.category}  ·  {c.integration_type}
+    </div>
+    <div style="font-size: 0.85rem; color: #475569; margin-top: 0.4rem;">
         {c.description}
     </div>
-    <div style="font-size: 0.72rem; color: {badge_color}; margin-top: 0.4rem;
-                font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
-        {c.status}
-    </div>
+    {populates_html}
 </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
+                            """,
+                            unsafe_allow_html=True,
+                        )
 
     st.caption(
-        "Don't see a platform you use? Contact us — most modern AML platforms have "
-        "REST APIs or webhook delivery, and we can usually wire a connector in 1-2 weeks."
+        "Roadmap priorities tracked against ICP demand. If a platform you use isn't on the "
+        "roadmap or you'd like to bump priority, contact us — most modern AML / TM / KYC "
+        "vendors have REST APIs or webhook delivery, and a connector typically takes 1-2 "
+        "weeks per integration."
     )
 
 

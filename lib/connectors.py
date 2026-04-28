@@ -16,8 +16,22 @@ class Connector:
     category: str
     description: str
     homepage: str
-    status: str = "On request"  # Live / Beta / In development / Roadmap Q3 2026 / Roadmap Q4 2026 / Roadmap 2027 / On request
-    integration_type: str = "REST API"  # REST API / webhook / SFTP / file upload / OAuth
+    status: str = "On request"
+    integration_type: str = "REST API"
+    populates: tuple[str, ...] = ()  # which STR form sections this connector auto-fills
+
+
+# Form sections this connector can populate when integrated.
+POPULATES_SECTIONS = [
+    "Subject (KYC, customer profile)",
+    "Triggering activity (alerts, transactions)",
+    "Risk Index score",
+    "Sanctions / PEP screening",
+    "Adverse media findings",
+    "Supporting documents",
+    "Counterparty intelligence",
+    "Case post-back",  # write back the drafted narrative to the source platform
+]
 
 
 # Status sort order — Live first, then in-progress, then roadmap, then on-request
@@ -53,6 +67,7 @@ CONNECTORS: list[Connector] = [
         "https://trustsphere.partners/risk-index",
         status="Live",
         integration_type="Native (in-app)",
+        populates=('Risk Index score', 'Sanctions / PEP screening', 'Adverse media findings'),
     ),
     Connector(
         "OpenSanctions",
@@ -62,6 +77,7 @@ CONNECTORS: list[Connector] = [
         "https://www.opensanctions.org",
         status="Live",
         integration_type="REST API (/match/default)",
+        populates=('Sanctions / PEP screening',),
     ),
     Connector(
         "Anthropic Claude API",
@@ -71,6 +87,7 @@ CONNECTORS: list[Connector] = [
         "https://docs.anthropic.com",
         status="Live",
         integration_type="REST API",
+        populates=('Supporting documents',),
     ),
 
     # ---- In development (Q2 2026 — pre-event) ----
@@ -82,6 +99,7 @@ CONNECTORS: list[Connector] = [
         "https://sumsub.com",
         status="In development",
         integration_type="Webhook + REST",
+        populates=('Subject (KYC, customer profile)', 'Supporting documents'),
     ),
     Connector(
         "ComplyAdvantage",
@@ -91,6 +109,7 @@ CONNECTORS: list[Connector] = [
         "https://complyadvantage.com",
         status="In development",
         integration_type="REST API",
+        populates=('Sanctions / PEP screening', 'Adverse media findings'),
     ),
 
     # ---- Roadmap Q3 2026 (priority based on ICP demand) ----
@@ -102,6 +121,7 @@ CONNECTORS: list[Connector] = [
         "https://hawk.ai",
         status="Roadmap Q3 2026",
         integration_type="Webhook (alert ingestion)",
+        populates=('Triggering activity (alerts, transactions)', 'Risk Index score'),
     ),
     Connector(
         "Unit21",
@@ -111,6 +131,7 @@ CONNECTORS: list[Connector] = [
         "https://www.unit21.ai",
         status="Roadmap Q3 2026",
         integration_type="REST API (bidirectional)",
+        populates=('Triggering activity (alerts, transactions)', 'Case post-back'),
     ),
     Connector(
         "Sardine",
@@ -119,6 +140,7 @@ CONNECTORS: list[Connector] = [
         "https://www.sardine.ai",
         status="Roadmap Q3 2026",
         integration_type="Webhook + REST",
+        populates=('Triggering activity (alerts, transactions)', 'Risk Index score'),
     ),
     Connector(
         "Chainalysis",
@@ -128,6 +150,7 @@ CONNECTORS: list[Connector] = [
         "https://www.chainalysis.com",
         status="Roadmap Q3 2026",
         integration_type="REST API",
+        populates=('Risk Index score', 'Counterparty intelligence', 'Supporting documents'),
     ),
     Connector(
         "TRM Labs",
@@ -136,6 +159,7 @@ CONNECTORS: list[Connector] = [
         "https://www.trmlabs.com",
         status="Roadmap Q3 2026",
         integration_type="REST API",
+        populates=('Risk Index score', 'Counterparty intelligence'),
     ),
     Connector(
         "Elliptic",
@@ -144,6 +168,7 @@ CONNECTORS: list[Connector] = [
         "https://www.elliptic.co",
         status="Roadmap Q3 2026",
         integration_type="REST API",
+        populates=('Sanctions / PEP screening', 'Counterparty intelligence'),
     ),
 
     # ---- Roadmap Q4 2026 ----
@@ -155,6 +180,7 @@ CONNECTORS: list[Connector] = [
         "https://www.hummingbird.co",
         status="Roadmap Q4 2026",
         integration_type="REST API (bidirectional)",
+        populates=('Triggering activity (alerts, transactions)', 'Case post-back'),
     ),
     Connector(
         "Quantexa",
@@ -163,6 +189,7 @@ CONNECTORS: list[Connector] = [
         "https://www.quantexa.com",
         status="Roadmap Q4 2026",
         integration_type="REST API",
+        populates=('Counterparty intelligence', 'Subject (KYC, customer profile)'),
     ),
     Connector(
         "Lucinity",
@@ -171,6 +198,7 @@ CONNECTORS: list[Connector] = [
         "https://www.lucinity.com",
         status="Roadmap Q4 2026",
         integration_type="REST API",
+        populates=('Triggering activity (alerts, transactions)',),
     ),
     Connector(
         "Onfido (Entrust)",
@@ -179,6 +207,7 @@ CONNECTORS: list[Connector] = [
         "https://onfido.com",
         status="Roadmap Q4 2026",
         integration_type="Webhook + REST",
+        populates=('Subject (KYC, customer profile)', 'Supporting documents'),
     ),
     Connector(
         "Persona",
@@ -187,6 +216,7 @@ CONNECTORS: list[Connector] = [
         "https://withpersona.com",
         status="Roadmap Q4 2026",
         integration_type="Webhook + REST",
+        populates=('Subject (KYC, customer profile)', 'Supporting documents'),
     ),
     Connector(
         "Alloy",
@@ -195,6 +225,7 @@ CONNECTORS: list[Connector] = [
         "https://www.alloy.com",
         status="Roadmap Q4 2026",
         integration_type="REST API",
+        populates=('Subject (KYC, customer profile)',),
     ),
     Connector(
         "Refinitiv World-Check (LSEG)",
@@ -204,6 +235,7 @@ CONNECTORS: list[Connector] = [
         "https://www.lseg.com/en/risk-intelligence/screening-and-monitoring",
         status="Roadmap Q4 2026",
         integration_type="REST API",
+        populates=('Sanctions / PEP screening', 'Adverse media findings'),
     ),
     Connector(
         "Dow Jones Risk & Compliance",
@@ -212,6 +244,7 @@ CONNECTORS: list[Connector] = [
         "https://www.dowjones.com/professional/risk/",
         status="Roadmap Q4 2026",
         integration_type="REST API",
+        populates=('Sanctions / PEP screening', 'Adverse media findings'),
     ),
     Connector(
         "Snowflake",
@@ -221,6 +254,7 @@ CONNECTORS: list[Connector] = [
         "https://www.snowflake.com",
         status="Roadmap Q4 2026",
         integration_type="JDBC / REST",
+        populates=('Subject (KYC, customer profile)', 'Triggering activity (alerts, transactions)'),
     ),
     Connector(
         "Databricks",
@@ -229,6 +263,7 @@ CONNECTORS: list[Connector] = [
         "https://www.databricks.com",
         status="Roadmap Q4 2026",
         integration_type="JDBC / REST",
+        populates=('Subject (KYC, customer profile)', 'Triggering activity (alerts, transactions)'),
     ),
 
     # ---- Roadmap 2027 ----
@@ -239,6 +274,7 @@ CONNECTORS: list[Connector] = [
         "https://www.featurespace.com",
         status="Roadmap 2027",
         integration_type="Webhook",
+        populates=('Triggering activity (alerts, transactions)', 'Risk Index score'),
     ),
     Connector(
         "Cable",
@@ -247,6 +283,7 @@ CONNECTORS: list[Connector] = [
         "https://cable.tech",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Risk Index score',),
     ),
     Connector(
         "Resistant AI",
@@ -255,6 +292,7 @@ CONNECTORS: list[Connector] = [
         "https://www.resistant.ai",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Supporting documents', 'Risk Index score'),
     ),
     Connector(
         "Napier",
@@ -263,6 +301,7 @@ CONNECTORS: list[Connector] = [
         "https://www.napier.ai",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Triggering activity (alerts, transactions)',),
     ),
     Connector(
         "ThetaRay",
@@ -271,6 +310,7 @@ CONNECTORS: list[Connector] = [
         "https://www.thetaray.com",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Triggering activity (alerts, transactions)',),
     ),
     Connector(
         "SAS Anti-Money Laundering",
@@ -279,6 +319,7 @@ CONNECTORS: list[Connector] = [
         "https://www.sas.com/en_us/software/anti-money-laundering.html",
         status="Roadmap 2027",
         integration_type="SFTP / REST",
+        populates=('Triggering activity (alerts, transactions)', 'Case post-back'),
     ),
     Connector(
         "NICE Actimize",
@@ -287,6 +328,7 @@ CONNECTORS: list[Connector] = [
         "https://www.niceactimize.com",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Triggering activity (alerts, transactions)', 'Case post-back'),
     ),
     Connector(
         "Oracle Financial Services AML",
@@ -295,6 +337,7 @@ CONNECTORS: list[Connector] = [
         "https://www.oracle.com/financial-services/financial-crime/",
         status="Roadmap 2027",
         integration_type="REST API / JDBC",
+        populates=('Triggering activity (alerts, transactions)',),
     ),
     Connector(
         "IBM Safer Payments",
@@ -303,6 +346,7 @@ CONNECTORS: list[Connector] = [
         "https://www.ibm.com/products/safer-payments",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Triggering activity (alerts, transactions)',),
     ),
     Connector(
         "Salesforce Financial Services Cloud",
@@ -311,6 +355,7 @@ CONNECTORS: list[Connector] = [
         "https://www.salesforce.com/financial-services/",
         status="Roadmap 2027",
         integration_type="REST API",
+        populates=('Subject (KYC, customer profile)',),
     ),
 
     # ---- On request (build if a customer needs it) ----
@@ -321,6 +366,7 @@ CONNECTORS: list[Connector] = [
         "https://www.trulioo.com",
         status="On request",
         integration_type="REST API",
+        populates=('Subject (KYC, customer profile)',),
     ),
     Connector(
         "Veriff",
@@ -329,6 +375,7 @@ CONNECTORS: list[Connector] = [
         "https://www.veriff.com",
         status="On request",
         integration_type="REST API",
+        populates=('Subject (KYC, customer profile)',),
     ),
     Connector(
         "Jumio",
@@ -337,6 +384,7 @@ CONNECTORS: list[Connector] = [
         "https://www.jumio.com",
         status="On request",
         integration_type="REST API",
+        populates=('Subject (KYC, customer profile)',),
     ),
     Connector(
         "ComplyCube",
@@ -345,6 +393,7 @@ CONNECTORS: list[Connector] = [
         "https://www.complycube.com",
         status="On request",
         integration_type="REST API",
+        populates=('Subject (KYC, customer profile)', 'Sanctions / PEP screening'),
     ),
     Connector(
         "Moody's BvD (Orbis / Compliance Catalyst)",
@@ -353,6 +402,7 @@ CONNECTORS: list[Connector] = [
         "https://www.moodys.com/web/en/us/capabilities/compliance.html",
         status="On request",
         integration_type="REST API",
+        populates=('Counterparty intelligence',),
     ),
     Connector(
         "Sayari",
@@ -361,6 +411,7 @@ CONNECTORS: list[Connector] = [
         "https://sayari.com",
         status="On request",
         integration_type="REST API",
+        populates=('Counterparty intelligence', 'Adverse media findings'),
     ),
     Connector(
         "Castellum.AI",
@@ -369,6 +420,7 @@ CONNECTORS: list[Connector] = [
         "https://www.castellum.ai",
         status="On request",
         integration_type="REST API",
+        populates=('Sanctions / PEP screening',),
     ),
     Connector(
         "Kharon RiskWatcher",
@@ -377,6 +429,7 @@ CONNECTORS: list[Connector] = [
         "https://www.kharon.com",
         status="On request",
         integration_type="REST API",
+        populates=('Sanctions / PEP screening', 'Counterparty intelligence'),
     ),
     Connector(
         "Verafin (Nasdaq)",
@@ -385,6 +438,7 @@ CONNECTORS: list[Connector] = [
         "https://www.verafin.com",
         status="On request",
         integration_type="REST API",
+        populates=('Triggering activity (alerts, transactions)', 'Case post-back'),
     ),
     Connector(
         "ACAMS Risk Assessment",
@@ -393,6 +447,7 @@ CONNECTORS: list[Connector] = [
         "https://www.acams.org",
         status="On request",
         integration_type="File upload",
+        populates=('Risk Index score',),
     ),
 ]
 
