@@ -16,3 +16,6 @@ data/obligations.yaml
 
 # Consortium log — local-only persistence (will be remote backend in production)
 data/consortium.yaml
+
+# LLM-generated news articles (auto-generated via scripts/generate_articles.py)
+data/generated_articles.yaml
