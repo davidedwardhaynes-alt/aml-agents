@@ -1325,6 +1325,88 @@ with st.sidebar:
         st.session_state.pop("_profile_loaded_for", None)
         st.success("Profile saved. New defaults active on next case.")
 
+    # ---- Pre-flight system check — run before each ICP demo ----
+    st.markdown("---")
+    with st.expander("Pre-flight check", expanded=False):
+        st.caption(
+            "Run before each demo meeting to confirm everything's wired up."
+        )
+        if st.button("Run system check", use_container_width=True, key="preflight_btn"):
+            checks: list[tuple[str, bool, str]] = []
+
+            # Anthropic API key
+            anth_key = os.getenv("ANTHROPIC_API_KEY", "")
+            checks.append((
+                "Anthropic API key",
+                anth_key.startswith("sk-ant-") and len(anth_key) > 50,
+                f"set ({len(anth_key)} chars)" if anth_key else "missing",
+            ))
+
+            # OpenSanctions key
+            os_key = os.getenv("OPENSANCTIONS_API_KEY", "")
+            checks.append((
+                "OpenSanctions API key",
+                len(os_key) >= 16,
+                f"set ({len(os_key)} chars)" if os_key else "missing",
+            ))
+
+            # All 4 rubrics present
+            for jur, path in RUBRICS.items():
+                if path is None:
+                    checks.append((f"Rubric: {jur}", False, "no path configured"))
+                    continue
+                ok = path.exists() and path.stat().st_size > 1000
+                size = path.stat().st_size if path.exists() else 0
+                checks.append((
+                    f"Rubric: {jur}",
+                    ok,
+                    f"{size:,} bytes" if size else "missing",
+                ))
+
+            # All 4 guidance docs
+            for jur, path in GUIDANCE.items():
+                if path is None or not path.exists():
+                    checks.append((f"Guidance: {jur}", False, "missing"))
+                else:
+                    checks.append((
+                        f"Guidance: {jur}",
+                        path.stat().st_size > 500,
+                        f"{path.stat().st_size:,} bytes",
+                    ))
+
+            # Sample library has 6 per jurisdiction
+            from lib.connectors import CONNECTORS as _C
+            for jur in RUBRICS.keys():
+                samples = SAMPLE_LIBRARY.get(jur, {})
+                checks.append((
+                    f"Samples: {jur}",
+                    len(samples) >= 4,
+                    f"{len(samples)} samples loaded",
+                ))
+
+            # Connectors loaded
+            checks.append((
+                "Connectors catalogue",
+                len(_C) >= 100,
+                f"{len(_C)} platforms loaded",
+            ))
+
+            # Render results
+            n_pass = sum(1 for _, ok, _ in checks if ok)
+            n_fail = len(checks) - n_pass
+            if n_fail == 0:
+                st.success(f"All {len(checks)} checks passed — ready to demo")
+            else:
+                st.warning(f"{n_pass} passed, {n_fail} failed")
+            for label, ok, detail in checks:
+                icon = "✓" if ok else "✗"
+                color = "#059669" if ok else "#dc2626"
+                st.markdown(
+                    f'<div style="font-size: 0.82rem; color: {color};">'
+                    f'<strong>{icon}</strong> {label} — <small>{detail}</small></div>',
+                    unsafe_allow_html=True,
+                )
+
 # Initialize jurisdiction + model in session_state so the toolbar (rendered after
 # the header) can drive the header content via st.session_state lookups.
 if "jurisdiction" not in st.session_state:
@@ -1446,6 +1528,23 @@ tab_draft, tab_connectors, tab_obligations, tab_horizon, tab_news = st.tabs(
 )
 
 with tab_draft:
+    # Getting started — for ICPs trying the demo solo. Auto-collapsed for
+    # regular users so it doesn't get in the way of normal workflow.
+    with st.expander("New here? 5-step demo flow", expanded=False):
+        st.markdown(
+            """
+1. **Pick a jurisdiction** in the toolbar above (Singapore / Hong Kong / Malaysia / Australia)
+2. **Click *Load*** to populate the form with a sample case for that jurisdiction
+3. **Optional**: drag a sample PDF or KYC image into *Supporting documents* — Claude will read it
+4. **Click *Generate STR narrative*** — narrative appears in 5–15 seconds with `[A]` / `[I]` tags per sentence
+5. **Click *File this STR via [portal]*** to jump to the regulator's filing system
+
+Authority chips on the right of the header show which regulators apply to your jurisdiction. The **Filing guidance** expander below shows legal basis, threshold, timing, tipping-off rules. The **Filing metadata** section captures the institution + STR reference + sign-off details that go into the narrative header.
+
+Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation register** (regulatory deadlines), **Horizon scanning** (regulatory updates), and **Jurisdictional news** (industry coverage).
+            """
+        )
+
     # Jurisdiction guidance panel — collapsible, jurisdiction-aware
     guidance_path = GUIDANCE.get(jurisdiction)
     if guidance_path and guidance_path.exists():
