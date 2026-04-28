@@ -519,20 +519,53 @@ RSS_FEEDS: dict[str, list[tuple[str, str, str]]] = {
         ("MAS news", "https://www.mas.gov.sg/news/rss", "Regulatory"),
         ("MAS enforcement", "https://www.mas.gov.sg/news/enforcement-actions/rss", "Enforcement"),
         ("Singapore Police Force", "https://www.police.gov.sg/Newsroom/News?feed=rss", "Industry"),
+        ("ACRA news", "https://www.acra.gov.sg/news-events/rss", "Regulatory"),
+        ("CCCS news", "https://www.cccs.gov.sg/rss", "Regulatory"),
+        ("PDPC news", "https://www.pdpc.gov.sg/news-and-events/rss", "Regulatory"),
     ],
     "Hong Kong (JFIU)": [
         ("HKMA press releases", "https://www.hkma.gov.hk/eng/rss/press-releases.xml", "Regulatory"),
         ("SFC news", "https://www.sfc.hk/-/media/EN/files/News-and-announcements/News/rss/news.xml", "Regulatory"),
         ("ICAC news", "https://www.icac.org.hk/en/press/rss.xml", "Industry"),
+        ("HKEX news", "https://www.hkex.com.hk/-/media/HKEX-Market/News/News-Release/rss/news-release.xml", "Regulatory"),
+        ("Insurance Authority HK", "https://www.ia.org.hk/en/news/rss.xml", "Regulatory"),
     ],
     "Malaysia (FIED)": [
         ("BNM announcements", "https://www.bnm.gov.my/rss-announcement", "Regulatory"),
         ("SC Malaysia media releases", "https://www.sc.com.my/api/rss/MediaRelease", "Regulatory"),
+        ("Bursa Malaysia announcements", "https://www.bursamalaysia.com/about_bursa/media_centre/news/rss", "Regulatory"),
     ],
     "Australia (AUSTRAC SMR)": [
         ("AUSTRAC media", "https://www.austrac.gov.au/about-us/news-and-media/media-releases/feed", "Enforcement"),
         ("ASIC media releases", "https://asic.gov.au/about-asic/news-centre/find-a-media-release/feed/", "Regulatory"),
         ("APRA news", "https://www.apra.gov.au/news-and-publications/feed", "Regulatory"),
+        ("ACCC news", "https://www.accc.gov.au/about-us/news-and-publications/feed", "Regulatory"),
+        ("AFP news", "https://www.afp.gov.au/news-media/rss-feeds", "Enforcement"),
+        ("RBA news", "https://www.rba.gov.au/rss/rss-cb-media-releases.xml", "Regulatory"),
+        ("DFAT sanctions news", "https://www.dfat.gov.au/news/news/rss", "Sanctions"),
+    ],
+    # International / Standard-setters — these surface across "All jurisdictions" filter
+    "International / Standard-setters": [
+        ("FATF news", "https://www.fatf-gafi.org/en/publications/Fatfrecommendations.rss", "Regulatory"),
+        ("BIS press releases", "https://www.bis.org/list/press_releases/index.rss", "Regulatory"),
+        ("FSB news", "https://www.fsb.org/feed/", "Regulatory"),
+        ("OECD news", "https://www.oecd.org/news/news.xml", "Regulatory"),
+        ("IMF news", "https://www.imf.org/external/rss/en/news.aspx", "Regulatory"),
+        ("World Bank news", "https://www.worldbank.org/en/news/rss", "Regulatory"),
+        ("UNODC news", "https://www.unodc.org/unodc/index.rss", "Enforcement"),
+        ("APG news", "https://www.apgml.org/news/index.aspx?type=rss", "Enforcement"),
+        ("Egmont Group news", "https://egmontgroup.org/feed/", "Enforcement"),
+        ("Wolfsberg Group", "https://www.wolfsberg-principles.com/feed", "Regulatory"),
+    ],
+    # UK + US authoritative feeds — also surface in "All jurisdictions"
+    "United Kingdom & United States": [
+        ("FCA UK news", "https://www.fca.org.uk/news/rss.xml", "Regulatory"),
+        ("Bank of England news", "https://www.bankofengland.co.uk/rss/news", "Regulatory"),
+        ("US SEC press releases", "https://www.sec.gov/news/pressreleases.rss", "Regulatory"),
+        ("FinCEN news", "https://www.fincen.gov/feed/news_release", "Enforcement"),
+        ("OFAC recent actions", "https://ofac.treasury.gov/recent-actions.rss", "Sanctions"),
+        ("CFTC press releases", "https://www.cftc.gov/PressRoom/PressReleases/rss", "Regulatory"),
+        ("US DOJ news", "https://www.justice.gov/feeds/news.xml", "Enforcement"),
     ],
 }
 

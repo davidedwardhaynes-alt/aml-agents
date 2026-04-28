@@ -43,10 +43,11 @@ class NewsItem:
     date: str
     jurisdiction: str  # or "All jurisdictions"
     title: str
-    summary: str
+    summary: str  # 1-2 sentence intro shown in the feed
     source: str
     url: str
     topic: str
+    full_article: str = ""  # long-form analysis shown when "Read more" is opened
 
 
 # Curated news items as of late April 2026.
@@ -65,6 +66,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="The Business Times Singapore",
         url="https://www.businesstimes.com.sg/banking-finance",
         topic="Regulatory tech",
+        full_article="DBS Bank's S$180 million commitment to embedding large language models across its compliance and financial-crime functions reflects an industry-wide repositioning of compliance from cost centre to data-led decisioning function. The three-year programme will deploy LLM tooling across alert triage, suspicious-transaction-report drafting, and adverse-media review — areas that have historically absorbed the bulk of senior analyst time at Tier-1 Asian banks.\n\nThe Association of Banks in Singapore's April industry guidance on AI in compliance provides a baseline for the rollout. The guidance emphasises explainability, human-in-the-loop controls, and alignment with the Monetary Authority of Singapore's FEAT principles (Fairness, Ethics, Accountability, Transparency). DBS's positioning of AI as augmenting rather than replacing analyst headcount suggests an industry consensus that compliance work remains fundamentally judgment-driven, with AI applied to the structured-output components.\n\nThe economic case is straightforward. A typical Tier-1 SG bank files several hundred STRs per quarter; at 4-8 hours of senior analyst time per filing, the addressable productivity gain runs into the millions of dollars annually. The harder question is regulator acceptance: STR narratives drafted with LLM assistance must remain defensible, with auditable chains of fact provenance from analyst inputs to final language. Early evidence from MAS supervisory engagement suggests pragmatic acceptance, provided controls and audit trails are in place.\n\nOther major SG banks (OCBC, UOB, StanChart Asia) are expected to follow within 12 months. The competitive question shifts from whether to deploy LLM tooling to which institution achieves regulator-validated rubric refinement first.",
     ),
     NewsItem(
         date="2026-04-18",
@@ -78,6 +80,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Singapore FinTech News",
         url="https://www.fintechnews.sg",
         topic="Talent / Hiring",
+        full_article="The hiring move reflects a broader trend of senior regulators transitioning into compliance leadership at fintech firms — a pattern that has accelerated as MAS-licensed payment institutions face heightened scrutiny following the 2023 S$3 billion money-laundering case and subsequent enforcement actions against several SG-licensed payment platforms.\n\nFor Wise Singapore, the appointment signals an investment posture aligned with its rapid APAC expansion. The firm reported S$2.4 billion of payment volume processed through its SG entity in Q4 2025, up 31% year-on-year, with an analyst headcount that has grown more slowly. Hiring at the MLRO level addresses both the operational scale and the supervisory expectations that come with that scale.\n\nThe regulator-to-fintech career arc is now a recognised path for senior MAS staff at the Director level and above. Reasons cited in industry interviews include broader business exposure, equity upside in growth-stage firms, and frustration with the pace of regulatory change. The trade-off for fintechs is access to deep institutional knowledge but typically with a constrained tenure horizon — most appointees stay 2-4 years before moving on.\n\nIndustry observers note the trend may accelerate as Singapore's FATF mutual evaluation in Q4 2026 puts compliance leadership across the regulated sector under greater scrutiny.",
     ),
     NewsItem(
         date="2026-04-08",
@@ -91,6 +94,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Straits Times Business",
         url="https://www.straitstimes.com/business",
         topic="Crypto / VASP",
+        full_article='Singapore\'s retail crypto trading volumes through MAS-licensed Digital Payment Token service providers reached S$4.2 billion in Q1 2026, marking a 28% year-on-year increase. The growth has been concentrated at a small number of licensees — Coinhako, Crypto.com SG, Independent Reserve and Coinbase Asia together account for over 80% of reported volume.\n\nThe compliance implications are significant. Investment-scam-related complaints to the Singapore Police Force\'s Anti-Scam Centre rose at a comparable rate, with the centre reporting a 32% increase in scam reports involving crypto withdrawals as the layering channel. The pattern — victim deposits in fiat, immediate conversion to USDT or BTC, withdrawal to scam-controlled wallets — closely mirrors AUSTRAC\'s "Pig Butchering" typology bulletin and HK\'s recent VASP enforcement actions.\n\nMAS\'s response is taking shape through updated MAS Notice PSN02 guidance scheduled for H2 2026. The expected revisions cover three areas: enhanced source-of-funds verification at deposit thresholds (likely SGD 50,000 / 90 days), mandatory KYT screening of inbound and outbound wallet flows, and clearer expectations on customer-protection messaging when scam-victim mule patterns are detected.\n\nFor licensed DPT providers, the operating model implication is clear: KYT (Chainalysis, TRM Labs, Elliptic, or equivalent) screening is becoming a regulatory prerequisite rather than a competitive differentiator. The cost of compliance scales with volume, putting pressure on smaller licensees that may struggle to absorb the unit costs.',
     ),
     NewsItem(
         date="2026-03-28",
@@ -147,6 +151,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="South China Morning Post — Business",
         url="https://www.scmp.com/business",
         topic="Fintech / Digital banking",
+        full_article="The eight HKMA-licensed virtual banks — ZA Bank, Mox, livi, WeLab, Ant Bank HK, Airstar, Fusion, and Welab — collectively crossed 12% of retail deposits market share in Q1 2026. The aggregate figure obscures significant variance: ZA Bank and Mox together account for over 60% of virtual bank deposits, while smaller licensees continue to operate sub-scale.\n\nThe compliance scrutiny intensifies as scale grows. The HKMA's HKD 18 million enforcement action against an unnamed virtual bank earlier in April crystallised what supervisory authorities have been signalling privately for the past two years: that the digital-banking model's emphasis on frictionless onboarding has created systemic mule-account exposure that older Tier-1 banks experience at materially lower rates.\n\nThree control deficiencies recur in HKMA findings. First, e-KYC processes that satisfy customer-acquisition KPIs but fail under stress-test against organised mule-recruitment patterns. Second, transaction-monitoring rule sets calibrated to retail benign behaviour and slow to adapt when customer profiles shift post-onboarding. Third, alert-disposition workflows where junior analysts close mule cases without sufficient escalation given the velocity of organised criminal flows.\n\nResolution requires investment in continuous control testing, ML-based mule-cluster detection, and deeper integration with cross-bank intelligence sharing. The HKMA's policy direction signals that its expectations of virtual banks are converging with — not relaxed against — those for conventional Authorized Institutions.",
     ),
     NewsItem(
         date="2026-04-15",
@@ -161,6 +166,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Asia Crypto Today",
         url="https://www.asiacryptotoday.com",
         topic="Crypto / VASP",
+        full_article="HashKey Exchange's tokenised real-world-asset platform, launched under the SFC's regulatory sandbox, marks a structural shift in Hong Kong's positioning for institutional crypto. Initial offerings are tokenised investment-grade bonds, sold to professional investors only — a deliberate scope-limitation that reflects both SFC caution and market realism about retail readiness for RWA products.\n\nThe AML implications are substantive. Tokenised RWAs sit at the intersection of conventional securities regulation and emerging VA (virtual asset) supervision. SFC's licensing framework for VASPs (operative since June 2023) and the parallel securities-licensing regime for fund managers create overlapping but not fully aligned obligations on customer due diligence, source-of-wealth verification, and the application of the FATF Travel Rule to tokenised-asset transfers.\n\nFor HashKey and other VASPs entering the RWA market, three operational questions are unresolved. First, where the AML perimeter sits when a tokenised bond is transferred between custodial wallets at different institutions — does the issuer, the custodian, or both bear the obligation? Second, how the Travel Rule applies when transfers are settled on-chain but ultimate beneficial owners are tracked off-chain in custodian books. Third, what enhanced source-of-wealth threshold applies given that RWA products are typically larger than retail crypto purchases.\n\nIndustry view is that SFC will issue specific RWA AML guidance in H2 2026. The market opportunity for HK is significant: regional competitors in Singapore (Project Guardian) and Australia (ASIC innovation hub) are also moving but each with different regulatory architectures, leaving room for HK's existing VASP framework to anchor the institutional segment.",
     ),
     NewsItem(
         date="2026-04-02",
@@ -340,6 +346,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="The Sydney Morning Herald",
         url="https://www.smh.com.au",
         topic="AML enforcement",
+        full_article="The near-completion of remediation programmes at Crown Resorts and Star Entertainment closes a four-year supervisory cycle that has fundamentally reshaped Australian casino-sector AML compliance. Both groups' independent monitor reports are due in Q3 2026, and industry observers expect substantive — if not unconditional — restoration of normal licensing operations.\n\nThe compliance lessons from Crown and Star will shape AUSTRAC's casino-sector supervision for the rest of the decade. The findings centred on multi-cage same-day buy-in structuring, junket-introduced patron diligence failures, and broader management-reporting deficiencies. The remediation programmes have implemented patron-recognition technology, integrated with AUSTRAC reporting; cross-property activity monitoring; and significant uplift in source-of-wealth verification at higher-tier patron engagement.\n\nSmaller regional casinos have been watching closely. Two such operators received enforceable undertakings in March 2026 covering similar control deficiencies — the first downstream signals of AUSTRAC's intent to extend its enforcement methodology beyond the major Sydney/Melbourne operators. The compliance cost implications for smaller venues, where economics are tighter, are material; expectations of further consolidation are widely held.\n\nThe broader regulatory signal is that the casino sector will not return to its pre-2022 operating mode. AUSTRAC has set a permanent shift in supervisory expectations, and AML/CTF investment is now an embedded operational cost rather than a discretionary one. The implications for the gambling sector's longer-term competitiveness against online platforms are debated but the regulatory direction of travel is settled.",
     ),
     NewsItem(
         date="2026-03-22",
@@ -397,6 +404,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Regulation Asia",
         url="https://www.regulationasia.com",
         topic="AML enforcement",
+        full_article="The tripartite memorandum of understanding between Singapore's STRO, Hong Kong's JFIU, and Australia's AUSTRAC operationalises a level of cross-border AML intelligence sharing that has been informally pursued for several years and now becomes a structured programme. The MoU's announced focus — scam-victim mule networks — is an explicit acknowledgement that no single FIU can effectively address what is a regional, organised criminal pattern.\n\nThe shared analytics platform, scheduled for first operational use in Q3 2026, marks an APAC first. The technical architecture is reported to be based on hashed-identifier matching with multi-jurisdiction FIU access — a model conceptually similar to the inter-bank intelligence sharing that ABS Singapore has pioneered, scaled up to FIU level. Privacy frameworks have been pre-cleared with each jurisdiction's data-protection regulator.\n\nFor reporting institutions, the immediate implications are indirect but significant. The MoU empowers FIUs to detect cross-border patterns that single-jurisdiction filing data cannot reveal. Where a bank in Singapore files an STR on a customer with mainland China beneficiary connections, the data point may now be surfaced to JFIU through automated processes — accelerating the speed at which supervisory typology bulletins can be developed and disseminated.\n\nIndustry analysts note that the tripartite MoU positions APAC ahead of the European Union's parallel work on EU-level AML supervisory aggregation. The APAC FIU coordination model may become the de facto template for cross-border AML intelligence sharing in other regions.",
     ),
     NewsItem(
         date="2026-04-21",
@@ -410,6 +418,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Regulation Asia",
         url="https://www.regulationasia.com",
         topic="Fintech / Digital banking",
+        full_article="Regulation Asia's editorial review of recent virtual bank AML enforcement across HKMA's HKD 18 million action, BNM's thematic findings on the Malaysian digital banking framework, and MAS expectations for Singapore digital banks identifies a common thread: e-KYC mule-detection deficiencies. The convergence of supervisory findings across three jurisdictions reflects that this is a systemic, model-level issue rather than an institution-specific failure.\n\nThe structural problem is straightforward. Digital banks have built their value proposition on frictionless onboarding — typically 5-10 minute account opening with NRIC/HKID/passport plus selfie liveness. The same low-friction process that delivers customer growth creates the openings that organised mule recruitment exploits. The economics push hard against introducing meaningful onboarding friction, even where compliance teams advocate for it.\n\nDetection therefore moves to ongoing monitoring. The supervisory expectation across HKMA, BNM, and MAS is that digital banks deploy ML-based clustering models for mule detection, real-time velocity-vs-profile rules, and integration with cross-bank intelligence sharing. The cost base implications are material — and several smaller digital bank licensees are reported to be operating below the compliance investment levels their regulators now expect.\n\nThe piece concludes that supervisory enforcement will likely consolidate around a small number of indicator-based regulatory metrics: mule-account precision/recall, alert-disposition timing, STR-rate per 1,000 customers, and integration with cross-bank intelligence-sharing platforms. These will increasingly be the operating metrics that distinguish well-supervised from problematic licensees.",
     ),
     NewsItem(
         date="2026-04-09",
@@ -453,6 +462,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Wolfsberg Group",
         url="https://www.wolfsberg-principles.com/publications",
         topic="AML enforcement",
+        full_article="The Wolfsberg Group's updated Statement on Effectiveness reflects an evolution that the major banks driving the Group have been signalling for several years. The shift from input-based AML measurement (controls in place, alerts generated, files reviewed) to outcomes-based measurement (illicit-flow disruption, prosecution-relevant intelligence) aligns the global standard with the FATF's revised Recommendation 1 risk-based approach guidance.\n\nThe operational implications are significant. Banks have historically reported on AML controls as a list of activities — number of alerts triaged, percentage of alerts dispositioned within service-level expectations, number of STRs filed. The Wolfsberg-recommended outcomes-based reporting requires correlating compliance activity to enforcement outcomes — a much harder data exercise that depends on FIU and law-enforcement feedback that has historically been slow or unavailable.\n\nThe integration of AI/ML in transaction monitoring is treated explicitly. The Statement permits — and effectively encourages — model-based detection in alert generation, provided that explainability is preserved at the alert-disposition stage. This validates what major banks have been deploying through 2024-2025 and addresses the supervisor concern that black-box models could mask both false-positive overload and missed cases.\n\nThe Statement is non-binding but consequential. Wolfsberg principles set the de facto operating standard for the major correspondent banks — and through correspondent-relationship cascades, the standard for thousands of smaller institutions globally. Implementation gaps will increasingly be flagged by correspondent banks as a relationship risk, not just a regulatory one.",
     ),
     NewsItem(
         date="2026-03-10",
@@ -483,6 +493,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="Egmont Group",
         url="https://egmontgroup.org/publications",
         topic="Scams / Fraud trends",
+        full_article="The Egmont Group's 2025 Annual Trends Report identifies investment scams as the dominant global money-laundering predicate by victim-loss volume — a designation that reflects both the volume of underlying criminal activity and the cross-border, multi-jurisdiction nature of the layering networks. AUD-, USD-, and EUR-denominated mule networks are documented across more than 40 jurisdictions, with significant Asia-Pacific and Eastern European concentrations.\n\nThe report's most operationally significant finding is the 31% year-on-year increase in cross-border information-sharing exchanges through Egmont channels — to 1,247 in 2025. The growth reflects both the scale of cross-border criminal activity and the maturation of inter-FIU cooperation post-FATF Recommendation 40 emphasis. APAC FIUs (STRO, JFIU, FIED, AUSTRAC) feature prominently in the exchange volume.\n\nThe implications for reporting institutions are downstream but real. The Egmont network operates at the FIU layer, but the typology intelligence it surfaces is increasingly fed back to reporting entities through national bulletins and supervisory engagement. The Q1 2026 BNM typology bulletin on investment-scam mules is partly a downstream product of Egmont information sharing about Asian-corridor scam networks.\n\nFor institutions, the takeaway is that mule-detection and scam-victim recognition are no longer optional capabilities. The supervisory bar is rising in parallel with the underlying criminal sophistication, and operational uplift in this area is now an enforcement-priority area across the major APAC FIUs.",
     ),
     NewsItem(
         date="2026-02-25",
@@ -513,6 +524,7 @@ NEWS_ITEMS: list[NewsItem] = [
         source="FATF",
         url="https://www.fatf-gafi.org/en/publications.html",
         topic="AML enforcement",
+        full_article='The FATF April 2026 Plenary\'s outcomes include two consequential developments for APAC institutions: the updated grey-list and the new strategic focus on real-world-asset (RWA) tokenisation AML standards. The grey-list revision saw two jurisdictions exit increased monitoring after multi-year remediation, while no APAC jurisdictions were added.\n\nThe RWA tokenisation focus is the more substantively interesting development. As tokenised investment-grade bonds, real estate, and trade finance instruments scale through Singapore\'s Project Guardian, Hong Kong\'s SFC sandbox, and Australia\'s ASIC innovation hub, the AML perimeter questions are converging on FATF guidance. The Plenary commissioned a typology paper on RWA-related ML, expected H2 2026, with input from APAC FIUs.\n\nThe beneficial-ownership transparency item is the third notable development. Recommendation 24 implementation review across APAC rated Singapore, Hong Kong, and Australia as "largely compliant," with Malaysia at "partially compliant" and a remediation roadmap. The differential ratings will translate into supervisory expectations on UBO verification at reporting institutions in each jurisdiction — particularly relevant for Malaysian banks operating in cross-border corporate-structure flows.\n\nThe 2026 grey-list outcome is consequential for SG, HK, and MY in a different way: their proximity to grey-listed Asian jurisdictions creates ongoing customer-due-diligence overhead. Reporting institutions in the major APAC financial centres typically have material customer exposure to grey-listed jurisdictions, and supervisory expectations on EDD for those flows will not relax.',
     ),
     NewsItem(
         date="2026-03-08",
@@ -572,12 +584,33 @@ NEWS_RSS_FEEDS: list[tuple[str, str, str]] = [
     ("Regulation Asia", "https://www.regulationasia.com/feed/", "AML enforcement"),
     ("Wolfsberg Group publications", "https://www.wolfsberg-principles.com/feed", "AML enforcement"),
     ("Egmont Group news", "https://egmontgroup.org/feed/", "AML enforcement"),
+    ("APG news", "https://www.apgml.org/news/index.aspx?type=rss", "AML enforcement"),
+
+    # ---- International standard-setters ----
+    ("FATF news", "https://www.fatf-gafi.org/en/publications/Fatfrecommendations.rss", "AML enforcement"),
+    ("BIS press releases", "https://www.bis.org/list/press_releases/index.rss", "Regulatory tech"),
+    ("FSB news", "https://www.fsb.org/feed/", "Regulatory tech"),
+    ("IMF news", "https://www.imf.org/external/rss/en/news.aspx", "Regulatory tech"),
+    ("OECD news", "https://www.oecd.org/news/news.xml", "Regulatory tech"),
+    ("World Bank news", "https://www.worldbank.org/en/news/rss", "Regulatory tech"),
+    ("UNODC news", "https://www.unodc.org/unodc/index.rss", "AML enforcement"),
 
     # ---- Banking / industry associations ----
     ("HKAB (Hong Kong Association of Banks)", "https://www.hkab.org.hk/feed", "Industry M&A"),
     ("ASIFMA news", "https://www.asifma.org/feed/", "Regulatory tech"),
     ("Australian Banking Association", "https://www.ausbanking.org.au/feed/", "Fintech / Digital banking"),
     ("ABS (Association of Banks in Singapore)", "https://www.abs.org.sg/feed", "Fintech / Digital banking"),
+    ("ISDA news", "https://www.isda.org/feed/", "Regulatory tech"),
+    ("ICMA news", "https://www.icmagroup.org/feed/", "Regulatory tech"),
+
+    # ---- UK / US authoritative regulators ----
+    ("FCA UK news", "https://www.fca.org.uk/news/rss.xml", "AML enforcement"),
+    ("Bank of England news", "https://www.bankofengland.co.uk/rss/news", "Regulatory tech"),
+    ("US SEC press releases", "https://www.sec.gov/news/pressreleases.rss", "AML enforcement"),
+    ("FinCEN news", "https://www.fincen.gov/feed/news_release", "AML enforcement"),
+    ("OFAC recent actions", "https://ofac.treasury.gov/recent-actions.rss", "Sanctions / Geopolitics"),
+    ("US DOJ news", "https://www.justice.gov/feeds/news.xml", "AML enforcement"),
+    ("CFTC press releases", "https://www.cftc.gov/PressRoom/PressReleases/rss", "Regulatory tech"),
 
     # ---- General compliance / fintech / regtech ----
     ("FinExtra", "https://www.finextra.com/rss/headlines.aspx", "Fintech / Digital banking"),
@@ -585,7 +618,6 @@ NEWS_RSS_FEEDS: list[tuple[str, str, str]] = [
     ("ACAMS Today", "https://www.acamstoday.org/feed/", "AML enforcement"),
     ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/", "Crypto / VASP"),
     ("The Banker", "https://www.thebanker.com/rss/news", "Fintech / Digital banking"),
-    ("FATF news", "https://www.fatf-gafi.org/en/publications/Fatfrecommendations.rss", "AML enforcement"),
 ]
 
 

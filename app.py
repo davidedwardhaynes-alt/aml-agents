@@ -28,6 +28,13 @@ from lib.connectors import (
     by_status as connectors_by_status,
     search as connectors_search,
 )
+from lib.regulators import (
+    JURISDICTION_ORDER as REG_JURISDICTIONS,
+    REGULATORS as REG_DIRECTORY,
+    search as regulators_search,
+    total_count as reg_total_count,
+    total_with_rss as reg_total_with_rss,
+)
 from lib.consortium import (
     amount_band,
     extract_tags,
@@ -48,6 +55,87 @@ from lib.sanctions import classify_match, search_sanctions, summarize_entity
 # override=True ensures .env changes are picked up on every Streamlit rerun
 # (without needing a full server restart). Critical for API key updates.
 load_dotenv(override=True)
+
+
+def render_regulator_directory(key_prefix: str) -> None:
+    """Render the regulator directory: search + collapsible-per-jurisdiction.
+
+    Used by Horizon scanning, Obligation register, and Jurisdictional news tabs.
+    `key_prefix` must be unique per call site to avoid Streamlit widget key clashes.
+    """
+    total = reg_total_count()
+    with_rss = reg_total_with_rss()
+    with st.expander(
+        f"Tracked regulator & authority directory — {total} sources across {len(REG_JURISDICTIONS)} jurisdictions",
+        expanded=False,
+    ):
+        st.caption(
+            f"{with_rss} regulators expose stable RSS feeds (already in the live-pull config). "
+            f"The remainder are reference links — open in a new tab to consult directly. "
+            f"This is the same authoritative set across Horizon, Obligations, and News tabs."
+        )
+        reg_query = st.text_input(
+            "Search regulators (name, type, URL)",
+            key=f"{key_prefix}_reg_search",
+            placeholder="e.g. AUSTRAC, central bank, FIU, sanctions, Singapore...",
+        )
+
+        if reg_query.strip():
+            results = regulators_search(reg_query)
+            if not results:
+                st.info(f"No regulators match '{reg_query}'.")
+            else:
+                st.caption(f"{len(results)} result(s)")
+                cols = st.columns(2)
+                for i, (jur, r) in enumerate(results):
+                    with cols[i % 2]:
+                        rss_badge = (
+                            ' <span style="background:#10b981;color:white;padding:0.1rem 0.4rem;'
+                            'border-radius:3px;font-size:0.65rem;font-weight:600;'
+                            'text-transform:uppercase;">RSS</span>'
+                            if r.rss_url else ""
+                        )
+                        st.markdown(
+                            f'<div style="border-left:3px solid #1e40af;padding:0.5rem 0.8rem;'
+                            f'margin-bottom:0.4rem;background:#f8fafc;border-radius:4px;">'
+                            f'<div style="font-weight:600;color:#0f172a;font-size:0.92rem;">'
+                            f'<a href="{r.url}" target="_blank" style="color:#1e40af;text-decoration:none;">'
+                            f'{r.name}</a>{rss_badge}</div>'
+                            f'<div style="font-size:0.74rem;color:#64748b;margin-top:0.15rem;">'
+                            f'{jur}  ·  {r.type}</div></div>',
+                            unsafe_allow_html=True,
+                        )
+        else:
+            for jur in REG_JURISDICTIONS:
+                regs = REG_DIRECTORY.get(jur, [])
+                if not regs:
+                    continue
+                rss_count = sum(1 for r in regs if r.rss_url)
+                summary = f"{jur} — {len(regs)} source{'s' if len(regs) != 1 else ''}"
+                if rss_count > 0:
+                    summary += f" · {rss_count} RSS"
+                # Keep a few key jurisdictions auto-expanded
+                expanded = jur in ("Singapore", "Hong Kong", "Malaysia", "Australia")
+                with st.expander(summary, expanded=expanded):
+                    cols = st.columns(2)
+                    for i, r in enumerate(regs):
+                        with cols[i % 2]:
+                            rss_badge = (
+                                ' <span style="background:#10b981;color:white;padding:0.1rem 0.4rem;'
+                                'border-radius:3px;font-size:0.62rem;font-weight:600;'
+                                'text-transform:uppercase;">RSS</span>'
+                                if r.rss_url else ""
+                            )
+                            st.markdown(
+                                f'<div style="border-left:2px solid #cbd5e1;padding:0.4rem 0.7rem;'
+                                f'margin-bottom:0.3rem;background:#f8fafc;border-radius:4px;">'
+                                f'<div style="font-size:0.86rem;color:#0f172a;">'
+                                f'<a href="{r.url}" target="_blank" style="color:#1e40af;text-decoration:none;">'
+                                f'{r.name}</a>{rss_badge}</div>'
+                                f'<div style="font-size:0.7rem;color:#64748b;margin-top:0.12rem;">'
+                                f'{r.type}</div></div>',
+                                unsafe_allow_html=True,
+                            )
 
 
 def narrative_to_pdf(
@@ -2501,6 +2589,9 @@ with tab_obligations:
                         delete_obligation(o.id)
                         st.rerun()
 
+    # Tracked regulator directory — reference for sourcing new obligations
+    render_regulator_directory(key_prefix="obligations")
+
 
 # ============================================================================
 # Horizon scanning tab — recent regulatory updates per jurisdiction
@@ -2615,6 +2706,9 @@ with tab_horizon:
         "regulator RSS feeds (MAS, HKMA, BNM, AUSTRAC) with LLM-assisted summarization."
     )
 
+    # Tracked regulator directory — same set used by Obligations and News
+    render_regulator_directory(key_prefix="horizon")
+
 
 # ============================================================================
 # Jurisdictional news tab — broader compliance/fintech/regtech news per country
@@ -2720,3 +2814,6 @@ with tab_news:
         "Production roadmap: per-country news APIs, LinkedIn/Twitter signals, "
         "LLM-summarised industry intelligence."
     )
+
+    # Tracked regulator directory — reference for sourcing news
+    render_regulator_directory(key_prefix="news")
