@@ -382,18 +382,210 @@ NEWS_ITEMS: list[NewsItem] = [
         url="https://www.dfat.gov.au",
         topic="Sanctions / Geopolitics",
     ),
+
+    # ---------------- Authoritative sources — Regulation Asia ----------------
+    NewsItem(
+        date="2026-04-28",
+        jurisdiction="All jurisdictions",
+        title="Regulation Asia: APAC FIUs sign tripartite intelligence-sharing MoU",
+        summary=(
+            "STRO (Singapore), JFIU (Hong Kong) and AUSTRAC (Australia) signed a tripartite MoU "
+            "for cross-border AML intelligence sharing focused on scam-victim mule networks. "
+            "Operational protocols to be published Q3 2026; first inter-FIU shared analytics "
+            "platform in APAC."
+        ),
+        source="Regulation Asia",
+        url="https://www.regulationasia.com",
+        topic="AML enforcement",
+    ),
+    NewsItem(
+        date="2026-04-21",
+        jurisdiction="All jurisdictions",
+        title="Regulation Asia commentary: APAC virtual bank AML control gaps",
+        summary=(
+            "Editorial review of HKMA's HKD 18M penalty, BNM digital-bank thematic findings, "
+            "and Singapore MAS expectations for digital banks. Common thread: e-KYC mule-detection "
+            "deficiencies. Key article for any digital banking AML readiness benchmarking."
+        ),
+        source="Regulation Asia",
+        url="https://www.regulationasia.com",
+        topic="Fintech / Digital banking",
+    ),
+    NewsItem(
+        date="2026-04-09",
+        jurisdiction="All jurisdictions",
+        title="Regulation Asia: tokenisation pilots accelerate across Singapore, HK, Australia",
+        summary=(
+            "Tokenised real-world assets (RWA) regulatory frameworks compared across MAS Project "
+            "Guardian, SFC sandbox (HK), and ASIC innovation hub. AML implications: source-of-"
+            "wealth checks at higher thresholds; Travel Rule application to RWA transfers."
+        ),
+        source="Regulation Asia",
+        url="https://www.regulationasia.com",
+        topic="Crypto / VASP",
+    ),
+    NewsItem(
+        date="2026-03-20",
+        jurisdiction="All jurisdictions",
+        title="Regulation Asia: APAC anti-scam coordination — government task forces compared",
+        summary=(
+            "Comparative analysis: Singapore Anti-Scam Centre (SPF), HK Anti-Deception "
+            "Coordination Centre (ADCC), Malaysia National Scam Response Centre (NSRC), "
+            "Australia National Anti-Scam Centre (NASC). Operational maturity ranking and "
+            "industry coordination effectiveness."
+        ),
+        source="Regulation Asia",
+        url="https://www.regulationasia.com",
+        topic="Scams / Fraud trends",
+    ),
+
+    # ---------------- Wolfsberg Group ----------------
+    NewsItem(
+        date="2026-04-15",
+        jurisdiction="All jurisdictions",
+        title="Wolfsberg Group: updated Statement on AML/CTF Effectiveness",
+        summary=(
+            "Updated Wolfsberg Statement on Effectiveness emphasises outcomes-based AML "
+            "measurement over input-based controls. New guidance on integrating AI/ML in "
+            "TM scenarios while preserving explainability. Aligns with FATF Recommendation 1 "
+            "RBA expectations."
+        ),
+        source="Wolfsberg Group",
+        url="https://www.wolfsberg-principles.com/publications",
+        topic="AML enforcement",
+    ),
+    NewsItem(
+        date="2026-03-10",
+        jurisdiction="All jurisdictions",
+        title="Wolfsberg Group: refreshed Anti-Bribery and Corruption Compliance Programme guidance",
+        summary=(
+            "Refreshed ABC Compliance Programme guidance reflecting recent corruption-typology "
+            "trends including private-sector bribery in trade flows, public-procurement-corruption "
+            "investments in real estate (relevant to AU Tranche 2), and beneficial-owner-opacity "
+            "patterns."
+        ),
+        source="Wolfsberg Group",
+        url="https://www.wolfsberg-principles.com/publications",
+        topic="AML enforcement",
+    ),
+
+    # ---------------- Egmont Group ----------------
+    NewsItem(
+        date="2026-04-04",
+        jurisdiction="All jurisdictions",
+        title="Egmont Group: 2025 Annual Trends Report — investment scams dominate",
+        summary=(
+            "Egmont 2025 Annual Trends Report (released April 2026): investment scams now the "
+            "top global ML predicate by victim-loss volume. AUD-, USD-, EUR-denominated mule "
+            "networks span 40+ jurisdictions. Egmont coordinated 1,247 cross-border information "
+            "exchanges in 2025 — up 31% YoY."
+        ),
+        source="Egmont Group",
+        url="https://egmontgroup.org/publications",
+        topic="Scams / Fraud trends",
+    ),
+    NewsItem(
+        date="2026-02-25",
+        jurisdiction="All jurisdictions",
+        title="Egmont Group: typology paper on virtual asset money laundering",
+        summary=(
+            "Egmont typology paper on VA-related ML covering: mixer / tumbler usage, cross-VASP "
+            "layering, NFT wash trading, RWA-tokenisation abuse. Reference for VASPs and "
+            "supervising authorities; also relevant to traditional banks with VASP-customer "
+            "exposure."
+        ),
+        source="Egmont Group",
+        url="https://egmontgroup.org/publications",
+        topic="Crypto / VASP",
+    ),
+
+    # ---------------- FATF ----------------
+    NewsItem(
+        date="2026-04-25",
+        jurisdiction="All jurisdictions",
+        title="FATF Plenary outcomes (April 2026): updated grey-list, focus on RWA AML",
+        summary=(
+            "FATF April 2026 Plenary updated the increased-monitoring (grey) list. Strategic-"
+            "deficiency removals: two jurisdictions exited. New focus areas: real-world-asset "
+            "tokenisation AML standards, beneficial-ownership transparency for trusts. APAC "
+            "implications: relevant to MAS Project Guardian, HK SFC RWA sandbox."
+        ),
+        source="FATF",
+        url="https://www.fatf-gafi.org/en/publications.html",
+        topic="AML enforcement",
+    ),
+    NewsItem(
+        date="2026-03-08",
+        jurisdiction="All jurisdictions",
+        title="FATF: revised Recommendation 24 implementation review for APAC",
+        summary=(
+            "FATF released its review of Recommendation 24 (beneficial ownership transparency) "
+            "implementation across APAC. Singapore, Hong Kong, and Australia rated 'largely "
+            "compliant'; Malaysia rated 'partially compliant' with remediation roadmap. "
+            "Industry implications: continued tightening of UBO verification expectations."
+        ),
+        source="FATF",
+        url="https://www.fatf-gafi.org/en/publications/Mutualevaluations.html",
+        topic="AML enforcement",
+    ),
+
+    # ---------------- ASIFMA / banking associations ----------------
+    NewsItem(
+        date="2026-04-22",
+        jurisdiction="All jurisdictions",
+        title="ASIFMA: APAC industry consultation on AI in financial-crime compliance",
+        summary=(
+            "ASIFMA closed industry consultation on AI in financial-crime compliance covering "
+            "AML, sanctions, fraud. Common asks: regulator-aligned model-explainability standards, "
+            "shared-utility for sanctions screening, recognition of LLM-assisted STR drafting "
+            "as legitimate compliance practice."
+        ),
+        source="ASIFMA",
+        url="https://www.asifma.org",
+        topic="Regulatory tech",
+    ),
+    NewsItem(
+        date="2026-03-15",
+        jurisdiction="All jurisdictions",
+        title="ABS Singapore launches APAC fraud-data sharing pilot",
+        summary=(
+            "Association of Banks in Singapore announced pilot of APAC fraud-data sharing "
+            "extending the existing SG framework to selected HK and AU banks. Mule-account "
+            "intelligence and sanctions-evasion-typology data shared near real-time under "
+            "MAS-approved privacy framework."
+        ),
+        source="ABS Singapore",
+        url="https://www.abs.org.sg",
+        topic="Regulatory tech",
+    ),
 ]
 
 
 # Industry RSS feeds — broader compliance / fintech / regtech publications.
 # Most aren't jurisdiction-specific, so live items get tagged "All jurisdictions".
+# URLs are best-effort and may need periodic verification — the app handles
+# feed failures gracefully (shows status, continues with curated items).
 NEWS_RSS_FEEDS: list[tuple[str, str, str]] = [
     # (source label, url, default topic)
+
+    # ---- APAC-focused authoritative sources ----
+    ("Regulation Asia", "https://www.regulationasia.com/feed/", "AML enforcement"),
+    ("Wolfsberg Group publications", "https://www.wolfsberg-principles.com/feed", "AML enforcement"),
+    ("Egmont Group news", "https://egmontgroup.org/feed/", "AML enforcement"),
+
+    # ---- Banking / industry associations ----
+    ("HKAB (Hong Kong Association of Banks)", "https://www.hkab.org.hk/feed", "Industry M&A"),
+    ("ASIFMA news", "https://www.asifma.org/feed/", "Regulatory tech"),
+    ("Australian Banking Association", "https://www.ausbanking.org.au/feed/", "Fintech / Digital banking"),
+    ("ABS (Association of Banks in Singapore)", "https://www.abs.org.sg/feed", "Fintech / Digital banking"),
+
+    # ---- General compliance / fintech / regtech ----
     ("FinExtra", "https://www.finextra.com/rss/headlines.aspx", "Fintech / Digital banking"),
     ("RegTech Analyst", "https://member.fintech.global/feed/", "Regulatory tech"),
     ("ACAMS Today", "https://www.acamstoday.org/feed/", "AML enforcement"),
     ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/", "Crypto / VASP"),
     ("The Banker", "https://www.thebanker.com/rss/news", "Fintech / Digital banking"),
+    ("FATF news", "https://www.fatf-gafi.org/en/publications/Fatfrecommendations.rss", "AML enforcement"),
 ]
 
 
