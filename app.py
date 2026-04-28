@@ -2154,26 +2154,64 @@ Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation r
             st.markdown('<div class="output-label">Generated narrative</div>', unsafe_allow_html=True)
             narrative_container = st.container(border=True)
             narrative = ""
+            response = None
+            generation_error: str | None = None
 
-            with st.spinner(spinner_msg):
-                with client.messages.stream(
-                    model=model,
-                    max_tokens=2000,
-                    system=[
-                        {
-                            "type": "text",
-                            "text": rubric,
-                            "cache_control": {"type": "ephemeral"},
-                        }
-                    ],
-                    messages=[{"role": "user", "content": user_content_blocks}],
-                ) as stream:
-                    placeholder = narrative_container.empty()
-                    for text_chunk in stream.text_stream:
-                        narrative += text_chunk
-                        placeholder.markdown(narrative + "▌")  # caret indicator
-                    placeholder.markdown(narrative)  # final render without caret
-                    response = stream.get_final_message()
+            try:
+                with st.spinner(spinner_msg):
+                    with client.messages.stream(
+                        model=model,
+                        max_tokens=2000,
+                        system=[
+                            {
+                                "type": "text",
+                                "text": rubric,
+                                "cache_control": {"type": "ephemeral"},
+                            }
+                        ],
+                        messages=[{"role": "user", "content": user_content_blocks}],
+                    ) as stream:
+                        placeholder = narrative_container.empty()
+                        for text_chunk in stream.text_stream:
+                            narrative += text_chunk
+                            placeholder.markdown(narrative + "▌")  # caret indicator
+                        placeholder.markdown(narrative)  # final render without caret
+                        response = stream.get_final_message()
+            except Exception as gen_err:
+                err_type = type(gen_err).__name__
+                err_text = str(gen_err)[:300]
+                generation_error = f"{err_type}: {err_text}"
+
+                # Common-error friendly messages
+                if "401" in err_text or "authentication" in err_text.lower():
+                    st.error(
+                        "**Authentication failed.** Your Anthropic API key was rejected. "
+                        "Check `~/dev/amlagents/.env` and run `~/dev/amlagents/fix-key.sh` "
+                        "to update it from your clipboard."
+                    )
+                elif "429" in err_text or "rate" in err_text.lower():
+                    st.error(
+                        "**Rate limit hit.** Wait a moment and try again. If this happens "
+                        "frequently, your Anthropic account may need a higher tier."
+                    )
+                elif "529" in err_text or "overloaded" in err_text.lower():
+                    st.error(
+                        "**Anthropic API is temporarily overloaded.** Try again in a few seconds."
+                    )
+                elif "billing" in err_text.lower() or "quota" in err_text.lower():
+                    st.error(
+                        "**Billing issue.** Add credits to your Anthropic account at "
+                        "https://console.anthropic.com/settings/billing"
+                    )
+                else:
+                    st.error(f"**Generation error.** {generation_error}")
+
+                # If we got partial output, keep it for the user to copy/save
+                if narrative:
+                    st.warning(
+                        f"Partial narrative captured ({len(narrative)} chars). "
+                        "You can still copy and download below."
+                    )
 
             # Direct filing-portal link — high-impact UX so analysts jump straight
             # to the FIU's filing system after reviewing the draft narrative.
@@ -2355,6 +2393,10 @@ Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation r
                     mime="application/pdf",
                     use_container_width=True,
                 )
+
+            # Skip token usage display + downstream actions if generation errored
+            if generation_error or response is None:
+                st.stop()  # halt this rerun's downstream rendering
 
             usage = response.usage
             cache_read = getattr(usage, "cache_read_input_tokens", 0)
@@ -2629,9 +2671,12 @@ with tab_horizon:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
         include_live = st.toggle(
             "Live feeds",
-            value=True,
+            value=False,
             key="horizon_include_live",
-            help="Fetch from regulator RSS feeds (cached 30 min). Toggle off for curated only.",
+            help=(
+                "Fetch from regulator RSS feeds (cached 30 min). Default OFF so the tab "
+                "renders instantly with curated items. Toggle on to pull live updates."
+            ),
         )
     with h_col4:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
@@ -2747,9 +2792,13 @@ with tab_news:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
         news_include_live = st.toggle(
             "Live feeds",
-            value=True,
+            value=False,
             key="news_include_live",
-            help="Pull from industry RSS (FinExtra, ACAMS Today, CoinDesk, etc.) — cached 30 min.",
+            help=(
+                "Pull from industry RSS (FinExtra, ACAMS Today, CoinDesk, etc.) — cached 30 min. "
+                "Default OFF so the tab renders instantly with curated + auto-generated articles. "
+                "Toggle on to pull live RSS items (adds 1-3 sec network delay)."
+            ),
         )
     with n_col4:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
