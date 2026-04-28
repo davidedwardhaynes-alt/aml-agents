@@ -36,11 +36,23 @@ CACHE_TTL_SECONDS = 4 * 60 * 60  # 4 hours
 MAX_HTML_CHARS = 150_000  # cap input HTML to keep extraction cost predictable
 EXTRACTOR_MODEL = "claude-haiku-4-5-20251001"
 
-# Sites known to be JS-rendered (static HTML lacks the actual press releases).
-# Skip these to avoid wasting LLM tokens on empty navigation HTML.
-JS_RENDERED_HOSTS = {
-    "www.mas.gov.sg",  # SPA — content loaded via JS
+# Hosts known to require dynamic rendering (JavaScript), Cloudflare challenge,
+# or that block scrapers entirely. Skip these in HTML-fetch mode and rely on
+# their RSS endpoints (where available).
+BLOCKED_HOSTS = {
+    "www.mas.gov.sg",        # SPA — content loaded via JS
+    "www.bnm.gov.my",        # Cloudflare challenge / 202 hold
+    "www.austrac.gov.au",    # TLS / geo / aggressive anti-bot
+    "www.csrc.gov.cn",       # China regulators — Great Firewall / blocks
+    "www.pbc.gov.cn",
+    "www.ojk.go.id",         # Java SPA
+    "www.fsc.go.kr",         # Korean SSO/redirect
+    "www.fss.or.kr",
+    "www.bok.or.kr",
+    "rbi.org.in",            # ASP.NET viewstate; fetch typically times out
 }
+# Backwards-compat alias used elsewhere in the codebase
+JS_RENDERED_HOSTS = BLOCKED_HOSTS
 
 
 @dataclass
