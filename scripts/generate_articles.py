@@ -25,12 +25,18 @@ import argparse
 import datetime as dt
 import hashlib
 import os
+import socket
 import sys
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+
+# Hard cap any network read at 8 seconds. feedparser uses urllib under the hood
+# and has no timeout parameter; without this, a single slow regulator RSS endpoint
+# can hang the whole script indefinitely.
+socket.setdefaulttimeout(8)
 
 # Make repo root importable
 ROOT = Path(__file__).resolve().parent.parent
@@ -136,25 +142,30 @@ def classify_jurisdiction(text: str, source_label: str) -> str:
     return max(scores.items(), key=lambda x: x[1])[0]
 
 
-def collect_candidate_items() -> list[dict[str, Any]]:
+def collect_candidate_items(verbose: bool = True) -> list[dict[str, Any]]:
     """Pull from all RSS feeds; return unique items keyed by URL."""
     candidates: dict[str, dict[str, Any]] = {}
     cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=MAX_AGE_DAYS)
 
     feed_specs: list[tuple[str, str, str, str]] = []
-    # Horizon feeds: dict[jurisdiction] -> [(label, url, category)]
     for jur, feeds in HORIZON_FEEDS.items():
         for label, url, category in feeds:
             feed_specs.append((label, url, jur, category))
-    # News feeds: list of (label, url, default_topic)
     for label, url, topic in NEWS_RSS_FEEDS:
         feed_specs.append((label, url, "All jurisdictions", topic))
 
-    for label, url, jur_hint, _topic_hint in feed_specs:
+    n_feeds = len(feed_specs)
+    n_ok = 0
+    n_err = 0
+    for idx, (label, url, jur_hint, _topic_hint) in enumerate(feed_specs, 1):
+        if verbose and idx % 10 == 0:
+            print(f"  ... {idx}/{n_feeds} feeds checked ({n_ok} ok, {n_err} err)", flush=True)
         try:
             parsed = feedparser.parse(url, request_headers={"User-Agent": "AML-Agents/0.1"})
             if parsed.bozo:
+                n_err += 1
                 continue
+            n_ok += 1
             for entry in parsed.entries[:8]:
                 link = entry.get("link", "")
                 if not link:
@@ -186,8 +197,11 @@ def collect_candidate_items() -> list[dict[str, Any]]:
                         "jur_hint": jur_hint,
                     }
         except Exception:
+            n_err += 1
             continue
 
+    if verbose:
+        print(f"  Done: {n_feeds} feeds checked ({n_ok} ok, {n_err} err); {len(candidates)} unique items", flush=True)
     return list(candidates.values())
 
 

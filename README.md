@@ -25,7 +25,9 @@ Default credentials: `demo` / `demo123`. Or create your own account on the login
 2. **Connectors** — 161 platforms across 7 collapsible categories with search. Each connector declares which STR sections it auto-populates when wired up.
 3. **Obligation register** — track regulatory obligations across all 4 jurisdictions, status workflow, due dates.
 4. **Horizon scanning** — 32 curated regulatory updates + live RSS from regulators (MAS, HKMA, SFC, BNM, AUSTRAC, FATF, etc.).
-5. **Jurisdictional news** — 36 curated industry items + 13 RSS feeds (Regulation Asia, Wolfsberg Group, Egmont Group, FATF, ASIFMA, banking associations, FinExtra, ACAMS Today, etc.).
+5. **Jurisdictional news** — 36 curated industry items + 29 RSS feeds (Regulation Asia, Wolfsberg, Egmont, FATF, BIS, FSB, IMF, OECD, ASIFMA, banking associations, FinExtra, ACAMS Today, FCA, BoE, SEC, FinCEN, OFAC, etc.) + **LLM-generated articles via daily cron** (see `docs/news-automation.md`; capped at 30/day, ~$0.72/day Sonnet).
+
+All three feed-driven tabs (Horizon, Obligations, News) also include the **302-source regulator & authority directory** — every URL from the user's tracked-sources list, organized into 33 jurisdictions with search.
 
 ### Per-jurisdiction depth
 
@@ -50,6 +52,7 @@ Default credentials: `demo` / `demo123`. Or create your own account on the login
 - **Consortium (beta)** — hashed STR fingerprints for cross-institution intelligence sharing. SHA256 of canonical subject + canonical institution. 15 typology tags auto-extracted. Score breakdown shown per case.
 - **Login + profile** — bcrypt-hashed local credentials, avatar upload, profile defaults pre-fill filing metadata.
 - **Live regulator RSS feeds** — auto-refreshed (30-min cache), graceful fallback if feeds break.
+- **LLM-generated articles** — `scripts/generate_articles.py` runs on cron, pulls latest RSS items, writes 250-400 word FT/Regulation-Asia-voice analyses, persists to `data/generated_articles.yaml`. Capped at 30/day. The Jurisdictional news tab merges generated articles with curated and live items.
 
 ---
 
@@ -63,6 +66,7 @@ auth/
 data/                      # local persistence (all gitignored)
   obligations.yaml
   consortium.yaml
+  generated_articles.yaml  # LLM-generated news (cron-driven)
   avatars/<username>.png|jpg
 docs/                      # sales kit + future deployment guide
   demo-guide.md            # 30s/5min/15min demo flows + objection handling
@@ -74,9 +78,12 @@ guidance/                  # per-jurisdiction filing guidance (in-app)
 lib/
   connectors.py            # 161 platforms, 7 categories, search, populates
   consortium.py            # hash + tag extraction + score
-  horizon.py               # 32 curated items + 11 regulator RSS feeds
-  news.py                  # 36 curated items + 13 industry RSS feeds
+  horizon.py               # 32 curated items + 38 regulator RSS feeds
+  news.py                  # 36 curated items + 29 industry RSS feeds + LLM-generated
+  regulators.py            # 302 sources / 33 jurisdictions / RSS where known
   sanctions.py             # OpenSanctions /match wrapper
+scripts/
+  generate_articles.py     # cron-driven LLM article generation (30/day cap)
 rubrics/                   # SME-written narrative rubrics (the moat)
   strostr.md jfiustr.md fiedstr.md austracsmr.md
 .env                       # API keys (gitignored)
@@ -200,6 +207,7 @@ The rubric layer is the moat. LLM wrappers are easy. Domain-validated rubric ref
 | `docs/design-partner-pitch.md` | DP ask script + term sheet template |
 | `docs/follow-up-templates.md` | Email follow-up templates |
 | `docs/event-prep.md` | Event prep checklist (T-21 → T+7) |
+| `docs/news-automation.md` | Cron / launchd setup for daily LLM article generation |
 
 ---
 
