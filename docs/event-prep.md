@@ -57,8 +57,23 @@
 
 - [ ] Coffee, breakfast, water bottle in bag
 - [ ] Re-read 30-second pitch one final time
+- [ ] **Run preflight: `python scripts/preflight.py`** — 10 checks, ≤30 sec, must show "Ready to demo"
 - [ ] Open hosted demo in browser, log in, check sample case loads
 - [ ] Phone on silent + Do Not Disturb except for known contacts
+
+### Pre-flight script (run before any meeting)
+
+```bash
+cd ~/dev/amlagents
+.venv/bin/python scripts/preflight.py
+```
+
+Expected output: `Summary: 10 passed, 0 warning, 0 failed` and `Ready to demo.`
+
+If anything fails, fix before the meeting:
+- Anthropic API: run `~/dev/amlagents/fix-key.sh` to refresh from clipboard
+- OpenSanctions API: re-paste key from console.anthropic.com → settings
+- RSS feeds: not blocking — best-effort URLs, app degrades gracefully
 
 ### At the event
 

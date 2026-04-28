@@ -84,6 +84,7 @@ lib/
   sanctions.py             # OpenSanctions /match wrapper
 scripts/
   generate_articles.py     # cron-driven LLM article generation (30/day cap)
+  preflight.py             # pre-demo end-to-end check (10 categories, exit 0/1)
 rubrics/                   # SME-written narrative rubrics (the moat)
   strostr.md jfiustr.md fiedstr.md austracsmr.md
 .env                       # API keys (gitignored)
