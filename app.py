@@ -2149,8 +2149,14 @@ Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation r
                 else "Drafting narrative…"
             )
 
+            # Stream the response so the analyst sees text appear progressively
+            # rather than waiting 5–15 seconds for a complete response.
+            st.markdown('<div class="output-label">Generated narrative</div>', unsafe_allow_html=True)
+            narrative_container = st.container(border=True)
+            narrative = ""
+
             with st.spinner(spinner_msg):
-                response = client.messages.create(
+                with client.messages.stream(
                     model=model,
                     max_tokens=2000,
                     system=[
@@ -2161,13 +2167,13 @@ Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation r
                         }
                     ],
                     messages=[{"role": "user", "content": user_content_blocks}],
-                )
-
-            narrative = response.content[0].text
-
-            st.markdown('<div class="output-label">Generated narrative</div>', unsafe_allow_html=True)
-            with st.container(border=True):
-                st.markdown(narrative)
+                ) as stream:
+                    placeholder = narrative_container.empty()
+                    for text_chunk in stream.text_stream:
+                        narrative += text_chunk
+                        placeholder.markdown(narrative + "▌")  # caret indicator
+                    placeholder.markdown(narrative)  # final render without caret
+                    response = stream.get_final_message()
 
             # Direct filing-portal link — high-impact UX so analysts jump straight
             # to the FIU's filing system after reviewing the draft narrative.
