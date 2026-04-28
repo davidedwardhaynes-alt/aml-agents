@@ -558,6 +558,39 @@ NEWS_RSS_FEEDS: list[tuple[str, str, str]] = [
     ("ACAMS Today", "https://www.acamstoday.org/feed/", "AML enforcement"),
     ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/", "Crypto / VASP"),
     ("The Banker", "https://www.thebanker.com/rss/news", "Fintech / Digital banking"),
+
+    # ---- APAC regulators (best-effort RSS endpoints) ----
+    ("RBI India press releases", "https://rbi.org.in/Scripts/Rss.aspx?Cat=PressRelease", "AML enforcement"),
+    ("RBI India notifications", "https://rbi.org.in/Scripts/Rss.aspx?Cat=Notification", "AML enforcement"),
+    ("SEBI India news", "https://www.sebi.gov.in/sebirss.xml", "AML enforcement"),
+    ("BOT (Bank of Thailand) news", "https://www.bot.or.th/en/news-and-media/rss.html", "AML enforcement"),
+    ("SEC Thailand news", "https://www.sec.or.th/EN/Pages/News/RSS.aspx", "AML enforcement"),
+    ("BSP Philippines media", "https://www.bsp.gov.ph/MediaCorner/Pages/news.aspx?feed=rss", "AML enforcement"),
+    ("Bank Indonesia news", "https://www.bi.go.id/en/publikasi/ruang-media/news/rss", "AML enforcement"),
+    ("OJK Indonesia news", "https://www.ojk.go.id/en/berita-dan-kegiatan/siaran-pers/rss.aspx", "AML enforcement"),
+    ("FSA Japan news", "https://www.fsa.go.jp/en/news/index.rss", "AML enforcement"),
+    ("Bank of Japan press", "https://www.boj.or.jp/en/announcements/release_2025/rss.xml", "AML enforcement"),
+    ("FSC Korea news", "https://www.fsc.go.kr/eng/no010102/rss", "AML enforcement"),
+    ("BoK (Bank of Korea) news", "https://www.bok.or.kr/eng/main/contents.do?menuNo=400060&rss=true", "AML enforcement"),
+    ("FSC Taiwan news", "https://www.fsc.gov.tw/en/rss.xml", "AML enforcement"),
+    ("SBV (State Bank of Vietnam)", "https://www.sbv.gov.vn/webcenter/portal/en/home/rss/news", "AML enforcement"),
+    ("CSRC China news", "http://www.csrc.gov.cn/csrc_en/c102030/common_list.shtml?channelId=24009dee9f1c4b22a1d22f55f7c7a8df", "AML enforcement"),
+    ("PBoC China press", "http://www.pbc.gov.cn/en/3688112/3688172/index.rss", "AML enforcement"),
+    ("Bangladesh Bank news", "https://www.bb.org.bd/feed/news.xml", "AML enforcement"),
+    ("RMA Bhutan news", "https://www.rma.org.bt/feed/news", "AML enforcement"),
+    ("RBNZ New Zealand news", "https://www.rbnz.govt.nz/feeds/news", "AML enforcement"),
+    ("FMA New Zealand news", "https://www.fma.govt.nz/feed/news/", "AML enforcement"),
+    ("FMU Pakistan news", "https://www.fmu.gov.pk/feed", "AML enforcement"),
+
+    # ---- APAC industry publications ----
+    ("Asian Banking & Finance", "https://asianbankingandfinance.net/feeds/all", "Fintech / Digital banking"),
+    ("Compliance Asia / Asia Risk", "https://www.risk.net/asia-risk/feed", "Regulatory tech"),
+    ("Nikkei Asia (compliance)", "https://asia.nikkei.com/rss", "Industry M&A"),
+    ("Asia Crypto Today", "https://www.asiacryptotoday.com/feed/", "Crypto / VASP"),
+    ("Fintech News Singapore", "https://fintechnews.sg/feed/", "Fintech / Digital banking"),
+    ("Fintech News Hong Kong", "https://fintechnews.hk/feed/", "Fintech / Digital banking"),
+    ("Fintech News Malaysia", "https://fintechnews.my/feed/", "Fintech / Digital banking"),
+    ("Fintech News Australia", "https://fintechnews.com.au/feed/", "Fintech / Digital banking"),
 ]
 
 
