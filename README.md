@@ -25,7 +25,7 @@ Default credentials: `demo` / `demo123`. Or create your own account on the login
 2. **Connectors** — 161 platforms across 7 collapsible categories with search. Each connector declares which STR sections it auto-populates when wired up.
 3. **Obligation register** — track regulatory obligations across all 4 jurisdictions, status workflow, due dates.
 4. **Horizon scanning** — 32 curated regulatory updates + live RSS from regulators (MAS, HKMA, SFC, BNM, AUSTRAC, FATF, etc.).
-5. **Jurisdictional news** — 36 curated industry items + 29 RSS feeds (Regulation Asia, Wolfsberg, Egmont, FATF, BIS, FSB, IMF, OECD, ASIFMA, banking associations, FinExtra, ACAMS Today, FCA, BoE, SEC, FinCEN, OFAC, etc.) + **LLM-generated articles via daily cron** (see `docs/news-automation.md`; capped at 30/day, ~$0.72/day Sonnet).
+5. **Jurisdictional news** — 32 curated industry items + 57 RSS feeds (Wolfsberg, Egmont, FATF, BIS, FSB, IMF, OECD, ASIFMA, FCA, BoE, SEC, FinCEN, OFAC, plus 21 APAC regulators across India/Thailand/Philippines/Indonesia/Japan/Korea/Taiwan/China/NZ/Pakistan, plus FinExtra/ACAMS Today/CoinDesk/Asian Banking & Finance/Nikkei Asia/Fintech News SG-HK-MY-AU) + **LLM-generated articles via daily cron** (see `docs/news-automation.md`; capped at 30/day, ~$0.27/day Sonnet).
 
 All three feed-driven tabs (Horizon, Obligations, News) also include the **302-source regulator & authority directory** — every URL from the user's tracked-sources list, organized into 33 jurisdictions with search.
 
@@ -78,8 +78,8 @@ guidance/                  # per-jurisdiction filing guidance (in-app)
 lib/
   connectors.py            # 161 platforms, 7 categories, search, populates
   consortium.py            # hash + tag extraction + score
-  horizon.py               # 32 curated items + 38 regulator RSS feeds
-  news.py                  # 36 curated items + 29 industry RSS feeds + LLM-generated
+  horizon.py               # 32 curated items + 70 regulator RSS feeds
+  news.py                  # 32 curated items + 57 industry/regulator RSS feeds + LLM-generated
   regulators.py            # 302 sources / 33 jurisdictions / RSS where known
   sanctions.py             # OpenSanctions /match wrapper
 scripts/
