@@ -962,7 +962,7 @@ FILING_PORTALS = {
 }
 
 st.set_page_config(
-    page_title="AML Agents — STR Drafter",
+    page_title="AML Agents - STR Reporting",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -1348,7 +1348,7 @@ st.markdown(
 <div class="brand-header">
     <div class="brand-left">
         <span class="badge">v0 · {jur_label}</span>
-        <h1>AML Agents — STR Narrative Drafter</h1>
+        <h1>AML Agents - STR Reporting</h1>
         <p class="subtitle">AI-drafted suspicious transaction reports. Analyst-supplied facts only — never fabricated. Per-sentence audit trail.</p>
     </div>
     <div class="brand-right">
