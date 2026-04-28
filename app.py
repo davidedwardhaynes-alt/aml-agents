@@ -1520,9 +1520,9 @@ with tab_draft:
                 placeholder="e.g. A123456789",
             )
 
-            # Sanctions / PEP / watchlist screening
+            # Sanctions / PEP / watchlist screening — manual button + auto-screen toggle
             current_name = st.session_state.get("input_customer_name", "")
-            screen_btn_col, _ = st.columns([1, 1])
+            screen_btn_col, screen_auto_col = st.columns([1, 1])
             with screen_btn_col:
                 screen = st.button(
                     "Screen against sanctions / PEP lists",
@@ -1530,8 +1530,28 @@ with tab_draft:
                     disabled=len(current_name.strip()) < 3,
                     help="Searches OpenSanctions (UN, OFAC, EU, UK HMT, MAS, AUSTRAC, and 200+ other lists, plus PEPs).",
                 )
+            with screen_auto_col:
+                auto_screen = st.toggle(
+                    "Auto-screen on type",
+                    value=st.session_state.get("auto_screen_enabled", False),
+                    key="auto_screen_enabled",
+                    help=(
+                        "Automatically screen as you finish typing the customer name. "
+                        "Triggers once name has 5+ characters AND has changed materially. "
+                        "Cached for 30 min so repeated queries are free."
+                    ),
+                )
 
-            if screen:
+            # Auto-screen: trigger when name has changed materially since last screen
+            last_screened = st.session_state.get("screening_query", "")
+            name_clean = current_name.strip()
+            meaningful_change = (
+                name_clean != last_screened
+                and len(name_clean) >= 5
+                and abs(len(name_clean) - len(last_screened)) >= 3
+            )
+
+            if screen or (auto_screen and meaningful_change):
                 with st.spinner("Searching OpenSanctions…"):
                     result = search_sanctions(current_name)
                 st.session_state["screening_result"] = result
