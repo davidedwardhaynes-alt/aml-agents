@@ -40,7 +40,7 @@ import yaml
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
-load_dotenv(ROOT / ".env")
+load_dotenv(ROOT / ".env", override=True)
 
 try:
     import feedparser
@@ -264,7 +264,7 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="Show what would be generated; don't call API")
     args = parser.parse_args()
 
-    if not os.getenv("ANTHROPIC_API_KEY"):
+    if not args.dry_run and not os.getenv("ANTHROPIC_API_KEY"):
         print("ANTHROPIC_API_KEY not set. Skipping.")
         return 1
 
