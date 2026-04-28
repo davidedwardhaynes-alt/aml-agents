@@ -56,6 +56,7 @@ except ImportError:
 
 from lib.horizon import RSS_FEEDS as HORIZON_FEEDS
 from lib.news import NEWS_RSS_FEEDS, TOPICS
+from lib.press_releases import fetch_all_press_releases
 
 GENERATED_PATH = ROOT / "data" / "generated_articles.yaml"
 MAX_PER_DAY = 30
@@ -284,6 +285,22 @@ def collect_candidate_items(verbose: bool = True) -> list[dict[str, Any]]:
 
     if verbose:
         print(f"  Done: {n_feeds} feeds checked ({n_ok} ok, {n_err} err); {len(candidates)} unique items", flush=True)
+
+    # Also fetch press release pages (covers regulators without RSS, especially APAC).
+    # Cache TTL is 4 hours so most calls return immediately from disk.
+    if verbose:
+        print("  Fetching press release pages (LLM-extracted)...", flush=True)
+    try:
+        press_items = fetch_all_press_releases(verbose=verbose)
+        for item in press_items:
+            if item["key"] not in candidates:
+                candidates[item["key"]] = item
+        if verbose:
+            print(f"  Total candidates after press merge: {len(candidates)}", flush=True)
+    except Exception as e:
+        if verbose:
+            print(f"  Press release fetch error: {type(e).__name__}: {e}", flush=True)
+
     return list(candidates.values())
 
 

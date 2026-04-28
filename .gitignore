@@ -19,3 +19,6 @@ data/consortium.yaml
 
 # LLM-generated news articles (auto-generated via scripts/generate_articles.py)
 data/generated_articles.yaml
+
+# Press release scrape cache (4-hour TTL; refreshed on cron)
+data/press_release_cache.yaml
