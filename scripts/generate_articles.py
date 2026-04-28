@@ -78,11 +78,19 @@ TOPIC_KEYWORDS: dict[str, list[str]] = {
 }
 
 JURISDICTION_KEYWORDS: dict[str, list[str]] = {
-    "Singapore (STRO)": ["singapore", "mas", "stro", "sgd", "monetary authority of singapore"],
-    "Hong Kong (JFIU)": ["hong kong", "hkma", "jfiu", "sfc", " hkd ", "icac"],
-    "Malaysia (FIED)": ["malaysia", "bnm", "bank negara", "ringgit", "fied", "myr"],
-    "Australia (AUSTRAC SMR)": ["australia", "austrac", "asic", "apra", "rba", "aud"],
+    "Singapore (STRO)": ["singapore", " mas ", "stro", " sgd ", "monetary authority of singapore", "abs singapore"],
+    "Hong Kong (JFIU)": ["hong kong", " hkma ", "jfiu", " sfc ", " hkd ", "icac", "hkex", "hkab"],
+    "Malaysia (FIED)": ["malaysia", " bnm ", "bank negara", "ringgit", "fied", " myr "],
+    "Australia (AUSTRAC SMR)": ["australia", "austrac", " asic ", " apra ", " rba ", " aud ", "dfat"],
+    # Non-product jurisdictions — these classify to "All jurisdictions" rather than misfire onto SG/HK/MY/AU
+    "_uk": ["united kingdom", " uk ", " fca ", "bank of england", "boe", " pra ", "fcdo", "hm treasury", "british"],
+    "_us": ["united states", " us ", "fincen", " ofac ", " sec ", " cftc ", " doj ", "department of justice", "treasury"],
+    "_eu": ["european union", " eu ", " eba ", " esma ", "european commission"],
+    "_intl": ["fatf", "world bank", " imf ", " oecd ", " bis ", " bcbs ", "egmont", "wolfsberg", "unodc"],
 }
+
+# Minimum keyword-match score to claim a specific jurisdiction; otherwise → All jurisdictions
+JUR_MIN_SCORE = 1
 
 
 @dataclass
@@ -131,7 +139,13 @@ def classify_topic(text: str) -> str:
 
 
 def classify_jurisdiction(text: str, source_label: str) -> str:
-    text_low = (text + " " + source_label).lower()
+    """Return one of the 4 product jurisdictions OR 'All jurisdictions'.
+
+    Hidden buckets ('_uk', '_us', etc.) absorb non-APAC content so it doesn't
+    misfire onto Singapore/HK/MY/AU. They map back to 'All jurisdictions' on output.
+    """
+    # Pad with spaces so single-word matches like " uk " work at boundaries
+    text_low = " " + (text + " " + source_label).lower() + " "
     scores: dict[str, int] = {}
     for jur, keywords in JURISDICTION_KEYWORDS.items():
         for kw in keywords:
@@ -139,7 +153,13 @@ def classify_jurisdiction(text: str, source_label: str) -> str:
                 scores[jur] = scores.get(jur, 0) + 1
     if not scores:
         return "All jurisdictions"
-    return max(scores.items(), key=lambda x: x[1])[0]
+    top_jur, top_score = max(scores.items(), key=lambda x: x[1])
+    if top_score < JUR_MIN_SCORE:
+        return "All jurisdictions"
+    if top_jur.startswith("_"):
+        # UK / US / EU / International — surface as "All jurisdictions" in the product
+        return "All jurisdictions"
+    return top_jur
 
 
 def collect_candidate_items(verbose: bool = True) -> list[dict[str, Any]]:
@@ -170,15 +190,28 @@ def collect_candidate_items(verbose: bool = True) -> list[dict[str, Any]]:
                 link = entry.get("link", "")
                 if not link:
                     continue
-                # Date filter
+                # Date filter — prefer parsed structured date; fall back to today's
+                # date for items without parseable timestamps (avoids saving "Thursday, "
+                # as the date when a feed uses prose-format publication dates).
                 if hasattr(entry, "published_parsed") and entry.published_parsed:
                     pp = entry.published_parsed
                     item_date = dt.datetime(pp.tm_year, pp.tm_mon, pp.tm_mday, tzinfo=dt.timezone.utc)
                     if item_date < cutoff:
                         continue
                     date_str = f"{pp.tm_year:04d}-{pp.tm_mon:02d}-{pp.tm_mday:02d}"
+                elif hasattr(entry, "updated_parsed") and entry.updated_parsed:
+                    pp = entry.updated_parsed
+                    item_date = dt.datetime(pp.tm_year, pp.tm_mon, pp.tm_mday, tzinfo=dt.timezone.utc)
+                    if item_date < cutoff:
+                        continue
+                    date_str = f"{pp.tm_year:04d}-{pp.tm_mon:02d}-{pp.tm_mday:02d}"
                 else:
-                    date_str = entry.get("published", "")[:10] or dt.date.today().isoformat()
+                    # Try ISO-format string as last resort, else fall back to today
+                    raw = (entry.get("published", "") or entry.get("updated", "")).strip()
+                    if raw[:4].isdigit() and "-" in raw[:10]:
+                        date_str = raw[:10]
+                    else:
+                        date_str = dt.date.today().isoformat()
 
                 title = entry.get("title", "(no title)")
                 summary = entry.get("summary", entry.get("description", ""))
