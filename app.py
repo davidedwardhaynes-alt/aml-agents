@@ -1,3 +1,5 @@
+from __future__ import annotations  # Python 3.9 PEP 604 compat (X | Y union syntax)
+
 import io
 import os
 import re
