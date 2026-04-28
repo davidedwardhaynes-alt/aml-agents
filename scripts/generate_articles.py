@@ -112,9 +112,11 @@ TOPIC_KEYWORDS: dict[str, list[str]] = {
     ],
 }
 
-# Topic classifier minimum score — below this, default to AML enforcement
-# (which is the safest fallback for compliance news)
-TOPIC_MIN_SCORE = 2
+# Topic classifier minimum score — below this, default to AML enforcement.
+# Set to 1 so single-keyword matches still classify (e.g. "appointed" → Talent).
+# The word-boundary keyword pattern in TOPIC_KEYWORDS prevents most false positives
+# (e.g. "ai" no longer matches "trail").
+TOPIC_MIN_SCORE = 1
 
 JURISDICTION_KEYWORDS: dict[str, list[str]] = {
     "Singapore (STRO)": ["singapore", " mas ", "stro", " sgd ", "monetary authority of singapore", "abs singapore"],
