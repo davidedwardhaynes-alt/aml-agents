@@ -2833,10 +2833,25 @@ with tab_news:
                     icon = "OK" if (v.startswith("OK") or v.startswith("cached")) else "FAIL"
                     st.markdown(f"- **{icon}** {k}: `{v}`")
 
+    def _two_sentence_intro(text: str) -> str:
+        """Trim summary to ~2 sentences for the feed view."""
+        if not text:
+            return ""
+        # Split on period followed by space; take first 2 sentences max.
+        parts = []
+        chunks = text.replace("\n", " ").split(". ")
+        for c in chunks[:2]:
+            c = c.strip()
+            if c and not c.endswith("."):
+                c = c + "."
+            if c:
+                parts.append(c)
+        return " ".join(parts) if parts else text[:300]
+
     if not news_items:
         st.info("No news items match your filter.")
     else:
-        for item in news_items:
+        for idx, item in enumerate(news_items):
             with st.container(border=True):
                 row = st.columns([4, 1])
                 with row[0]:
@@ -2848,12 +2863,26 @@ with tab_news:
                         f"</small>",
                         unsafe_allow_html=True,
                     )
-                    st.markdown(f"<small>{item.summary}</small>", unsafe_allow_html=True)
-                    st.markdown(
-                        f'<a href="{item.url}" target="_blank" '
-                        f'style="font-size: 0.82rem;">Open source →</a>',
-                        unsafe_allow_html=True,
-                    )
+                    intro = _two_sentence_intro(item.summary)
+                    st.markdown(f"<small>{intro}</small>", unsafe_allow_html=True)
+
+                    # Read more expander — only when long-form content exists
+                    if item.full_article:
+                        with st.expander("Read more", expanded=False):
+                            st.markdown(item.full_article)
+                            st.markdown(
+                                f'<div style="margin-top: 0.6rem; font-size: 0.75rem; color: #64748b;">'
+                                f"Source: <a href=\"{item.url}\" target=\"_blank\">{item.source}</a>  ·  "
+                                f"{item.date}"
+                                f"</div>",
+                                unsafe_allow_html=True,
+                            )
+                    else:
+                        st.markdown(
+                            f'<a href="{item.url}" target="_blank" '
+                            f'style="font-size: 0.82rem;">Open source →</a>',
+                            unsafe_allow_html=True,
+                        )
                 with row[1]:
                     st.markdown(
                         f'<div style="text-align: right; padding-top: 0.4rem;">'
