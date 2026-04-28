@@ -389,65 +389,6 @@ NEWS_ITEMS: list[NewsItem] = [
         url="https://www.dfat.gov.au",
         topic="Sanctions / Geopolitics",
     ),
-
-    # ---------------- Authoritative sources — Regulation Asia ----------------
-    NewsItem(
-        date="2026-04-28",
-        jurisdiction="All jurisdictions",
-        title="Regulation Asia: APAC FIUs sign tripartite intelligence-sharing MoU",
-        summary=(
-            "STRO (Singapore), JFIU (Hong Kong) and AUSTRAC (Australia) signed a tripartite MoU "
-            "for cross-border AML intelligence sharing focused on scam-victim mule networks. "
-            "Operational protocols to be published Q3 2026; first inter-FIU shared analytics "
-            "platform in APAC."
-        ),
-        source="Regulation Asia",
-        url="https://www.regulationasia.com",
-        topic="AML enforcement",
-        full_article="The tripartite memorandum of understanding between Singapore's STRO, Hong Kong's JFIU, and Australia's AUSTRAC operationalises a level of cross-border AML intelligence sharing that has been informally pursued for several years and now becomes a structured programme. The MoU's announced focus — scam-victim mule networks — is an explicit acknowledgement that no single FIU can effectively address what is a regional, organised criminal pattern.\n\nThe shared analytics platform, scheduled for first operational use in Q3 2026, marks an APAC first. The technical architecture is reported to be based on hashed-identifier matching with multi-jurisdiction FIU access — a model conceptually similar to the inter-bank intelligence sharing that ABS Singapore has pioneered, scaled up to FIU level. Privacy frameworks have been pre-cleared with each jurisdiction's data-protection regulator.\n\nFor reporting institutions, the immediate implications are indirect but significant. The MoU empowers FIUs to detect cross-border patterns that single-jurisdiction filing data cannot reveal. Where a bank in Singapore files an STR on a customer with mainland China beneficiary connections, the data point may now be surfaced to JFIU through automated processes — accelerating the speed at which supervisory typology bulletins can be developed and disseminated.\n\nIndustry analysts note that the tripartite MoU positions APAC ahead of the European Union's parallel work on EU-level AML supervisory aggregation. The APAC FIU coordination model may become the de facto template for cross-border AML intelligence sharing in other regions.",
-    ),
-    NewsItem(
-        date="2026-04-21",
-        jurisdiction="All jurisdictions",
-        title="Regulation Asia commentary: APAC virtual bank AML control gaps",
-        summary=(
-            "Editorial review of HKMA's HKD 18M penalty, BNM digital-bank thematic findings, "
-            "and Singapore MAS expectations for digital banks. Common thread: e-KYC mule-detection "
-            "deficiencies. Key article for any digital banking AML readiness benchmarking."
-        ),
-        source="Regulation Asia",
-        url="https://www.regulationasia.com",
-        topic="Fintech / Digital banking",
-        full_article="Regulation Asia's editorial review of recent virtual bank AML enforcement across HKMA's HKD 18 million action, BNM's thematic findings on the Malaysian digital banking framework, and MAS expectations for Singapore digital banks identifies a common thread: e-KYC mule-detection deficiencies. The convergence of supervisory findings across three jurisdictions reflects that this is a systemic, model-level issue rather than an institution-specific failure.\n\nThe structural problem is straightforward. Digital banks have built their value proposition on frictionless onboarding — typically 5-10 minute account opening with NRIC/HKID/passport plus selfie liveness. The same low-friction process that delivers customer growth creates the openings that organised mule recruitment exploits. The economics push hard against introducing meaningful onboarding friction, even where compliance teams advocate for it.\n\nDetection therefore moves to ongoing monitoring. The supervisory expectation across HKMA, BNM, and MAS is that digital banks deploy ML-based clustering models for mule detection, real-time velocity-vs-profile rules, and integration with cross-bank intelligence sharing. The cost base implications are material — and several smaller digital bank licensees are reported to be operating below the compliance investment levels their regulators now expect.\n\nThe piece concludes that supervisory enforcement will likely consolidate around a small number of indicator-based regulatory metrics: mule-account precision/recall, alert-disposition timing, STR-rate per 1,000 customers, and integration with cross-bank intelligence-sharing platforms. These will increasingly be the operating metrics that distinguish well-supervised from problematic licensees.",
-    ),
-    NewsItem(
-        date="2026-04-09",
-        jurisdiction="All jurisdictions",
-        title="Regulation Asia: tokenisation pilots accelerate across Singapore, HK, Australia",
-        summary=(
-            "Tokenised real-world assets (RWA) regulatory frameworks compared across MAS Project "
-            "Guardian, SFC sandbox (HK), and ASIC innovation hub. AML implications: source-of-"
-            "wealth checks at higher thresholds; Travel Rule application to RWA transfers."
-        ),
-        source="Regulation Asia",
-        url="https://www.regulationasia.com",
-        topic="Crypto / VASP",
-    ),
-    NewsItem(
-        date="2026-03-20",
-        jurisdiction="All jurisdictions",
-        title="Regulation Asia: APAC anti-scam coordination — government task forces compared",
-        summary=(
-            "Comparative analysis: Singapore Anti-Scam Centre (SPF), HK Anti-Deception "
-            "Coordination Centre (ADCC), Malaysia National Scam Response Centre (NSRC), "
-            "Australia National Anti-Scam Centre (NASC). Operational maturity ranking and "
-            "industry coordination effectiveness."
-        ),
-        source="Regulation Asia",
-        url="https://www.regulationasia.com",
-        topic="Scams / Fraud trends",
-    ),
-
     # ---------------- Wolfsberg Group ----------------
     NewsItem(
         date="2026-04-15",
@@ -581,7 +522,6 @@ NEWS_RSS_FEEDS: list[tuple[str, str, str]] = [
     # (source label, url, default topic)
 
     # ---- APAC-focused authoritative sources ----
-    ("Regulation Asia", "https://www.regulationasia.com/feed/", "AML enforcement"),
     ("Wolfsberg Group publications", "https://www.wolfsberg-principles.com/feed", "AML enforcement"),
     ("Egmont Group news", "https://egmontgroup.org/feed/", "AML enforcement"),
     ("APG news", "https://www.apgml.org/news/index.aspx?type=rss", "AML enforcement"),
