@@ -33,8 +33,14 @@ socket.setdefaulttimeout(15)
 
 CACHE_PATH = Path(__file__).parent.parent / "data" / "press_release_cache.yaml"
 CACHE_TTL_SECONDS = 4 * 60 * 60  # 4 hours
-MAX_HTML_CHARS = 60_000  # cap input HTML to keep extraction cost predictable
+MAX_HTML_CHARS = 150_000  # cap input HTML to keep extraction cost predictable
 EXTRACTOR_MODEL = "claude-haiku-4-5-20251001"
+
+# Sites known to be JS-rendered (static HTML lacks the actual press releases).
+# Skip these to avoid wasting LLM tokens on empty navigation HTML.
+JS_RENDERED_HOSTS = {
+    "www.mas.gov.sg",  # SPA — content loaded via JS
+}
 
 
 @dataclass
@@ -136,14 +142,17 @@ Output ONLY the JSON array — no markdown fences, no preamble."""
 def _strip_html_for_extraction(html: str) -> str:
     """Trim HTML to a reasonable size for LLM input.
 
-    Drop <script>, <style>, <nav>, <footer> blocks and collapse whitespace.
-    Preserves <a> tags with hrefs which is what we need for URL extraction.
+    Drop <script>, <style>, <nav>, <footer>, <header>, <svg> blocks and collapse
+    whitespace. Preserves <a>/<li>/<time> tags which are what we need for items.
     """
     import re
-    # Remove script/style/svg blocks
-    html = re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL | re.IGNORECASE)
-    html = re.sub(r"<style[^>]*>.*?</style>", "", html, flags=re.DOTALL | re.IGNORECASE)
-    html = re.sub(r"<svg[^>]*>.*?</svg>", "", html, flags=re.DOTALL | re.IGNORECASE)
+    for tag in ("script", "style", "svg", "nav", "footer", "header", "noscript", "aside"):
+        html = re.sub(
+            rf"<{tag}\b[^>]*>.*?</{tag}>",
+            "",
+            html,
+            flags=re.DOTALL | re.IGNORECASE,
+        )
     # Collapse whitespace
     html = re.sub(r"\s+", " ", html)
     # Cap length
@@ -169,7 +178,10 @@ def _save_cache(cache: dict[str, Any]) -> None:
 
 
 def _fetch_html(url: str) -> str | None:
-    """Fetch a regulator page. Returns None on any error."""
+    """Fetch a regulator page. Returns None on any error or if host is JS-only."""
+    from urllib.parse import urlparse
+    if urlparse(url).hostname in JS_RENDERED_HOSTS:
+        return None
     try:
         with httpx.Client(timeout=15.0, follow_redirects=True) as client:
             resp = client.get(
