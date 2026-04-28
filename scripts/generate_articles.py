@@ -64,18 +64,57 @@ MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = 1200
 
 
-# Topic classification keywords (single-word matches OK; combined ranking)
+# Topic classification keywords. More-specific keywords are weighted higher (count
+# multiple times) so a single ambiguous match doesn't dominate. Use word boundaries
+# (leading/trailing space) to reduce false positives like "ai" in "trail" or
+# "ipo" in "tipoff".
 TOPIC_KEYWORDS: dict[str, list[str]] = {
-    "AML enforcement": ["enforcement", "penalty", "fine", "aml", "money laundering", "STR", "SAR", "fiu"],
-    "Fintech / Digital banking": ["digital bank", "neobank", "fintech", "challenger bank", "virtual bank"],
-    "Crypto / VASP": ["crypto", "vasp", "blockchain", "bitcoin", "btc", "eth", "stablecoin", "tokeni", "dce", "dpt"],
-    "Sanctions / Geopolitics": ["sanction", "ofac", "russia", "iran", "dprk", "designat", "embargo"],
-    "Industry M&A": ["acqui", "merger", "investment", "fundrais", "ipo"],
-    "Talent / Hiring": ["appoint", "hire", "ceo", "mlro", "compliance officer", "joins"],
-    "Conferences / Events": ["conference", "summit", "symposium", "event", "keynote"],
-    "Regulatory tech": ["regtech", "ai ", "machine learning", "automation", "regulatory technology"],
-    "Scams / Fraud trends": ["scam", "fraud", "phishing", "pig butchering", "romance scam", "investment scam"],
+    "AML enforcement": [
+        "enforcement", "penalty", "civil penalty", " fine ", " fined ",
+        "money laundering", "anti-money laundering", "aml/cft",
+        " str ", " sar ", " fiu ", "law firm", "claims management",
+        "compliance failure", "supervisory", "censure",
+    ],
+    "Fintech / Digital banking": [
+        "digital bank", "neobank", "challenger bank", "virtual bank",
+        "fintech", "payments fintech", "e-money",
+    ],
+    "Crypto / VASP": [
+        " crypto ", " vasp ", "blockchain", "virtual asset",
+        " bitcoin ", " btc ", " eth ", "stablecoin", "tokenis", "tokeniz",
+        " dce ", " dpt ", "digital currency exchange", "wallet address", "kyt",
+    ],
+    "Sanctions / Geopolitics": [
+        "sanction", "ofac", "russia", "iran", "dprk", "north korea",
+        "designat", "embargo", "asset freeze",
+    ],
+    "Industry M&A": [
+        "acquir", "merger", "buyout", "fundrais", " ipo ", "private equity",
+        "venture capital",
+    ],
+    "Talent / Hiring": [
+        " appointed", " hires ", " hire ", " ceo ", " mlro ",
+        "compliance officer", " joins ", "head of compliance",
+        "head of fcc", "head of aml", "named as ", "promoted to",
+    ],
+    "Conferences / Events": [
+        "conference", "summit", "symposium", "keynote", "panel discussion",
+    ],
+    "Regulatory tech": [
+        "regtech", "regulatory technology", " ai-", " ml ",
+        "machine learning", "large language model", " llm ",
+        "automation", "natural language processing", "explainability",
+    ],
+    "Scams / Fraud trends": [
+        "scam", " fraud ", "phishing", "pig butchering", "pig-butchering",
+        "romance scam", "investment scam", "deepfake", "voice cloning",
+        "money mule", "scam victim",
+    ],
 }
+
+# Topic classifier minimum score — below this, default to AML enforcement
+# (which is the safest fallback for compliance news)
+TOPIC_MIN_SCORE = 2
 
 JURISDICTION_KEYWORDS: dict[str, list[str]] = {
     "Singapore (STRO)": ["singapore", " mas ", "stro", " sgd ", "monetary authority of singapore", "abs singapore"],
@@ -129,13 +168,21 @@ def url_hash(url: str) -> str:
 
 
 def classify_topic(text: str) -> str:
-    text_low = text.lower()
+    """Return the best-matching topic. Defaults to 'AML enforcement' when no
+    topic exceeds TOPIC_MIN_SCORE — avoiding misclassification on weak matches."""
+    # Pad with leading/trailing space so word-boundary keywords like " ai " match
+    text_low = " " + text.lower() + " "
     scores: dict[str, int] = {t: 0 for t in TOPICS}
     for topic, keywords in TOPIC_KEYWORDS.items():
         for kw in keywords:
             if kw in text_low:
                 scores[topic] = scores.get(topic, 0) + 1
-    return max(scores.items(), key=lambda x: x[1])[0] if any(scores.values()) else "AML enforcement"
+    if not any(scores.values()):
+        return "AML enforcement"
+    top_topic, top_score = max(scores.items(), key=lambda x: x[1])
+    if top_score < TOPIC_MIN_SCORE:
+        return "AML enforcement"
+    return top_topic
 
 
 def classify_jurisdiction(text: str, source_label: str) -> str:
