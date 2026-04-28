@@ -5,7 +5,7 @@ The `scripts/generate_articles.py` script pulls latest items from configured RSS
 ## How it works
 
 1. Loads existing generated articles from `data/generated_articles.yaml`
-2. Pulls from 67 RSS feeds (38 horizon + 29 news), filters items < 14 days old, drops already-processed URLs
+2. Pulls from **127 RSS feeds** (70 horizon + 57 news, including 21 APAC regulators: India RBI/SEBI, Thailand BOT/SEC, Philippines BSP/AMLC, Indonesia BI/OJK, Japan FSA/BOJ, Korea FSC/BoK, Taiwan FSC, China CSRC/PBoC, Pakistan FMU, NZ RBNZ/FMA), filters items < 14 days old, drops already-processed URLs. Best-effort URLs — many APAC regulator endpoints don't expose RSS, but the script handles failures gracefully.
 3. Picks N items per run (default 1; configurable via `--max`)
 4. For each, prompts Claude with the source title + summary + URL
 5. Auto-classifies jurisdiction (from RSS feed origin or keyword match) and topic (from keyword scoring)
