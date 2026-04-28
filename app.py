@@ -22,8 +22,11 @@ from auth.users import (
 )
 from lib.connectors import (
     ALL_STATUSES as CONNECTOR_STATUSES,
+    CATEGORIES as CONNECTOR_CATEGORIES,
     STATUS_COLOURS as CONNECTOR_STATUS_COLOURS,
+    by_category as connectors_by_category,
     by_status as connectors_by_status,
+    search as connectors_search,
 )
 from lib.consortium import (
     amount_band,
@@ -2160,69 +2163,105 @@ with tab_connectors:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "Native APIs to leading **AML / Transaction Monitoring / KYC / Sanctions screening** "
-        "platforms. Connectors don't just integrate — they **populate the STR**: KYC data flows "
-        "into Subject, alerts into Triggering activity, screening hits into the Sanctions panel, "
-        "wallet KYT scores into the Risk Index. Status reflects current build state."
+        "**161 connectors** to leading AML / TM / KYC / Sanctions screening / blockchain "
+        "platforms. Connectors don't just integrate — they **populate the STR**: KYC data into "
+        "Subject, alerts into Triggering activity, screening hits into Sanctions panel, KYT "
+        "scores into Risk Index. Use **search** below or expand a category."
     )
 
-    cn_filter = st.selectbox(
-        "Filter by status",
-        ["All statuses"] + CONNECTOR_STATUSES,
-        key="connector_status_filter",
-    )
-
-    grouped = connectors_by_status()
-    if cn_filter != "All statuses":
-        grouped = {k: v for k, v in grouped.items() if k == cn_filter}
-
-    if not grouped:
-        st.info("No connectors match this filter.")
-    else:
-        for status, conns in grouped.items():
-            badge_color = CONNECTOR_STATUS_COLOURS.get(status, "#64748b")
-            with st.container(border=True):
-                st.markdown(
-                    f'<div style="margin-bottom: 0.6rem;">'
-                    f'<span style="background: {badge_color}; color: white; '
-                    f'padding: 0.25rem 0.7rem; border-radius: 4px; font-size: 0.78rem; '
-                    f'font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">'
-                    f'{status}</span>'
-                    f'<span style="color: #64748b; margin-left: 0.6rem; font-size: 0.85rem;">'
-                    f'{len(conns)} connector{"s" if len(conns) != 1 else ""}</span>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-                cols = st.columns(2)
-                for i, c in enumerate(conns):
-                    with cols[i % 2]:
-                        populates_html = (
-                            "<div style='font-size: 0.72rem; color: #1e40af; margin-top: 0.4rem;'>"
-                            "<strong>Populates:</strong> "
-                            + " · ".join(c.populates)
-                            + "</div>"
-                            if c.populates else ""
-                        )
-                        st.markdown(
-                            f"""
+    def _render_connector_card(c, badge_color: str) -> None:
+        populates_html = (
+            "<div style='font-size: 0.72rem; color: #1e40af; margin-top: 0.4rem;'>"
+            "<strong>Populates:</strong> " + " · ".join(c.populates) + "</div>"
+            if c.populates else ""
+        )
+        st.markdown(
+            f"""
 <div style="border-left: 3px solid {badge_color}; padding: 0.6rem 0.9rem;
             margin-bottom: 0.5rem; background: #f8fafc; border-radius: 4px;">
-    <div style="font-weight: 600; color: #0f172a;">
-        <a href="{c.homepage}" target="_blank" style="color: #1e40af; text-decoration: none;">
-            {c.name}
-        </a>
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <div style="font-weight: 600; color: #0f172a;">
+            <a href="{c.homepage}" target="_blank" style="color: #1e40af; text-decoration: none;">
+                {c.name}
+            </a>
+        </div>
+        <span style="background: {badge_color}; color: white;
+                     padding: 0.12rem 0.5rem; border-radius: 4px; font-size: 0.65rem;
+                     font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+                     white-space: nowrap; margin-left: 0.5rem;">{c.status}</span>
     </div>
-    <div style="font-size: 0.78rem; color: #64748b; margin-top: 0.15rem;">
-        {c.category}  ·  {c.integration_type}
+    <div style="font-size: 0.74rem; color: #64748b; margin-top: 0.2rem;">
+        {c.integration_type}
     </div>
-    <div style="font-size: 0.85rem; color: #475569; margin-top: 0.4rem;">
+    <div style="font-size: 0.82rem; color: #475569; margin-top: 0.4rem;">
         {c.description}
     </div>
     {populates_html}
 </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Search + status filter row
+    cn_search_col, cn_status_col = st.columns([3, 2])
+    with cn_search_col:
+        cn_search = st.text_input(
+            "Search connectors (name, category, description)",
+            key="connector_search",
+            placeholder="e.g. Hawk, sanctions, Sumsub, Singapore...",
+        )
+    with cn_status_col:
+        cn_filter = st.selectbox(
+            "Filter by status",
+            ["All statuses"] + CONNECTOR_STATUSES,
+            key="connector_status_filter",
+        )
+
+    # If search is active, show flat filtered list
+    if cn_search.strip():
+        results = connectors_search(cn_search)
+        if cn_filter != "All statuses":
+            results = [c for c in results if c.status == cn_filter]
+        if not results:
+            st.info(f"No connectors match search '{cn_search}'.")
+        else:
+            st.caption(f"Found {len(results)} match(es) for '{cn_search}'")
+            cols = st.columns(2)
+            for i, c in enumerate(results):
+                with cols[i % 2]:
+                    _render_connector_card(c, CONNECTOR_STATUS_COLOURS.get(c.status, "#64748b"))
+    else:
+        # No search — show collapsible categories
+        grouped = connectors_by_category()
+
+        # Apply status filter inside categories
+        if cn_filter != "All statuses":
+            grouped = {
+                cat: [c for c in conns if c.status == cn_filter]
+                for cat, conns in grouped.items()
+            }
+            grouped = {k: v for k, v in grouped.items() if v}
+
+        if not grouped:
+            st.info("No connectors match this filter.")
+        else:
+            for cat, conns in grouped.items():
+                live_count = sum(1 for c in conns if c.status == "Live")
+                indev_count = sum(1 for c in conns if c.status in ("In development", "Beta"))
+                # Auto-expand categories with Live or In-dev work
+                expanded_default = (live_count > 0) or (indev_count > 0)
+                summary = f"{cat} — {len(conns)} connector{'s' if len(conns) != 1 else ''}"
+                if live_count > 0:
+                    summary += f" · {live_count} Live"
+                if indev_count > 0:
+                    summary += f" · {indev_count} In dev"
+                with st.expander(summary, expanded=expanded_default):
+                    cols = st.columns(2)
+                    for i, c in enumerate(conns):
+                        with cols[i % 2]:
+                            _render_connector_card(
+                                c, CONNECTOR_STATUS_COLOURS.get(c.status, "#64748b")
+                            )
 
     st.caption(
         "Roadmap priorities tracked against ICP demand. If a platform you use isn't on the "
