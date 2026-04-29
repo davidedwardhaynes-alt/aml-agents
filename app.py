@@ -1082,11 +1082,18 @@ if not auth_status:
     # Login / signup view — short-circuit the rest of the app
     st.markdown(
         """
-<div style="max-width: 520px; margin: 1rem auto 1.5rem auto; padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1e40af 100%);
-            border-radius: 12px; color: #fff;">
-    <h2 style="color: #fff; margin: 0;">AML Agents</h2>
-    <p style="color: #cbd5e1; margin: 0.4rem 0 0 0; font-size: 0.92rem;">
+<div style="max-width: 520px; margin: 1.5rem auto 1.75rem auto; padding: 2rem 2.25rem;
+            background:
+                radial-gradient(120% 180% at 0% 0%, rgba(0,113,227,0.10) 0%, rgba(0,113,227,0) 55%),
+                radial-gradient(120% 180% at 100% 100%, rgba(94,92,230,0.10) 0%, rgba(94,92,230,0) 55%),
+                rgba(255,255,255,0.85);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border: 1px solid rgba(0,0,0,0.06); border-radius: 18px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.04);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;">
+    <h2 style="color: #1D1D1F; margin: 0; font-weight: 700; letter-spacing: -0.028em; font-size: 1.7rem;">AML Agents</h2>
+    <p style="color: #6E6E73; margin: 0.55rem 0 0 0; font-size: 0.95rem; line-height: 1.45;">
         AI-drafted STR narratives for compliance teams. Sign in to continue.
     </p>
 </div>
@@ -1128,10 +1135,20 @@ if not auth_status:
 auth_username = st.session_state["username"]
 auth_name = st.session_state.get("name", auth_username)
 
-# Polish CSS — branded header, card layout, hide default Streamlit chrome
+# Polish CSS — Apple-style design system. Soft grey canvas, white surfaces with
+# hairline borders, SF Pro typography, calm accent blue, segmented-control tabs.
 st.markdown(
     """
 <style>
+    /* ---- Apple-style design tokens ---------------------------------------
+       Palette:  canvas #F5F5F7 · surface #FFFFFF · hairline #D2D2D7
+                 text  #1D1D1F · secondary #6E6E73 · tertiary #86868B
+                 accent #0071E3 (Apple blue) · accent-hover #0077ED
+       Type:    -apple-system / SF Pro stack, antialiased
+       Radius:  14px cards · 10px inputs/buttons · 980px pills
+       Shadow:  hairline + very soft drop (0 1px 2px / 0 4px 16px rgba(0,0,0,.04))
+    ----------------------------------------------------------------------- */
+
     /* Hide Streamlit defaults */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -1139,20 +1156,45 @@ st.markdown(
     div[data-testid="stToolbar"] {display: none;}
     div[data-testid="stDecoration"] {display: none;}
 
-    /* Tighten top padding */
-    .block-container {padding-top: 2rem; padding-bottom: 3rem; max-width: 1400px;}
+    /* Global typography + canvas */
+    html, body, [class*="css"], .stApp, .block-container {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+                     "Helvetica Neue", "Inter", system-ui, sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    .stApp { background: #F5F5F7; color: #1D1D1F; }
+    .block-container {
+        padding-top: 2.25rem;
+        padding-bottom: 4rem;
+        max-width: 1280px;
+    }
 
-    /* Branded header */
+    /* Headings — Apple Display tight tracking */
+    h1, h2, h3, h4 {
+        color: #1D1D1F;
+        letter-spacing: -0.022em;
+        font-weight: 600;
+    }
+    h1 { letter-spacing: -0.028em; font-weight: 700; }
+
+    /* Branded header — frosted-glass hero with soft tint */
     .brand-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1e40af 100%);
-        padding: 1.75rem 2.25rem;
-        border-radius: 12px;
+        background:
+            radial-gradient(120% 180% at 0% 0%, rgba(0,113,227,0.10) 0%, rgba(0,113,227,0) 55%),
+            radial-gradient(120% 180% at 100% 100%, rgba(94,92,230,0.10) 0%, rgba(94,92,230,0) 55%),
+            rgba(255,255,255,0.78);
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        border: 1px solid rgba(0,0,0,0.06);
+        padding: 2rem 2.25rem;
+        border-radius: 18px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.04);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1.5rem;
+        gap: 1.75rem;
     }
     .brand-left {
         flex: 1 1 auto;
@@ -1162,56 +1204,59 @@ st.markdown(
         flex: 0 0 auto;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.45rem;
         align-items: flex-end;
         max-width: 280px;
     }
     .brand-header h1 {
-        color: #ffffff !important;
-        font-size: 1.6rem;
-        font-weight: 600;
+        color: #1D1D1F !important;
+        font-size: 1.85rem;
+        font-weight: 700;
         margin: 0;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.028em;
+        line-height: 1.15;
     }
     .brand-header .subtitle {
-        color: #cbd5e1;
-        margin: 0.4rem 0 0 0;
-        font-size: 0.92rem;
+        color: #6E6E73;
+        margin: 0.5rem 0 0 0;
+        font-size: 0.95rem;
         font-weight: 400;
+        line-height: 1.45;
     }
     .brand-header .badge {
         display: inline-block;
-        background: rgba(255,255,255,0.12);
-        color: #cbd5e1;
-        padding: 0.2rem 0.6rem;
-        border-radius: 4px;
+        background: rgba(0,113,227,0.10);
+        color: #0071E3;
+        padding: 0.25rem 0.7rem;
+        border-radius: 980px;
         font-size: 0.7rem;
-        font-weight: 500;
-        letter-spacing: 0.05em;
+        font-weight: 600;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
-        margin-bottom: 0.6rem;
+        margin-bottom: 0.75rem;
     }
     /* Authority chips on the right of the header */
     .auth-chip {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 6px;
-        padding: 0.45rem 0.7rem;
+        background: rgba(255,255,255,0.85);
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 10px;
+        padding: 0.5rem 0.8rem;
         display: flex;
         align-items: baseline;
-        gap: 0.5rem;
+        gap: 0.55rem;
         white-space: nowrap;
-        backdrop-filter: blur(4px);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        backdrop-filter: blur(6px);
     }
     .auth-chip .auth-abbr {
-        color: #ffffff;
-        font-weight: 700;
+        color: #1D1D1F;
+        font-weight: 600;
         font-size: 0.85rem;
-        letter-spacing: 0.02em;
+        letter-spacing: -0.01em;
     }
     .auth-chip .auth-name {
-        color: #cbd5e1;
-        font-size: 0.7rem;
+        color: #6E6E73;
+        font-size: 0.72rem;
         font-weight: 400;
     }
     /* Stack header on narrow screens */
@@ -1232,68 +1277,214 @@ st.markdown(
         font-size: 0.72rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #475569;
-        margin: 0.4rem 0 0.5rem 0.1rem;
+        letter-spacing: 0.08em;
+        color: #6E6E73;
+        margin: 1.1rem 0 0.55rem 0.15rem;
     }
 
-    /* Output area */
+    /* Output area — accent blue label */
     .output-label {
         font-size: 0.72rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #1e40af;
-        margin: 1.5rem 0 0.5rem 0.1rem;
+        letter-spacing: 0.08em;
+        color: #0071E3;
+        margin: 1.75rem 0 0.55rem 0.15rem;
     }
 
-    /* Buttons */
-    .stButton button {
+    /* Bordered containers (st.container(border=True)) — soft cards */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #FFFFFF;
+        border: 1px solid #E5E5EA !important;
+        border-radius: 14px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 4px 16px rgba(0,0,0,0.03);
+    }
+
+    /* Buttons — Apple primary pill + subtle secondary */
+    .stButton button, .stDownloadButton button, .stFormSubmitButton button {
         font-weight: 500;
+        border-radius: 980px;
+        border: 1px solid rgba(0,0,0,0.10);
+        background: #FFFFFF;
+        color: #1D1D1F;
+        padding: 0.4rem 1.1rem;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .stButton button:hover, .stDownloadButton button:hover, .stFormSubmitButton button:hover {
+        background: #FAFAFC;
+        border-color: rgba(0,0,0,0.18);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .stButton button[kind="primary"], .stFormSubmitButton button[kind="primary"] {
+        background: #0071E3;
+        color: #FFFFFF !important;
+        border-color: #0071E3;
+        height: 2.85rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        box-shadow: 0 1px 2px rgba(0,113,227,0.20), 0 4px 14px rgba(0,113,227,0.18);
+    }
+    .stButton button[kind="primary"]:hover, .stFormSubmitButton button[kind="primary"]:hover {
+        background: #0077ED;
+        border-color: #0077ED;
+        box-shadow: 0 2px 4px rgba(0,113,227,0.25), 0 6px 18px rgba(0,113,227,0.22);
+    }
+
+    /* Inputs — white surface, hairline border, blue focus ring */
+    .stTextInput input, .stTextArea textarea, .stDateInput input,
+    .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div,
+    .stMultiSelect div[data-baseweb="select"] > div {
+        background: #FFFFFF !important;
+        border: 1px solid #D2D2D7 !important;
+        border-radius: 10px !important;
+        color: #1D1D1F !important;
+        font-size: 0.92rem !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .stTextInput input:focus, .stTextArea textarea:focus, .stDateInput input:focus,
+    .stNumberInput input:focus {
+        border-color: #0071E3 !important;
+        box-shadow: 0 0 0 3px rgba(0,113,227,0.18) !important;
+        outline: none !important;
+    }
+    .stTextInput label, .stTextArea label, .stSelectbox label,
+    .stMultiSelect label, .stDateInput label, .stNumberInput label,
+    .stRadio label, .stCheckbox label, .stFileUploader label {
+        font-weight: 500 !important;
+        color: #1D1D1F !important;
+        font-size: 0.88rem !important;
+    }
+
+    /* Tabs — Apple segmented control */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 4px;
+        background: #EBEBF0;
+        padding: 4px;
+        border-radius: 12px;
+        border: none;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 36px;
+        padding: 0 16px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: #1D1D1F;
+        font-weight: 500;
+        font-size: 0.88rem;
+        transition: all 0.15s ease;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(255,255,255,0.5);
+        color: #1D1D1F;
+    }
+    .stTabs [aria-selected="true"] {
+        background: #FFFFFF !important;
+        color: #1D1D1F !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .stTabs [data-baseweb="tab-highlight"],
+    .stTabs [data-baseweb="tab-border"] { display: none !important; }
+
+    /* Expanders — clean cards */
+    .streamlit-expanderHeader, [data-testid="stExpander"] summary {
+        background: #FFFFFF !important;
+        border-radius: 12px !important;
+        font-weight: 500 !important;
+        color: #1D1D1F !important;
+    }
+    [data-testid="stExpander"] {
+        border: 1px solid #E5E5EA !important;
+        border-radius: 12px !important;
+        background: #FFFFFF;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    /* Alerts — softer Apple-style banners */
+    div[data-testid="stAlert"] {
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    /* Code blocks */
+    code, pre {
+        font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace !important;
+        background: #F5F5F7;
         border-radius: 6px;
     }
-    .stButton button[kind="primary"] {
-        height: 2.75rem;
-        font-size: 0.95rem;
+
+    /* Dataframe / table polish */
+    .stDataFrame, .stTable {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #E5E5EA;
     }
 
-    /* Sidebar tweaks */
+    /* Sidebar — frosted panel */
+    section[data-testid="stSidebar"] {
+        background: rgba(245,245,247,0.85);
+        backdrop-filter: saturate(180%) blur(20px);
+        border-right: 1px solid #E5E5EA;
+    }
     section[data-testid="stSidebar"] .block-container {
         padding-top: 2rem;
     }
 
-    /* Make the collapsed-sidebar expand button highly visible.
-       Streamlit's default chevron is small and easy to miss. */
+    /* Sidebar collapse / expand controls — pill-shaped, Apple blue accent */
     [data-testid="collapsedControl"] {
-        background-color: #1e40af !important;
-        border-radius: 8px !important;
-        padding: 0.5rem !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid #D2D2D7 !important;
+        border-radius: 980px !important;
+        padding: 0.45rem !important;
         margin: 0.75rem !important;
-        box-shadow: 0 2px 8px rgba(30, 64, 175, 0.35) !important;
-        transition: all 0.15s ease-in-out !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.06) !important;
+        transition: all 0.15s ease !important;
         z-index: 999 !important;
     }
     [data-testid="collapsedControl"]:hover {
-        background-color: #1e3a8a !important;
-        transform: scale(1.08) !important;
-        box-shadow: 0 4px 14px rgba(30, 64, 175, 0.5) !important;
+        background-color: #FAFAFC !important;
+        transform: scale(1.06) !important;
+        box-shadow: 0 2px 4px rgba(0,113,227,0.20), 0 6px 18px rgba(0,113,227,0.18) !important;
     }
     [data-testid="collapsedControl"] svg,
     [data-testid="collapsedControl"] path {
-        color: #ffffff !important;
-        fill: #ffffff !important;
-        stroke: #ffffff !important;
-        width: 22px !important;
-        height: 22px !important;
+        color: #0071E3 !important;
+        fill: #0071E3 !important;
+        stroke: #0071E3 !important;
+        width: 20px !important;
+        height: 20px !important;
     }
-
-    /* Sidebar's own collapse button (visible when sidebar is open) */
     [data-testid="stSidebarCollapseButton"] button {
-        background-color: rgba(30, 64, 175, 0.1) !important;
-        border-radius: 6px !important;
+        background-color: rgba(0,113,227,0.08) !important;
+        border-radius: 980px !important;
+        color: #0071E3 !important;
     }
     [data-testid="stSidebarCollapseButton"] button:hover {
-        background-color: rgba(30, 64, 175, 0.2) !important;
+        background-color: rgba(0,113,227,0.14) !important;
+    }
+
+    /* Links — Apple blue */
+    a, a:visited { color: #0071E3; text-decoration: none; }
+    a:hover { color: #0077ED; text-decoration: underline; }
+
+    /* Metric cards */
+    [data-testid="stMetric"] {
+        background: #FFFFFF;
+        border: 1px solid #E5E5EA;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    [data-testid="stMetricLabel"] { color: #6E6E73; font-weight: 500; }
+    [data-testid="stMetricValue"] { color: #1D1D1F; font-weight: 600; letter-spacing: -0.02em; }
+
+    /* Radio / checkbox accent */
+    .stRadio [role="radiogroup"] label[data-baseweb="radio"] > div:first-child,
+    .stCheckbox label[data-baseweb="checkbox"] > div:first-child {
+        border-color: #D2D2D7;
     }
 </style>
 """,
@@ -1346,15 +1537,20 @@ with st.sidebar:
         initial = (auth_name or auth_username or "?")[0].upper()
         st.markdown(
             f"""
-<div style="width: 88px; height: 88px; background: linear-gradient(135deg, #1e3a8a, #1e40af);
+<div style="width: 88px; height: 88px;
+            background: linear-gradient(135deg, #0071E3 0%, #5E5CE6 100%);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem;
-            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.25);">{initial}</div>
+            color: white; font-size: 2.1rem; font-weight: 600; margin-bottom: 0.6rem;
+            letter-spacing: -0.02em;
+            box-shadow: 0 1px 2px rgba(0,113,227,0.25), 0 6px 18px rgba(0,113,227,0.20);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;">
+    {initial}
+</div>
             """,
             unsafe_allow_html=True,
         )
 
-    st.markdown(f"**{auth_name}**  \n<small style='color: #64748b;'>`{auth_username}`</small>",
+    st.markdown(f"**{auth_name}**  \n<small style='color: #6E6E73;'>`{auth_username}`</small>",
                 unsafe_allow_html=True)
 
     # Avatar upload
