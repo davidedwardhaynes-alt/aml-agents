@@ -27,3 +27,8 @@ data/consortium.yaml
 
 # Press release scrape cache (4-hour TTL; refreshed on cron) — never commit
 data/press_release_cache.yaml
+
+# Deploy paste-block — contains the live ANTHROPIC_API_KEY, cookie secret, and
+# bcrypt hash. Stays local-only; the user pastes the contents into the
+# Streamlit Cloud Secrets UI directly.
+DEPLOY_PASTE.txt

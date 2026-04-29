@@ -1,0 +1,49 @@
+name: Refresh jurisdictional news
+
+# Runs scripts/generate_articles.py 3x/day, commits the refreshed articles back
+# to main. Streamlit Cloud auto-redeploys on every push, so the live demo gets
+# fresh news without manual intervention.
+#
+# Cost: ~$0.20 per refresh × 3/day = ~$0.60/day, ~$18/month at current pricing.
+# Adjust --max below to spend less, or comment out the schedule to disable.
+
+on:
+  schedule:
+    # 01:00, 09:00, 17:00 UTC — covers Asia morning, EU midday, US morning
+    - cron: "0 1,9,17 * * *"
+  workflow_dispatch: {}   # also runnable manually from the Actions tab
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate up to 10 fresh articles
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/generate_articles.py --max 10
+
+      - name: Commit refreshed articles
+        run: |
+          git config user.name "news-bot"
+          git config user.email "bot@trustsphere.partners"
+          git add data/generated_articles.yaml
+          if git diff --cached --quiet; then
+            echo "No new articles — nothing to commit."
+          else
+            git commit -m "Auto-refresh jurisdictional news ($(date -u +%Y-%m-%d_%H:%M_UTC))"
+            git push
+          fi
