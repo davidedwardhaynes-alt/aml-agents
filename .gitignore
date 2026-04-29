@@ -3,9 +3,13 @@
 __pycache__/
 *.pyc
 .DS_Store
-.streamlit/
+
+# Streamlit local state — but DO commit config.toml (theme) so hosted deploys
+# pick it up. Only exclude secrets.toml.
+.streamlit/secrets.toml
 
 # User credentials — never commit (demo-grade local file with bcrypt hashes)
+# On Streamlit Cloud / hosted deploys, credentials come from st.secrets instead.
 auth/credentials.yaml
 
 # User-uploaded profile photos
@@ -17,8 +21,9 @@ data/obligations.yaml
 # Consortium log — local-only persistence (will be remote backend in production)
 data/consortium.yaml
 
-# LLM-generated news articles (auto-generated via scripts/generate_articles.py)
-data/generated_articles.yaml
+# LLM-generated news articles — TRACKED IN GIT so hosted deploys ship with
+# current news. Cron job re-generates and commits.
+# data/generated_articles.yaml  ← intentionally NOT ignored
 
-# Press release scrape cache (4-hour TTL; refreshed on cron)
+# Press release scrape cache (4-hour TTL; refreshed on cron) — never commit
 data/press_release_cache.yaml
