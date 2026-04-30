@@ -45,7 +45,8 @@ from lib.consortium import (
 )
 from lib.horizon import all_items_for_jurisdiction, items_for_jurisdiction
 from lib.news import TOPICS as NEWS_TOPICS, items_for as news_items_for
-from lib.obligations import (
+from lib.obligations import (  # noqa: I001 — keep grouped for diff cleanliness
+    reseed_obligations,
     STATUSES,
     add_obligation,
     delete_obligation,
@@ -1812,10 +1813,18 @@ model = st.session_state["model"]
 # ============================================================================
 # Top-level tabs — Draft STR / Connectors / Obligation register / Horizon scanning
 # ============================================================================
-tab_draft, tab_connectors, tab_obligations, tab_horizon, tab_news = st.tabs(
+(
+    tab_draft,
+    tab_connectors,
+    tab_integration,
+    tab_obligations,
+    tab_horizon,
+    tab_news,
+) = st.tabs(
     [
         "Draft STR",
         "Connectors",
+        "Integration guide",
         "Obligation register",
         "Horizon scanning",
         "Jurisdictional news",
@@ -2794,6 +2803,305 @@ with tab_connectors:
 
 
 # ============================================================================
+# Integration guide tab — how to plug an external alerting / KYT / KYC system
+# (Feedzai, Darwinium, Hawk AI, Chainalysis, ComplyAdvantage, Sumsub, ...)
+# into AML Agents. Practitioner-facing user guide; covers webhook contract,
+# auth, payload mapping, sample requests, and rollout sequencing.
+# ============================================================================
+with tab_integration:
+    st.markdown(
+        '<div class="section-label">Integration guide — feed your alerts into AML Agents</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "Connect your existing alerting, KYT, KYC, or case-management platform so its "
+        "alerts flow into AML Agents and pre-populate STR drafts. The pattern is the same "
+        "for any of the 161 connectors: a webhook endpoint, an API key, and a JSON payload "
+        "mapped to AML Agents fields. Follow the steps below — most banks complete a working "
+        "integration in 1–2 weeks."
+    )
+
+    # ----------------------------------------------------------------------
+    # Step 1 — choose the integration pattern
+    # ----------------------------------------------------------------------
+    with st.container(border=True):
+        st.markdown("#### Step 1 · Pick the integration pattern")
+        st.markdown(
+            "AML Agents supports three patterns. Pick the one that matches how your upstream "
+            "platform delivers events."
+        )
+        pat_col1, pat_col2, pat_col3 = st.columns(3)
+        with pat_col1:
+            st.markdown(
+                "**A · Webhook push (recommended)**\n\n"
+                "Your platform POSTs each alert to AML Agents in real time. Lowest latency. "
+                "Used by Feedzai, Hawk AI, Darwinium, Sift, Featurespace ARIC, Sumsub, "
+                "BioCatch, Unit21, and most modern platforms."
+            )
+        with pat_col2:
+            st.markdown(
+                "**B · API pull (poll)**\n\n"
+                "AML Agents periodically calls your platform's REST API for new alerts. "
+                "Used when the upstream system can't push — e.g. some on-prem SAS or NICE "
+                "Actimize deployments. Default poll interval: 60 seconds."
+            )
+        with pat_col3:
+            st.markdown(
+                "**C · File drop (SFTP / S3)**\n\n"
+                "Your platform writes a CSV / JSONL file to an SFTP or S3 location; AML "
+                "Agents picks it up. Used by legacy core-banking AML modules and some "
+                "TBML monitoring vendors. End-of-day batch only."
+            )
+
+    # ----------------------------------------------------------------------
+    # Step 2 — webhook endpoint + auth
+    # ----------------------------------------------------------------------
+    with st.container(border=True):
+        st.markdown("#### Step 2 · Get your webhook URL and API key")
+        st.markdown(
+            "Each AML Agents tenant gets a unique webhook URL and a long-lived API key. "
+            "In v0 these are issued on request — Settings → Connectors → Generate "
+            "credentials. In production they self-serve from the admin console."
+        )
+        st.code(
+            "Webhook URL\n"
+            "  https://api.amlagents.ai/v1/ingest/<tenant-id>/<connector-slug>\n\n"
+            "Auth header (every request)\n"
+            "  Authorization: Bearer <tenant-api-key>\n\n"
+            "Optional signature header (recommended)\n"
+            "  X-AmlAgents-Signature: hmac-sha256(<tenant-secret>, raw_body)",
+            language="text",
+        )
+        st.caption(
+            "The connector-slug names which upstream system is sending — feedzai, "
+            "darwinium, hawk-ai, chainalysis-kyt, complyadvantage, sumsub, etc. AML "
+            "Agents uses this to apply the right field-mapping profile (Step 4)."
+        )
+
+    # ----------------------------------------------------------------------
+    # Step 3 — sample request
+    # ----------------------------------------------------------------------
+    with st.container(border=True):
+        st.markdown("#### Step 3 · Send a test alert")
+        st.markdown(
+            "Wire up the simplest possible payload first. AML Agents will accept it, "
+            "echo back a normalised representation, and surface it in the Draft STR tab "
+            "as a pre-populated case ready for the analyst to review."
+        )
+        ex_col1, ex_col2 = st.columns(2)
+        with ex_col1:
+            st.markdown("**curl**")
+            st.code(
+                """curl -X POST \\
+  https://api.amlagents.ai/v1/ingest/acme-bank/feedzai \\
+  -H "Authorization: Bearer $AMLAGENTS_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "alert_id": "FZ-2026-00482719",
+    "alert_time": "2026-04-29T14:32:11+08:00",
+    "score": 0.91,
+    "rule": "TBM-014 structuring",
+    "customer": {
+      "id": "A123456789",
+      "name": "ACME Trading Pte Ltd"
+    },
+    "transactions": [
+      {"date": "2026-04-15", "amount": 480000, "ccy": "SGD",
+       "counterparty": "HK-XYZ Ltd"}
+    ],
+    "raw_alert_url": "https://acme.feedzai.com/alerts/482719"
+  }'""",
+                language="bash",
+            )
+        with ex_col2:
+            st.markdown("**Python**")
+            st.code(
+                """import os, requests, hmac, hashlib, json
+
+api_key = os.environ["AMLAGENTS_API_KEY"]
+secret  = os.environ["AMLAGENTS_SIGNING_SECRET"]
+url = "https://api.amlagents.ai/v1/ingest/acme-bank/feedzai"
+
+payload = {
+    "alert_id": "FZ-2026-00482719",
+    "alert_time": "2026-04-29T14:32:11+08:00",
+    "score": 0.91,
+    "rule": "TBM-014 structuring",
+    "customer": {
+        "id": "A123456789",
+        "name": "ACME Trading Pte Ltd",
+    },
+    "transactions": [
+        {"date": "2026-04-15", "amount": 480000,
+         "ccy": "SGD", "counterparty": "HK-XYZ Ltd"},
+    ],
+    "raw_alert_url": "https://acme.feedzai.com/alerts/482719",
+}
+body = json.dumps(payload).encode()
+sig = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+
+r = requests.post(
+    url,
+    data=body,
+    headers={
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "X-AmlAgents-Signature": sig,
+    },
+    timeout=10,
+)
+r.raise_for_status()
+print(r.json())""",
+                language="python",
+            )
+        st.markdown("**Successful response**")
+        st.code(
+            """{
+  "ok": true,
+  "case_id": "case_01HXYZ...",
+  "tenant": "acme-bank",
+  "connector": "feedzai",
+  "status": "ingested",
+  "case_url": "https://app.amlagents.ai/cases/case_01HXYZ...",
+  "echo": {
+    "subject_name": "ACME Trading Pte Ltd",
+    "subject_id": "A123456789",
+    "transactions_count": 1,
+    "alert_score": 0.91
+  }
+}""",
+            language="json",
+        )
+        st.caption(
+            "Errors return a structured JSON body with `error.code` and `error.message`. "
+            "Common codes: `auth.invalid_key`, `payload.unknown_connector`, "
+            "`payload.schema_mismatch`, `quota.exceeded`. Retries should be idempotent on "
+            "`alert_id` — AML Agents deduplicates within a 24-hour window."
+        )
+
+    # ----------------------------------------------------------------------
+    # Step 4 — payload mapping (the table)
+    # ----------------------------------------------------------------------
+    with st.container(border=True):
+        st.markdown("#### Step 4 · Map your payload to AML Agents fields")
+        st.markdown(
+            "AML Agents normalises every connector's payload into the same internal case "
+            "schema. The table below shows the canonical fields and which keys each major "
+            "connector supplies. AML Agents ships built-in mapping profiles for the "
+            "platforms below; for any of the 161 connectors not listed, send the raw JSON "
+            "and AML Agents' Haiku-based extractor proposes a mapping you can approve."
+        )
+        st.markdown(
+            "| AML Agents field | Feedzai | Darwinium | Hawk AI | Chainalysis KYT | "
+            "ComplyAdvantage | Sumsub |\n"
+            "|---|---|---|---|---|---|---|\n"
+            "| `subject.name` | `customer.name` | `actor.full_name` | `entity.legal_name` "
+            "| `address.label` | `entity.name` | `applicant.info.fullName` |\n"
+            "| `subject.id` | `customer.id` | `actor.persistent_id` | `entity.id` | "
+            "`address.address` | `entity.id` | `applicant.id` |\n"
+            "| `alert.score` | `score` | `risk.composite_score` | `alert.score` | "
+            "`risk.score` | `match.score` | `review.reviewAnswer` |\n"
+            "| `alert.rule` | `rule` | `signal.name` | `scenario_name` | "
+            "`category` | `match_types[]` | `review.rejectLabels[]` |\n"
+            "| `alert.timestamp` | `alert_time` | `event_time` | `created_at` | "
+            "`timestamp` | `created_at` | `createdAt` |\n"
+            "| `transactions[]` | `transactions[]` | `events[]` | `transactions[]` | "
+            "`transfers[]` | _(N/A — counterparty platform)_ | _(N/A — KYC platform)_ |\n"
+            "| `raw_alert_url` | `dashboard_url` | `case_url` | `link` | "
+            "`investigation_url` | `entity_url` | `applicantId` (compose) |"
+        )
+        st.caption(
+            "Custom mappings: any field not in the canonical schema is preserved under "
+            "`metadata.<connector_slug>.*` so nothing is lost. The drafted STR narrative "
+            "automatically references custom fields where they're material to the analysis."
+        )
+
+    # ----------------------------------------------------------------------
+    # Step 5 — what happens after ingestion
+    # ----------------------------------------------------------------------
+    with st.container(border=True):
+        st.markdown("#### Step 5 · What AML Agents does with your alert")
+        st.markdown(
+            "1. **Deduplicate** against the prior 24h window using `alert_id` and "
+            "`subject.id`.\n"
+            "2. **Enrich** with TrustSphere Risk Index, sanctions/PEP screening "
+            "(OpenSanctions or your contracted ComplyAdvantage), and adverse-media check "
+            "if licensed.\n"
+            "3. **Render** the alert as a pre-populated Draft STR case. The analyst opens "
+            "it from the inbox at `/cases/<id>`.\n"
+            "4. **Cite** your platform by name in the drafted narrative — e.g. "
+            "*\"Feedzai rule TBM-014 fired on 2026-04-15 with score 0.91...\"*. The same "
+            "is true for all 161 connectors.\n"
+            "5. **Post-back (optional)** the final STRO/JFIU/FIED/AUSTRAC reference number "
+            "to your platform's case file once filed, closing the loop."
+        )
+
+    # ----------------------------------------------------------------------
+    # Step 6 — rollout sequencing
+    # ----------------------------------------------------------------------
+    with st.container(border=True):
+        st.markdown("#### Step 6 · Recommended rollout sequencing")
+        st.markdown(
+            "**Week 1** — sandbox connection. Wire up the webhook with test data. Confirm "
+            "auth, signature verification, and field mapping work end-to-end. Agree the "
+            "deduplication window with your operations team.\n\n"
+            "**Week 2** — shadow mode. Production alerts flow to AML Agents in parallel "
+            "with your existing case-management tool; analysts continue to use the "
+            "incumbent system but spot-check AML Agents' draft narratives. Track the "
+            "narrative-quality gap.\n\n"
+            "**Week 3 — pilot cohort.** A small group of analysts uses AML Agents as the "
+            "primary drafter for a defined customer segment (typically retail FX or "
+            "remittance). Measure time-to-file and MLRO QA scores.\n\n"
+            "**Week 4+ — staged production.** Roll out to broader segments. Decommission "
+            "duplicated case-management for ingested alerts where AML Agents is the "
+            "system of record. Connect post-back so AML Agents updates your incumbent "
+            "platform with the STR reference number."
+        )
+
+    # ----------------------------------------------------------------------
+    # FAQ
+    # ----------------------------------------------------------------------
+    with st.expander("FAQ — common integration questions", expanded=False):
+        st.markdown(
+            "**Q · What if our platform isn't in the 161-connector catalogue?**  \n"
+            "Send the raw JSON to the generic ingestion endpoint "
+            "`/v1/ingest/<tenant-id>/custom`. AML Agents' Haiku extractor proposes a "
+            "mapping; an admin approves it once and it's persisted as a tenant-specific "
+            "profile.\n\n"
+            "**Q · Can we encrypt customer PII before sending?**  \n"
+            "Yes — opt in to the `payload.envelope_encryption` mode at tenant setup. "
+            "AML Agents holds a tenant-specific KMS key (BYOK supported on AWS, Azure, "
+            "GCP) and decrypts on ingestion. The decrypted payload never leaves the "
+            "tenant's container.\n\n"
+            "**Q · How does AML Agents handle PII residency?**  \n"
+            "Production deployment supports Singapore, Hong Kong, Frankfurt, Sydney and "
+            "US-East regions. Pick the region where your data should reside; alerts are "
+            "ingested, processed and persisted within the chosen region. Cross-region "
+            "replication is opt-in.\n\n"
+            "**Q · How does the post-back to our case-management tool work?**  \n"
+            "Your platform exposes a webhook URL of its own; AML Agents POSTs the STR "
+            "filing reference, timestamp, and PDF link as soon as the analyst submits. "
+            "Most case-management tools (Unit21, Hummingbird, Salesforce-FSC, in-house "
+            "JIRA-based workflows) accept this.\n\n"
+            "**Q · What about SLAs?**  \n"
+            "v0 SLA: ingestion ack within 2 seconds, draft STR rendered within 30 seconds. "
+            "Production paid tier: 99.9% monthly uptime, 1-second ack, 15-second draft "
+            "rendering.\n\n"
+            "**Q · How is this priced?**  \n"
+            "Per ingested alert + per drafted STR. Volume tiers from 5,000 alerts / "
+            "month upwards. Talk to TrustSphere Partners (David Edward Haynes) for a "
+            "scoped quote — david@trustsphere.partners."
+        )
+
+    st.caption(
+        "Need a worked example for your specific platform? Pick the connector in the "
+        "Connectors tab and request the integration kit — TrustSphere ships a tenant-"
+        "specific Postman collection, signature-verification snippet, and field-mapping "
+        "profile."
+    )
+
+
+# ============================================================================
 # Obligation register tab — track regulatory obligations per institution
 # ============================================================================
 with tab_obligations:
@@ -2808,7 +3116,7 @@ with tab_obligations:
     )
 
     # Filter controls
-    filter_col1, filter_col2 = st.columns(2)
+    filter_col1, filter_col2, filter_col3 = st.columns([2, 2, 1])
     with filter_col1:
         ob_jur_filter = st.selectbox(
             "Filter by jurisdiction",
@@ -2821,6 +3129,21 @@ with tab_obligations:
             ["All statuses"] + STATUSES,
             key="ob_status_filter",
         )
+    with filter_col3:
+        st.markdown("<div style='height:1.85rem;'></div>", unsafe_allow_html=True)
+        if st.button(
+            "Reset to seed",
+            key="ob_reseed",
+            help=(
+                "Discard the current persisted obligations and rewrite the "
+                "seed list — useful when seed prose has been updated and "
+                "the running container has stale data on its writable disk."
+            ),
+            use_container_width=True,
+        ):
+            reseed_obligations()
+            st.success("Reseeded the obligation register from lib/obligations.py")
+            st.rerun()
 
     # Add new obligation
     with st.expander("Add a new obligation", expanded=False):
@@ -2903,6 +3226,50 @@ with tab_obligations:
                     if st.button("Delete", key=f"ob_del_{o.id}", use_container_width=True):
                         delete_obligation(o.id)
                         st.rerun()
+
+                # ----------------------------------------------------------
+                # Expandable detail panel — full text, deadline calculation,
+                # evidence, source link. Only shown when the obligation has
+                # the rich-detail fields populated.
+                # ----------------------------------------------------------
+                _has_detail = bool(
+                    getattr(o, "full_text", "")
+                    or getattr(o, "deadline_explanation", "")
+                    or getattr(o, "evidence", "")
+                    or getattr(o, "source_url", "")
+                )
+                if _has_detail:
+                    with st.expander("Show details", expanded=False):
+                        if o.full_text:
+                            st.markdown(
+                                "<div class='output-label' style='margin-top:0;'>"
+                                "What this obligation requires</div>",
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(o.full_text)
+                        if o.deadline_explanation:
+                            st.markdown(
+                                "<div class='output-label'>Deadline</div>",
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(
+                                f"**{o.due_date or '—'}** &nbsp; · &nbsp; "
+                                f"{o.deadline_explanation}"
+                            )
+                        if o.evidence:
+                            st.markdown(
+                                "<div class='output-label'>Evidence on examination</div>",
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(o.evidence)
+                        if o.source_url:
+                            st.markdown(
+                                f"<div style='margin-top:0.8rem; font-size:0.78rem;'>"
+                                f"<a href='{o.source_url}' target='_blank' "
+                                f"rel='noopener noreferrer'>View source →</a>"
+                                f"</div>",
+                                unsafe_allow_html=True,
+                            )
 
     # Tracked regulator directory — reference for sourcing new obligations
     render_regulator_directory(key_prefix="obligations")
@@ -3133,21 +3500,34 @@ with tab_news:
                     intro = _two_sentence_intro(item.summary)
                     st.markdown(f"<small>{intro}</small>", unsafe_allow_html=True)
 
-                    # Read more expander — only when long-form content exists
-                    if item.full_article:
-                        with st.expander("Read more", expanded=False):
+                    # Every news item gets an expandable details panel.
+                    # If full_article is populated (curated + LLM-generated
+                    # items), show the full long-form analysis. Otherwise
+                    # (live RSS items pulled on-demand) show the available
+                    # summary text. In all cases a 'View source' link sits
+                    # at the bottom of the expander.
+                    with st.expander("Show full report", expanded=False):
+                        if item.full_article:
                             st.markdown(item.full_article)
+                        else:
                             st.markdown(
-                                f'<div style="margin-top: 0.6rem; font-size: 0.75rem; color: #64748b;">'
-                                f"Source: <a href=\"{item.url}\" target=\"_blank\">{item.source}</a>  ·  "
-                                f"{item.date}"
-                                f"</div>",
+                                "<small style='color:#6E6E73;'>"
+                                "Live RSS item — full analysis not generated. "
+                                "Summary below; the source link contains the "
+                                "publisher's full text."
+                                "</small>",
                                 unsafe_allow_html=True,
                             )
-                    else:
+                            st.markdown(item.summary or "_(no summary available)_")
                         st.markdown(
-                            f'<a href="{item.url}" target="_blank" '
-                            f'style="font-size: 0.82rem;">Open source →</a>',
+                            f"<div style='margin-top:0.8rem; font-size:0.78rem; "
+                            f"color:#6E6E73;'>"
+                            f"Source: <a href=\"{item.url}\" target=\"_blank\" "
+                            f"rel=\"noopener noreferrer\">{item.source}</a>"
+                            f"  ·  {item.date}  ·  {item.jurisdiction}"
+                            f"  ·  <a href=\"{item.url}\" target=\"_blank\" "
+                            f"rel=\"noopener noreferrer\">View source →</a>"
+                            f"</div>",
                             unsafe_allow_html=True,
                         )
                 with row[1]:
