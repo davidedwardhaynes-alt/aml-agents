@@ -53,6 +53,11 @@ from lib.obligations import (
     update_obligation,
 )
 from lib.sanctions import classify_match, search_sanctions, summarize_entity
+from lib.connector_signals import (
+    signals_for as connector_signals_for,
+    signals_as_prompt_text,
+    severity_color,
+)
 
 # override=True ensures .env changes are picked up on every Streamlit rerun
 # (without needing a full server restart). Critical for API key updates.
@@ -1785,6 +1790,9 @@ with st.container(border=True):
                 for k, v in sample_filing.items():
                     st.session_state[k] = v
                 st.session_state["input_date_of_filing"] = date.today()
+                # Track the active case so the Connector-signals section
+                # and the LLM prompt know which signals to render/inject.
+                st.session_state["_active_case_key"] = case_key
                 st.rerun()
     with tool_col5:
         st.markdown("<div style='height: 1.85rem;'></div>", unsafe_allow_html=True)
@@ -1794,6 +1802,7 @@ with st.container(border=True):
             for k, v in FILING_METADATA_DEFAULTS.items():
                 st.session_state[k] = v
             st.session_state["input_date_of_filing"] = date.today()
+            st.session_state["_active_case_key"] = None
             st.rerun()
 
 # After widgets render, re-read in case the user changed the dropdown this run
@@ -2154,6 +2163,64 @@ Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation r
                 key="input_recommendation",
             )
 
+    # ============================================================
+    # Connector signals — the structured "why this was flagged" payload
+    # surfaced from the 161 connectors. Pre-populated when a sample
+    # case is loaded; included in the LLM prompt so the drafted
+    # narrative can cite individual connector findings.
+    # ============================================================
+    _active_case = st.session_state.get("_active_case_key")
+    _connector_signals = connector_signals_for(_active_case) if _active_case else []
+    if _connector_signals:
+        st.markdown(
+            '<div class="section-label">Risk signals from connectors</div>',
+            unsafe_allow_html=True,
+        )
+        with st.container(border=True):
+            st.caption(
+                f"{len(_connector_signals)} signal(s) populated by upstream connectors. "
+                "Each item is fed into the narrative prompt so the drafted STR can "
+                "cite the connector by name."
+            )
+            for s in _connector_signals:
+                color = severity_color(s.severity)
+                ts_html = (
+                    f'<span style="color:#86868B; font-size:0.72rem;">{s.timestamp}</span>'
+                    if s.timestamp else ""
+                )
+                st.markdown(
+                    f"""
+<div style="background: #FFFFFF; border: 1px solid #E5E5EA; border-left: 4px solid {color};
+            border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.6rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:0.75rem;
+                flex-wrap:wrap; margin-bottom:0.35rem;">
+        <div>
+            <span style="font-weight:600; color:#1D1D1F; font-size:0.95rem;
+                         letter-spacing:-0.01em;">{s.connector}</span>
+            <span style="color:#86868B; font-size:0.78rem; margin-left:0.45rem;">
+                · {s.category}</span>
+        </div>
+        <div style="display:flex; gap:0.45rem; align-items:center;">
+            <span style="background:{color}; color:white; font-size:0.66rem; font-weight:600;
+                         letter-spacing:0.04em; padding:0.16rem 0.52rem; border-radius:980px;">
+                {s.severity}
+            </span>
+            <span style="color:#6E6E73; font-size:0.72rem;">{s.confidence}% conf</span>
+            {ts_html}
+        </div>
+    </div>
+    <div style="color:#1D1D1F; font-size:0.88rem; line-height:1.45; margin-bottom:0.35rem;">
+        {s.signal}
+    </div>
+    <div style="color:#6E6E73; font-size:0.82rem; line-height:1.45;">
+        <span style="font-weight:500; color:#0071E3;">Implication:</span> {s.implication}
+    </div>
+</div>
+""",
+                    unsafe_allow_html=True,
+                )
+
     # Generate button
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
     generate = st.button("Generate STR narrative", type="primary", use_container_width=True)
@@ -2318,6 +2385,8 @@ Switch tabs at the top to explore **Connectors** (161 platforms), **Obligation r
 
     [ANALYST NOTES]
     {analyst_notes or '[not provided]'}
+
+    {signals_as_prompt_text(connector_signals_for(st.session_state.get("_active_case_key", "")))}
 
     [ADVERSE MEDIA]
     {adverse_media or '[none documented by analyst]'}
