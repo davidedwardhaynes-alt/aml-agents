@@ -392,6 +392,486 @@ SIGNALS_BY_CASE: dict[str, list[ConnectorSignal]] = {
     ],
 
     # =====================================================================
+    # SG — DPT cash-out via Tornado Cash (Vanessa Tan)
+    # =====================================================================
+    "Singapore (STRO) — DPT cash-out": [
+        ConnectorSignal(
+            connector="Chainalysis KYT",
+            category="Crypto AML & Blockchain Analytics",
+            signal=(
+                "100% of inbound 2.8 BTC traces to Tornado Cash output within "
+                "2 hops. Mixer-exposure cluster score 0.99 — highest band."
+            ),
+            implication=(
+                "Tornado Cash is OFAC-designated (SDN, August 2022). Knowing "
+                "receipt of mixer-output funds is a per-se MAS PSN02 STR "
+                "trigger and a sanctions issue."
+            ),
+            severity="HIGH",
+            confidence=99,
+            timestamp="2026-04-09 14:18 SGT",
+        ),
+        ConnectorSignal(
+            connector="TRM Labs",
+            category="Crypto AML & Blockchain Analytics",
+            signal=(
+                "Independent re-trace: same wallet shows 96% Tornado-Cash + "
+                "12% Hydra-successor exposure within 3 hops."
+            ),
+            implication=(
+                "Two-vendor agreement removes any 'tooling-error' defence. "
+                "Source of crypto unambiguously illicit."
+            ),
+            severity="HIGH",
+            confidence=96,
+        ),
+        ConnectorSignal(
+            connector="Hawk AI",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Withdrawal pattern matches typology TPL-DPT-04 (DPT cash-out "
+                "via third-party bank rails): inbound BTC → same-day SGD "
+                "conversion → outbound to bank account in different name."
+            ),
+            implication=(
+                "Direct match to MAS 2025 typology bulletin on DPT cash-out "
+                "for darknet/scam proceeds. Pattern recognition strengthens STR."
+            ),
+            severity="HIGH",
+            confidence=93,
+        ),
+        ConnectorSignal(
+            connector="ThreatMetrix",
+            category="Behavioral & Device Intelligence",
+            signal=(
+                "BTC-deposit and SGD-withdrawal sessions originated from a "
+                "Mongolian residential proxy not previously used by this "
+                "customer. Device fingerprint shared with 4 unrelated "
+                "high-risk customers in the past 30 days."
+            ),
+            implication=(
+                "Device-fingerprint reuse indicates a coordinated mule-network "
+                "operation — not isolated illicit activity."
+            ),
+            severity="HIGH",
+            confidence=87,
+        ),
+    ],
+
+    # =====================================================================
+    # SG — Real estate DNFBP / Sentosa Cove SPV (Crescent Bay)
+    # =====================================================================
+    "Singapore (STRO) — Real estate DNFBP": [
+        ConnectorSignal(
+            connector="Sayari",
+            category="Identity, eKYC, KYB & Onboarding",
+            signal=(
+                "BVI-Cayman SPV chain mapped: Crescent Bay (SG) → Eastwood "
+                "Holdings (BVI) → Beachfront Trust (Cayman) → UBO Mr Wei. "
+                "All three layers incorporated within 60 days of each other "
+                "in early 2026 — pure transaction-vehicle pattern, no "
+                "operating substance."
+            ),
+            implication=(
+                "Three-layer offshore wrapper introduced solely for this "
+                "transaction. Tier-1 indicator under FATF DNFBP risk guide "
+                "for high-value real estate."
+            ),
+            severity="HIGH",
+            confidence=94,
+        ),
+        ConnectorSignal(
+            connector="Dow Jones Adverse Media",
+            category="AML Data, Screening & Regulatory Intelligence",
+            signal=(
+                "UBO Mr Wei Jianzhong: Caixin (PRC) article 2025-05-14 names "
+                "him in connection with state-owned enterprise irregularities "
+                "at Hebei Iron & Steel Group. Article cites two anonymous "
+                "Central Commission for Discipline Inspection sources."
+            ),
+            implication=(
+                "Adverse-media confirmation of UBO risk profile. SoF claim "
+                "('family manufacturing wealth') becomes implausible given "
+                "named SOE-corruption nexus."
+            ),
+            severity="HIGH",
+            confidence=88,
+        ),
+        ConnectorSignal(
+            connector="TrustSphere Risk Index",
+            category="Risk Orchestration",
+            signal=(
+                "Composite SPV risk score 91/100 (Severe). Drivers: BVI/"
+                "Cayman wrapper + adverse-media UBO hit + price 22% above "
+                "URA caveat comparables + offshore-only funding."
+            ),
+            implication=(
+                "Multi-factor red-flag stack. CEA-licensed real estate agent "
+                "is in DNFBP STR scope under MAS supervision."
+            ),
+            severity="HIGH",
+            confidence=91,
+        ),
+        ConnectorSignal(
+            connector="URA Caveat / RealLink",
+            category="Specialized Solutions",
+            signal=(
+                "Purchase price SGD 28M is 22% above the median of the past "
+                "8 closed comparable sales in the same Sentosa Cove "
+                "development (last 12 months)."
+            ),
+            implication=(
+                "Materially over-market price is a classic over-valuation "
+                "indicator for real-estate-based laundering."
+            ),
+            severity="MEDIUM",
+            confidence=86,
+        ),
+    ],
+
+    # =====================================================================
+    # SG — Lawyer trust account misuse (Apex Legal LLC)
+    # =====================================================================
+    "Singapore (STRO) — Lawyer trust account misuse": [
+        ConnectorSignal(
+            connector="Sayari",
+            category="Identity, eKYC, KYB & Onboarding",
+            signal=(
+                "BVI destination 'Greenfield Capital Ltd' has no operating "
+                "history, no employees, and shares its registered agent with "
+                "31 other shells implicated in 4 prior STR filings across "
+                "the SG legal sector."
+            ),
+            implication=(
+                "Pure pass-through shell. No commercial nexus to declared SG "
+                "commodity-broking business."
+            ),
+            severity="HIGH",
+            confidence=90,
+        ),
+        ConnectorSignal(
+            connector="Dow Jones Adverse Media",
+            category="AML Data, Screening & Regulatory Intelligence",
+            signal=(
+                "Goldcrest UBO Mr Tan Boon-Hwa: Straits Times 2026-02-08 "
+                "article names him in alleged commodity-fraud syndicate "
+                "investigation by SPF Commercial Affairs Department."
+            ),
+            implication=(
+                "Adverse-media + alleged predicate-offence link makes the "
+                "trust-account flow defensibly suspicious under Law Society "
+                "AML/CFT Practice Direction."
+            ),
+            severity="HIGH",
+            confidence=89,
+        ),
+        ConnectorSignal(
+            connector="Hawk AI",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Trust-account pattern: 99% pass-through (in/out within 24h, "
+                "minimal retention) with no underlying matter file. Matches "
+                "FATF DNFBP layering typology TPL-LEG-02."
+            ),
+            implication=(
+                "Legal-sector trust-account abuse is a known FATF mutual-"
+                "evaluation finding for SG. STRO STR obligation crystallises."
+            ),
+            severity="HIGH",
+            confidence=92,
+        ),
+    ],
+
+    # =====================================================================
+    # SG — PSMD gold cash conversion (Liu Wenfeng)
+    # =====================================================================
+    "Singapore (STRO) — PSMD gold cash conversion": [
+        ConnectorSignal(
+            connector="Hawk AI",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Structuring rule fired: 3 cash purchases of SGD 8,500 / "
+                "8,200 / 9,800 — all just below the SGD 10,000 cash-CDD "
+                "trigger. Structuring score 0.97."
+            ),
+            implication=(
+                "Classic just-below-threshold structuring. STRO 2024 PSMD "
+                "typology bulletin lists this as the #1 red flag for "
+                "precious-metals dealers."
+            ),
+            severity="HIGH",
+            confidence=97,
+            timestamp="2026-04-13 15:42 SGT",
+        ),
+        ConnectorSignal(
+            connector="ID-Pal",
+            category="Identity, eKYC, KYB & Onboarding",
+            signal=(
+                "Day 2 visit: customer presented a different passport with "
+                "different name from Day 1. Document-mismatch confidence "
+                "98%. Junior staff did not enforce CDD escalation."
+            ),
+            implication=(
+                "Multi-identity activity is a definitive STR trigger under "
+                "MAS Notice PSMD-N01 §6.4. Internal-control failure also "
+                "warranting escalation."
+            ),
+            severity="HIGH",
+            confidence=98,
+        ),
+        ConnectorSignal(
+            connector="TrustSphere Risk Index",
+            category="Risk Orchestration",
+            signal=(
+                "Customer composite score 89/100 (Severe). Drivers: "
+                "structuring + multi-identity + cash-band uniformity "
+                "(all 100-dollar notes from same bank-band wrappers) + "
+                "immediate onward sale to unaffiliated jeweller."
+            ),
+            implication=(
+                "All four drivers map directly to FATF/STRO typology for "
+                "proceeds-of-crime cash being layered via gold."
+            ),
+            severity="HIGH",
+            confidence=91,
+        ),
+    ],
+
+    # =====================================================================
+    # SG — Capital markets OTC wash trading (Helios / Aleksandr V.)
+    # =====================================================================
+    "Singapore (STRO) — Capital markets OTC wash trading": [
+        ConnectorSignal(
+            connector="ComplyAdvantage",
+            category="AML Data, Screening & Regulatory Intelligence",
+            signal=(
+                "Customer Mr Aleksandr V. matched against DFAT-list-adjacent "
+                "Russia-Ukraine sanctions watchlist — 78% confidence. Not on "
+                "primary OFAC SDN but in the secondary-targeting indicator "
+                "list as of 2025-09."
+            ),
+            implication=(
+                "Russia-nexus customer with sanctions-adjacent profile in "
+                "OTC fixed-income at a CMS licensee. MAS Notice 314 EDD "
+                "obligation engaged."
+            ),
+            severity="HIGH",
+            confidence=78,
+        ),
+        ConnectorSignal(
+            connector="Featurespace ARIC",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Wash-trading detection: paired buy/sell of identical bond "
+                "ISINs between Counterparty A and B at <0.3% price spread, "
+                "repeated 4 times across 6 days. Wash-trading score 0.96."
+            ),
+            implication=(
+                "Round-trip OTC trades with no economic substance. Classic "
+                "layering via capital-markets infrastructure. MAS Notice "
+                "314 + SFA market-misconduct provisions both engaged."
+            ),
+            severity="HIGH",
+            confidence=96,
+        ),
+        ConnectorSignal(
+            connector="Sayari",
+            category="Identity, eKYC, KYB & Onboarding",
+            signal=(
+                "Counterparties A and B share the same Cayman administrator "
+                "and the same beneficial-controller (UBO match 91%) — "
+                "ostensibly independent counterparties are in fact related."
+            ),
+            implication=(
+                "The 'two-counterparty wash' is in fact one party trading "
+                "with itself. Removes any 'arm's-length trading' defence."
+            ),
+            severity="HIGH",
+            confidence=91,
+        ),
+    ],
+
+    # =====================================================================
+    # HK — Virtual bank mule cluster (ZA Bank ML detection)
+    # =====================================================================
+    "Hong Kong (JFIU) — Virtual bank mule cluster": [
+        ConnectorSignal(
+            connector="In-house ML mule-detection model",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Cluster ZA-2026-Q2-CL-118 identified via in-house mule-"
+                "detection model — precision 94%, recall 88% on backtest. "
+                "7 accounts share device-fingerprint family + onboarding "
+                "referrer chain + balanced in/out flow."
+            ),
+            implication=(
+                "ML-precision-94% mule cluster is a definitive STR signal "
+                "under HKMA virtual-bank AML expectations."
+            ),
+            severity="HIGH",
+            confidence=94,
+        ),
+        ConnectorSignal(
+            connector="ThreatMetrix",
+            category="Behavioral & Device Intelligence",
+            signal=(
+                "Device fingerprint family analysis: all 7 accounts run on "
+                "3 device IDs sharing iOS version, carrier, locale, accelero"
+                "meter signature. Likely device farm — cluster confidence 0.96."
+            ),
+            implication=(
+                "Device-farm operation — single operator controlling "
+                "ostensibly separate accounts. Industry-recognised mule pattern."
+            ),
+            severity="HIGH",
+            confidence=96,
+        ),
+        ConnectorSignal(
+            connector="HKAB Inter-Bank Intel-Sharing",
+            category="AML Data, Screening & Regulatory Intelligence",
+            signal=(
+                "Cross-checking inbound senders: 32 of the 41 unrelated "
+                "retail senders have themselves filed scam-victim concerns "
+                "(romance-scam / fake investment platform) at their primary "
+                "banks. Coverage: 9 different HK banks."
+            ),
+            implication=(
+                "Multi-bank consensus that the inbound funds are scam "
+                "proceeds. JFIU consent application defensible on this "
+                "alone."
+            ),
+            severity="HIGH",
+            confidence=91,
+        ),
+        ConnectorSignal(
+            connector="Hawk AI",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Outbound destinations are 6 higher-tier mule accounts that "
+                "subsequently transfer to crypto exchanges or offshore. "
+                "Pattern matches JFIU 2026-03 typology bulletin on SVF / "
+                "e-wallet mule recruitment via job-scam ads."
+            ),
+            implication=(
+                "Two-tier mule architecture. Cluster is the bottom-tier "
+                "collection layer; outbound destinations are the layering "
+                "vehicles."
+            ),
+            severity="HIGH",
+            confidence=88,
+        ),
+    ],
+
+    # =====================================================================
+    # MY — Digital asset exchange / scam mule (Hafiz)
+    # =====================================================================
+    "Malaysia (FIED) — Digital asset exchange": [
+        ConnectorSignal(
+            connector="Sumsub KYT",
+            category="Crypto AML & Blockchain Analytics",
+            signal=(
+                "All four outbound Tron wallets (TWb...mq3, TWb...nx7, "
+                "TWb...kl9, TWb...ze4) flagged 'high risk — known scam-"
+                "syndicate clusters'. Cluster exposure scores 0.91 to 0.97."
+            ),
+            implication=(
+                "Outbound destinations are scam-controlled. SC Malaysia "
+                "Recognized Markets Guidelines + AMLA s.14 STR obligation."
+            ),
+            severity="HIGH",
+            confidence=95,
+            timestamp="2026-04-16 11:14 MYT",
+        ),
+        ConnectorSignal(
+            connector="Hawk AI",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Velocity rule fired: MYR 145k single-day inbound (8x "
+                "declared monthly income) → same-day 100% conversion to "
+                "USDT → split-withdrawal to 4 wallets within 24h. "
+                "Pattern-match score 0.93 to BNM 2026-04 typology bulletin."
+            ),
+            implication=(
+                "Direct match to BNM's documented investment-scam mule "
+                "typology. Customer is mule-victim, not the originator."
+            ),
+            severity="HIGH",
+            confidence=93,
+        ),
+        ConnectorSignal(
+            connector="Maybank Inter-Bank Intel (informal)",
+            category="AML Data, Screening & Regulatory Intelligence",
+            signal=(
+                "Upstream: the MYR 145k inbound to the customer's Maybank "
+                "account arrived from 17 unrelated retail senders within "
+                "the prior 48 hours. Several of those senders have filed "
+                "scam-loss reports."
+            ),
+            implication=(
+                "Confirms the customer is the cash-out leg of an active "
+                "investment-scam syndicate. Coordinate with Maybank on "
+                "victim outreach."
+            ),
+            severity="HIGH",
+            confidence=89,
+        ),
+    ],
+
+    # =====================================================================
+    # MY — E-money issuer wallet mule (Sarah binti Ahmad Faizal)
+    # =====================================================================
+    "Malaysia (FIED) — E-money issuer wallet mule": [
+        ConnectorSignal(
+            connector="In-house TM rules",
+            category="Enterprise FRAML & Decisioning Platforms",
+            signal=(
+                "Velocity rule VEL-EMI-12 fired: wallet sees MYR 30k+/week "
+                "vs declared monthly income MYR 1,500 — 100x ratio. Tier "
+                "upgrade triggered within 1 week of onboarding (atypical)."
+            ),
+            implication=(
+                "Velocity-vs-profile gap of 100x is a definitive mule "
+                "indicator under BNM AML/CFT Sectoral Guidelines for EMIs."
+            ),
+            severity="HIGH",
+            confidence=95,
+        ),
+        ConnectorSignal(
+            connector="Cross-bank fraud intel-sharing",
+            category="AML Data, Screening & Regulatory Intelligence",
+            signal=(
+                "Inbound senders span 7+ MY banks; cross-checking with the "
+                "interbank fraud-sharing database returned 18 hits — all "
+                "self-filed scam-victim cases ranging from job-scams to "
+                "investment-scams."
+            ),
+            implication=(
+                "Inbound funds confirmed scam proceeds. Customer is bottom-"
+                "tier mule in a job-scam network."
+            ),
+            severity="HIGH",
+            confidence=92,
+        ),
+        ConnectorSignal(
+            connector="BioCatch",
+            category="Behavioral & Device Intelligence",
+            signal=(
+                "Session behavioural profile during outbound transfers "
+                "showed 'coached/scripted' indicators (typing cadence "
+                "abnormal for 22-year-old student demographic, paste-from-"
+                "clipboard heavy for recipient details). Score 0.84."
+            ),
+            implication=(
+                "Customer is being remotely directed during transfers — "
+                "consistent with her self-report of a 'Telegram task' "
+                "arrangement."
+            ),
+            severity="MEDIUM",
+            confidence=84,
+        ),
+    ],
+
+    # =====================================================================
     # MALAYSIA (FIED) — generic high-risk SME corporate (placeholder structure)
     # =====================================================================
     "Malaysia (FIED)": [
