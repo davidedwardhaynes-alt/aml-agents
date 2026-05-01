@@ -4319,12 +4319,19 @@ with tab_news:
                             f"font-size:11px;font-weight:600;'>"
                             f"~{max(1, pod.duration_seconds // 60)} min  ·  OpenAI alloy</span>"
                         )
-                    elif _voice.startswith("gtts"):
+                    elif _voice.startswith("edge"):
                         badge = (
                             "<span style='background:rgba(52,199,89,0.12);"
                             "color:#1B5E20;padding:2px 8px;border-radius:980px;"
                             f"font-size:11px;font-weight:600;'>"
-                            f"~{max(1, pod.duration_seconds // 60)} min  ·  gTTS en-UK (free)</span>"
+                            f"~{max(1, pod.duration_seconds // 60)} min  ·  Edge Neural en-GB Ryan (free)</span>"
+                        )
+                    elif _voice.startswith("gtts"):
+                        badge = (
+                            "<span style='background:rgba(255,193,7,0.18);"
+                            "color:#7C2D12;padding:2px 8px;border-radius:980px;"
+                            f"font-size:11px;font-weight:600;'>"
+                            f"~{max(1, pod.duration_seconds // 60)} min  ·  gTTS en-UK (basic)</span>"
                         )
                     else:
                         badge = (

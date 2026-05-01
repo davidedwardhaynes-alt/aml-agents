@@ -37,22 +37,92 @@ OPENAI_TTS_ENDPOINT = "https://api.openai.com/v1/audio/speech"
 OPENAI_TTS_MODEL = "gpt-4o-mini-tts"
 OPENAI_TTS_VOICE = "alloy"  # warm, neutral; works for SG/HK MLRO audience
 
-PODCAST_SYSTEM_PROMPT = """You are the daily host of *AML Agents Briefing*, a 3–5 minute audio show \
-for MLROs, Heads of FCC, AML supervisors, and senior compliance leaders across APAC. \
-Voice: Financial Times audio briefings + Bloomberg Surveillance + The Indicator from Planet Money. \
-Authoritative, conversational, specific. No marketing fluff, no hedging where facts are clear, \
-no "shocking" or "groundbreaking."
+PODCAST_SYSTEM_PROMPT = """You are the daily host of AML Agents Briefing, a 3 to 5 minute \
+audio show for MLROs, heads of financial crime compliance, AML supervisors, and senior \
+compliance leaders across the Asia-Pacific region. Your voice is closest to Financial Times \
+audio briefings, Bloomberg Surveillance, and The Indicator from Planet Money. \
+Authoritative, conversational, specific. No marketing fluff. No hedging where facts are clear. \
+No words like "shocking" or "groundbreaking."
 
-Structure:
-- 15-second cold-open with the single most material item of the day
-- 60-90 seconds on the highest-impact news story
-- 30-45 seconds on each of two further stories
-- 30-second "what to watch" closing on an upcoming deadline or horizon item
+CRITICAL — this script is read aloud by a text-to-speech engine, so:
+- Write only what should be spoken. Do not include any markdown, bullet points, \
+numbered lists, headings, or formatting characters of any kind.
+- Do not use em-dashes (—), en-dashes (–), or hyphen-dashes (---). Use commas, \
+semicolons, or simply rephrase. The TTS engine reads these out loud as the word "dash."
+- Do not use section dividers like ---, ***, ===, or any decorative separators.
+- Do not use parentheses or square brackets for asides. Build asides into the sentence \
+flow, the way a podcast host would speak them.
+- Do not use bullet points or numbered lists when introducing items. Say "the first item is, \
+the second is, and the third is" naturally.
+- Use contractions where natural (it's, we're, that's, won't) — they sound human.
+- Spell out abbreviations on first reference, then use the abbreviation.
+- For currency amounts, write them as a speaker would say them: "three point seven million \
+Singapore dollars" not "S$3.7m"; "eighteen million Hong Kong dollars" not "HK$18m".
+- For statute references, prefer the spoken form: "Section 84 of the AML/CTF Act" not "s.84 \
+AML/CTF Act"; "Article 23 of Indonesia's Law Number 8 of 2010" not "UU TPPU 2010 Art. 23".
+- Use spoken transitions between segments. Natural phrases like "moving on", "elsewhere in \
+the region", "shifting our focus", "on a related note", "what to watch", or "before we close."
+- End with a sign-off line in the host's natural voice.
 
-Length: 600-900 words (≈ 3.5–5 minutes spoken at 175 wpm). Reference real regulatory frameworks \
-(FATF Recommendations, MAS Notices, HKMA Guidelines, AMLA, AML/CTF Act, UU TPPU 2010) \
-with specificity. Use first names + last initials for executives where appropriate. \
-No music cues, no "[applause]" stage directions — just the host's spoken words."""
+PAUSE CONTROL — the TTS engine pauses on every period and on every line break, \
+so write to control where the listener experiences silence:
+- Prefer shorter declarative sentences. Aim for 12 to 22 words per sentence. \
+A 30-word sentence with two commas will pause awkwardly mid-thought.
+- Do not break lines mid-paragraph. One logical thought is one paragraph, with \
+sentence-final periods doing the pacing. Use a blank line only between major \
+segment changes.
+- Avoid abbreviations with internal periods (such as a.m., U.S., U.K.). Write \
+"morning", "United States", "United Kingdom" or use the unspaced abbreviation.
+- Avoid ellipses (...) entirely. Use a comma or finish the sentence.
+- For numbers in a series, separate them with explicit conjunctions: "the four \
+exchanges Upbit, Bithumb, Coinone, and Korbit" rather than relying on commas alone.
+- For statute or notice numbers, use connecting prepositions: "Notice 626" not \
+"Notice six twenty six". Multi-digit codes are fine spoken naturally.
+- Read each sentence aloud in your head before writing the next. If it sounds \
+choppy, rewrite it.
+
+Flow (deliver as continuous prose, no headings):
+1. Open with a brief framing line that orients the listener. Always say, in the first \
+sentence or two, that this is an audio overview of today's most material APAC AML and \
+financial-crime developments, and direct the listener to amlagents dot streamlit dot app \
+for the underlying detail, full obligation register, news sources, and horizon scanning. \
+Then move directly into the single most material item of the day. The whole opening \
+should fit inside the first 25 seconds.
+2. Spend 60 to 90 seconds on the highest-impact news story. Include its operational \
+implication for the listener.
+3. Spend 30 to 45 seconds each on two further stories, with natural transitions.
+4. Close with 30 seconds of forward-looking what-to-watch content tied to an upcoming \
+deadline or horizon item.
+5. Sign off naturally. In the sign-off, repeat the prompt to visit amlagents dot \
+streamlit dot app for full detail and the obligation register.
+
+ACTION ITEMS — this is a working briefing, not a news bulletin. The listener is an \
+MLRO, head of FCC, fraud lead, or AML supervisor with a busy morning. Every segment must \
+give them at least one concrete action, suggestion, or next step they can take today. \
+Be specific:
+- Reference the role you are addressing where it sharpens the action: "If you are the \
+MLRO at a virtual bank...", "For heads of fraud at an EMI...", "For AML/CTF compliance \
+officers running tranche-two readiness..."
+- Suggest a specific artefact or process: "convene your transaction-monitoring team \
+this week to review", "before Friday's risk committee, pull the last six months of...", \
+"add this to your next thematic-review scope", "raise this with your group head of \
+financial crime before Monday."
+- For deadlines, tell them what to file or check: "verify your STR governance pack is \
+ready for the December audit committee", "confirm your KYT vendor integration covers \
+both inbound and outbound flows."
+- For enforcement actions, draw the lesson: "the read-across for your bank is...", \
+"what regulators in your jurisdiction will look for next is..."
+- For the closing what-to-watch segment, end with two or three concrete next steps the \
+listener should take in the coming week.
+
+Length: 700 to 1000 words (about 4 to 5.5 minutes spoken at 175 words per minute). \
+The action-items requirement adds roughly 100 to 150 words to the previous target. \
+Reference real regulatory frameworks (FATF Recommendations, MAS Notices, HKMA Guidelines, \
+the AMLA, the AML/CTF Act, Indonesia's Law Number 8 of 2010) with specificity. Use first \
+names and last initials for executives where appropriate.
+
+Output only the spoken script. No host instructions. No music cues. No stage directions. \
+No metadata. Pure spoken prose, ready for the microphone."""
 
 
 @dataclass
@@ -73,6 +143,80 @@ class PodcastResult:
 # OpenAI keys are available, we write this so the audio player widget in
 # the app still has a file to point at.
 # ---------------------------------------------------------------------------
+def _scrub_for_tts(text: str) -> str:
+    """Strip TTS-hostile characters and normalise punctuation so the
+    synthesised voice flows naturally.
+
+    Things gTTS reads literally that we want to remove:
+      - section dividers like '---', '***', '===' (read as "dash dash dash")
+      - em-dashes '—' and en-dashes '–' (read as "dash")
+      - markdown headers '#', '##', '###'
+      - bullet markers '-', '*', '•' at start of line
+      - parentheses around asides (read with awkward pauses)
+      - asterisks for emphasis (read as "asterisk")
+      - inline code backticks
+      - URL fragments
+      - multiple consecutive blank lines
+
+    Things we normalise so the voice flows better:
+      - em/en-dash mid-sentence -> ", " (natural pause without saying 'dash')
+      - line-leading numerals like '1.' / '1)' -> nothing (dropped — the
+        sentence prefix carries the order naturally)
+      - smart quotes -> straight quotes
+    """
+    import re
+
+    if not text:
+        return text
+
+    out = text
+
+    # Smart quotes → straight quotes (TTS handles them but normalise anyway)
+    out = (
+        out.replace("“", '"').replace("”", '"')
+        .replace("‘", "'").replace("’", "'")
+    )
+
+    # Section dividers on their own line (must run BEFORE em-dash replacement)
+    out = re.sub(r"^[ \t]*[-—–=*_]{3,}[ \t]*$", "", out, flags=re.MULTILINE)
+
+    # Em-dashes and en-dashes mid-sentence → comma + space.
+    # Handle both surrounded-by-spaces and tight-bound forms.
+    out = re.sub(r"\s*[—–]\s*", ", ", out)
+
+    # Line-leading bullet markers
+    out = re.sub(r"^[ \t]*[-*•][ \t]+", "", out, flags=re.MULTILINE)
+
+    # Markdown headers
+    out = re.sub(r"^#+[ \t]*", "", out, flags=re.MULTILINE)
+
+    # Numbered list prefixes "1." / "1)" — drop the prefix; the sentence
+    # itself usually carries the ordering naturally.
+    out = re.sub(r"^\s*\d+[.)][ \t]+", "", out, flags=re.MULTILINE)
+
+    # Strip asterisks used for emphasis (gTTS reads "asterisk")
+    out = re.sub(r"\*+", "", out)
+
+    # Strip inline code backticks
+    out = out.replace("`", "")
+
+    # Drop bracketed asides — content kept, brackets removed
+    out = re.sub(r"\(([^)]{1,80})\)", r", \1,", out)
+    out = re.sub(r"\[([^\]]{1,80})\]", r"\1", out)
+
+    # Collapse multiple blank lines so paragraph breaks are short pauses
+    out = re.sub(r"\n{3,}", "\n\n", out)
+
+    # Clean up leftover double spaces and orphan commas from the dash
+    # replacement (e.g. ", , " or " , ")
+    out = re.sub(r" *, *,(?: *,)*", ", ", out)
+    out = re.sub(r"  +", " ", out)
+    # Strip trailing comma on a sentence that originally ended with em-dash
+    out = re.sub(r", *(?=[.\n])", "", out)
+
+    return out.strip()
+
+
 def _silent_mp3_bytes(seconds: int = 5) -> bytes:
     """Build a tiny valid silent MP3.
 
@@ -86,6 +230,57 @@ def _silent_mp3_bytes(seconds: int = 5) -> bytes:
     frame = header + payload
     n_frames = max(1, int(seconds * 38))
     return frame * n_frames
+
+
+def _synthesize_via_edge_tts(script: str) -> bytes | None:
+    """Free natural-sounding TTS using Microsoft Edge's Azure Cognitive
+    Services neural voices, via the `edge-tts` library. No API key
+    required; the same endpoint that powers Edge browser's read-aloud.
+
+    Voice 'en-GB-RyanNeural' is a UK male broadcast voice — closest to
+    FT audio and Bloomberg Surveillance hosts in cadence and authority.
+    Far more natural than gTTS; close enough to OpenAI TTS for a daily
+    briefing that the demo can run on it indefinitely without paid
+    credits.
+
+    Returns MP3 bytes or None if edge-tts isn't installed / the call
+    fails."""
+    if not script:
+        return None
+    try:
+        import asyncio
+        import edge_tts  # type: ignore
+    except Exception:
+        return None
+    try:
+        async def _run() -> bytes:
+            communicate = edge_tts.Communicate(
+                text=script,
+                voice="en-GB-RyanNeural",
+                # rate / volume / pitch tweaks could go here. Defaults
+                # produce a calm, broadcast-style delivery.
+            )
+            chunks: list[bytes] = []
+            async for chunk in communicate.stream():
+                if chunk.get("type") == "audio":
+                    chunks.append(chunk["data"])
+            return b"".join(chunks)
+
+        try:
+            data = asyncio.run(_run())
+        except RuntimeError:
+            # In case we're already inside an event loop (e.g. Streamlit
+            # script-run context), fall back to a fresh loop.
+            loop = asyncio.new_event_loop()
+            try:
+                data = loop.run_until_complete(_run())
+            finally:
+                loop.close()
+        if not data or len(data) < 1024:
+            return None
+        return data
+    except Exception:
+        return None
 
 
 def _synthesize_via_gtts(script: str) -> bytes | None:
@@ -179,12 +374,16 @@ def _synthesize_audio(
 ) -> tuple[bytes, bool, str]:
     """Synthesize audio for the script. Returns (mp3_bytes, is_stub, voice_used).
 
-    Resolution order:
-      1. OpenAI TTS (gpt-4o-mini-tts, voice 'alloy') if OPENAI_API_KEY set —
-         best quality, expressive voice.
-      2. gTTS (Google translate TTS via the `gtts` library) — free, no
-         API key required, decent quality, en-GB voice.
-      3. 5-second silent MP3 stub — last resort when neither path works.
+    Resolution order (best → worst):
+      1. OpenAI TTS (gpt-4o-mini-tts, voice 'alloy') if OPENAI_API_KEY
+         set — most expressive voice. ~$0.05 / 5min episode.
+      2. Microsoft Edge Neural TTS (en-GB-RyanNeural via edge-tts) —
+         FREE; closest to FT-broadcast / Bloomberg Surveillance cadence.
+         Best free option for a daily briefing.
+      3. gTTS (Google Translate TTS via the `gtts` library) — FREE,
+         workable but more robotic.
+      4. 5-second silent MP3 stub — last resort when none of the above
+         succeed (e.g. network outage in the cron container).
     """
     if not script:
         return _silent_mp3_bytes(seconds=5), True, "stub"
@@ -214,14 +413,19 @@ def _synthesize_audio(
             if resp.status == 200 and data and len(data) > 1024:
                 return data, False, f"openai:{OPENAI_TTS_VOICE}"
         except Exception:
-            pass  # fall through to gTTS
+            pass  # fall through to edge-tts
 
-    # 2. Fallback: gTTS (free, no key)
+    # 2. Free natural-voice fallback: Microsoft Edge Neural TTS
+    edge_audio = _synthesize_via_edge_tts(script)
+    if edge_audio:
+        return edge_audio, False, "edge:en-GB-RyanNeural"
+
+    # 3. Free robotic-voice fallback: gTTS
     gtts_audio = _synthesize_via_gtts(script)
     if gtts_audio:
         return gtts_audio, False, "gtts:en-uk"
 
-    # 3. Last resort: silent stub
+    # 4. Last resort: silent stub
     return _silent_mp3_bytes(seconds=5), True, "stub"
 
 
@@ -243,7 +447,14 @@ def generate_daily_podcast(
         digest_text_summary=digest_summary,
         api_key=anthropic_key,
     )
-    audio_bytes, is_stub, voice_used = _synthesize_audio(script, api_key=openai_key)
+    # Scrub the script for TTS — strip section dividers, em-dashes, markdown,
+    # asterisks, ellipses and other characters that gTTS reads literally or
+    # that produce awkward pauses. The transcript shown in the app uses the
+    # ORIGINAL `script`; only `script_for_tts` is sent to the synthesizer.
+    script_for_tts = _scrub_for_tts(script)
+    audio_bytes, is_stub, voice_used = _synthesize_audio(
+        script_for_tts, api_key=openai_key
+    )
 
     # Cost estimate: Anthropic at ~$3 in / $15 out per million tokens
     # (Sonnet 4.6); OpenAI TTS gpt-4o-mini-tts at $0.015 per 1k chars;
