@@ -4298,18 +4298,41 @@ with tab_news:
                 )
                 if pod and pod.mp3_path.exists():
                     st.markdown(f"**{pod.title}**")
-                    badge = (
-                        "<span style='background:#FFF4E5;color:#B45309;"
-                        "padding:2px 8px;border-radius:980px;font-size:11px;"
-                        "font-weight:600;'>Stub — configure OPENAI_API_KEY</span>"
-                        if pod.stub
-                        else (
+                    # Read voice metadata from sidecar for badge labelling
+                    _voice = ""
+                    try:
+                        _voice = json.loads(pod.sidecar_path.read_text()).get(
+                            "voice", ""
+                        ) or ""
+                    except Exception:
+                        pass
+                    if pod.stub:
+                        badge = (
+                            "<span style='background:#FFF4E5;color:#B45309;"
+                            "padding:2px 8px;border-radius:980px;font-size:11px;"
+                            "font-weight:600;'>Silent stub — script generation failed</span>"
+                        )
+                    elif _voice.startswith("openai"):
+                        badge = (
+                            "<span style='background:rgba(0,113,227,0.10);"
+                            "color:#0071E3;padding:2px 8px;border-radius:980px;"
+                            f"font-size:11px;font-weight:600;'>"
+                            f"~{max(1, pod.duration_seconds // 60)} min  ·  OpenAI alloy</span>"
+                        )
+                    elif _voice.startswith("gtts"):
+                        badge = (
+                            "<span style='background:rgba(52,199,89,0.12);"
+                            "color:#1B5E20;padding:2px 8px;border-radius:980px;"
+                            f"font-size:11px;font-weight:600;'>"
+                            f"~{max(1, pod.duration_seconds // 60)} min  ·  gTTS en-UK (free)</span>"
+                        )
+                    else:
+                        badge = (
                             "<span style='background:rgba(0,113,227,0.10);"
                             "color:#0071E3;padding:2px 8px;border-radius:980px;"
                             f"font-size:11px;font-weight:600;'>"
                             f"~{max(1, pod.duration_seconds // 60)} min</span>"
                         )
-                    )
                     st.markdown(
                         f"<div style='font-size:0.78rem;color:#6E6E73;"
                         f"margin-bottom:0.6rem;'>{pod.date}  ·  "

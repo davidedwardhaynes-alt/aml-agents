@@ -78,12 +78,47 @@ def _silent_mp3_bytes(seconds: int = 5) -> bytes:
 
     Each frame is 4-byte MPEG-1 Layer 3 header (0xFFFB9064 → MPEG-1 L3,
     128 kbps, 44.1 kHz, mono, no padding, no CRC) plus 413 zero bytes for
-    the (silent) audio payload. 26 ms / frame → ~38 frames per second."""
+    the (silent) audio payload. 26 ms / frame → ~38 frames per second.
+    Used only as the last-resort fallback when both OpenAI TTS and gTTS
+    are unavailable."""
     header = b"\xff\xfb\x90\x64"
     payload = b"\x00" * 413  # 417-byte total frame
     frame = header + payload
     n_frames = max(1, int(seconds * 38))
     return frame * n_frames
+
+
+def _synthesize_via_gtts(script: str) -> bytes | None:
+    """Free fallback TTS using Google's public translate-tts endpoint via the
+    `gtts` library. No API key required, generous unofficial rate limit.
+    Returns MP3 bytes or None if gTTS isn't installed or the call fails.
+
+    gTTS chunks long text automatically and concatenates the resulting MP3
+    frames into a single playable file. Quality is decent (closer to a
+    Google Voice Assistant than to OpenAI's expressive 'alloy') but
+    perfectly listenable for a 3-5 minute briefing."""
+    if not script:
+        return None
+    try:
+        from gtts import gTTS  # type: ignore
+    except Exception:
+        return None
+    try:
+        from io import BytesIO
+
+        # 'en-uk' picks the British English voice — closer to FT-style
+        # broadcast voice than the default US neutral. tld 'co.uk' is
+        # what gTTS uses to surface the UK voice.
+        tts = gTTS(text=script, lang="en", tld="co.uk", slow=False)
+        buf = BytesIO()
+        tts.write_to_fp(buf)
+        data = buf.getvalue()
+        # Sanity check — gTTS output must start with an MPEG/ID3 tag.
+        if not data or len(data) < 1024:
+            return None
+        return data
+    except Exception:
+        return None
 
 
 def _build_script(
@@ -141,36 +176,53 @@ def _synthesize_audio(
     script: str,
     *,
     api_key: str | None,
-) -> tuple[bytes, bool]:
-    """Synthesize audio for the script. Returns (mp3_bytes, is_stub)."""
-    if not api_key or not script:
-        return _silent_mp3_bytes(seconds=5), True
+) -> tuple[bytes, bool, str]:
+    """Synthesize audio for the script. Returns (mp3_bytes, is_stub, voice_used).
 
-    payload = json.dumps(
-        {
-            "model": OPENAI_TTS_MODEL,
-            "input": script[:4000],  # OpenAI TTS hard cap
-            "voice": OPENAI_TTS_VOICE,
-            "response_format": "mp3",
-        }
-    ).encode()
-    req = urllib.request.Request(
-        OPENAI_TTS_ENDPOINT,
-        data=payload,
-        method="POST",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            data = resp.read()
-        if resp.status == 200 and data[:2] == b"\xff\xfb" or resp.status == 200:
-            return data, False
-    except Exception:
-        pass
-    return _silent_mp3_bytes(seconds=5), True
+    Resolution order:
+      1. OpenAI TTS (gpt-4o-mini-tts, voice 'alloy') if OPENAI_API_KEY set —
+         best quality, expressive voice.
+      2. gTTS (Google translate TTS via the `gtts` library) — free, no
+         API key required, decent quality, en-GB voice.
+      3. 5-second silent MP3 stub — last resort when neither path works.
+    """
+    if not script:
+        return _silent_mp3_bytes(seconds=5), True, "stub"
+
+    # 1. Preferred: OpenAI TTS
+    if api_key:
+        payload = json.dumps(
+            {
+                "model": OPENAI_TTS_MODEL,
+                "input": script[:4000],  # OpenAI TTS hard cap
+                "voice": OPENAI_TTS_VOICE,
+                "response_format": "mp3",
+            }
+        ).encode()
+        req = urllib.request.Request(
+            OPENAI_TTS_ENDPOINT,
+            data=payload,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = resp.read()
+            if resp.status == 200 and data and len(data) > 1024:
+                return data, False, f"openai:{OPENAI_TTS_VOICE}"
+        except Exception:
+            pass  # fall through to gTTS
+
+    # 2. Fallback: gTTS (free, no key)
+    gtts_audio = _synthesize_via_gtts(script)
+    if gtts_audio:
+        return gtts_audio, False, "gtts:en-uk"
+
+    # 3. Last resort: silent stub
+    return _silent_mp3_bytes(seconds=5), True, "stub"
 
 
 def generate_daily_podcast(
@@ -191,14 +243,20 @@ def generate_daily_podcast(
         digest_text_summary=digest_summary,
         api_key=anthropic_key,
     )
-    audio_bytes, is_stub = _synthesize_audio(script, api_key=openai_key)
+    audio_bytes, is_stub, voice_used = _synthesize_audio(script, api_key=openai_key)
 
     # Cost estimate: Anthropic at ~$3 in / $15 out per million tokens
-    # (Sonnet 4.6); OpenAI TTS gpt-4o-mini-tts at $0.015 per 1k chars.
+    # (Sonnet 4.6); OpenAI TTS gpt-4o-mini-tts at $0.015 per 1k chars;
+    # gTTS is free (no per-character cost).
+    tts_cost = (
+        (len(script) / 1000) * 0.015
+        if voice_used.startswith("openai")
+        else 0.0
+    )
     cost = (
         (usage.get("input_tokens", 0) / 1_000_000) * 3
         + (usage.get("output_tokens", 0) / 1_000_000) * 15
-        + (len(script) / 1000) * 0.015
+        + tts_cost
     )
 
     mp3_path = PODCAST_DIR / f"{today.isoformat()}.mp3"
@@ -215,7 +273,7 @@ def generate_daily_podcast(
         "script": script,
         "script_chars": len(script),
         "stub": is_stub,
-        "voice": OPENAI_TTS_VOICE if not is_stub else None,
+        "voice": voice_used,
         "cost_estimate_usd": round(cost, 4),
         "tokens": usage,
         "generated_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",

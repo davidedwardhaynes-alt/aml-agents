@@ -32,6 +32,15 @@ sys.path.insert(0, str(ROOT))
 
 socket.setdefaulttimeout(60)
 
+# Load .env so local runs pick up ANTHROPIC_API_KEY / OPENAI_API_KEY without
+# needing them exported. In GitHub Actions the keys come from the secret
+# context already, so load_dotenv() is a no-op when no .env exists.
+try:
+    from dotenv import load_dotenv  # noqa: E402
+    load_dotenv(ROOT / ".env", override=True)
+except Exception:
+    pass
+
 from lib.digest import build_digest  # noqa: E402
 from lib.horizon import all_items_for_jurisdiction  # noqa: E402
 from lib.news import items_for as news_items_for  # noqa: E402
