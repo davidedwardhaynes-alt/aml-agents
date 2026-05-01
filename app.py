@@ -5,6 +5,7 @@ import json
 import os
 import re
 import time
+import datetime as dt
 from datetime import date
 from pathlib import Path
 
@@ -51,6 +52,15 @@ from lib.subscriptions import (
     add_subscription,
     find_by_email as find_subs_by_email,
     unsubscribe as unsubscribe_token,
+)
+from lib.tasks import (
+    TASK_STATUSES,
+    add_task,
+    delete_task,
+    relink_seed_tasks_to_obligations,
+    task_progress,
+    tasks_for,
+    update_task,
 )
 from lib.digest import build_digest as build_digest_payload
 from lib.podcast import latest_podcast as latest_podcast_meta
@@ -3764,6 +3774,12 @@ with tab_obligations:
 
     # Render filtered list
     obligations = load_obligations()
+
+    # Resolve any seed task placeholders to real obligation_ids on first
+    # render of the session. Idempotent + cheap.
+    if not st.session_state.get("_tasks_seed_linked"):
+        relink_seed_tasks_to_obligations(obligations)
+        st.session_state["_tasks_seed_linked"] = True
     if ob_jur_filter != "All jurisdictions":
         obligations = [o for o in obligations if o.jurisdiction == ob_jur_filter]
     if ob_status_filter != "All statuses":
@@ -3916,6 +3932,170 @@ with tab_obligations:
                                 f"</div>",
                                 unsafe_allow_html=True,
                             )
+
+                # ----------------------------------------------------------
+                # Programme tracker — sub-tasks tied to this obligation.
+                # Lets compliance / AML / fraud teams break the obligation
+                # into owned, dated, status-tracked work items with a
+                # meeting / checkpoint cadence note.
+                # ----------------------------------------------------------
+                _ob_tasks = tasks_for(o.id)
+                _done_n, _total_n, _pct = task_progress(o.id)
+                _progress_label = (
+                    f"({_done_n}/{_total_n})"
+                    if _total_n
+                    else "(no tasks yet)"
+                )
+                with st.expander(
+                    f"📋  Tasks {_progress_label}",
+                    expanded=False,
+                ):
+                    if _total_n:
+                        # Progress bar
+                        st.progress(_pct / 100.0, text=f"{_pct:.0f}% complete")
+
+                    # List existing tasks
+                    for t in _ob_tasks:
+                        _t_status_color = {
+                            "Not started": "#6E6E73",
+                            "In progress": "#0071E3",
+                            "Blocked": "#C92A2A",
+                            "Done": "#1B5E20",
+                        }.get(t.status, "#6E6E73")
+                        with st.container(border=True):
+                            t_row = st.columns([5, 2, 1])
+                            with t_row[0]:
+                                st.markdown(
+                                    f"**{t.title}** &nbsp; "
+                                    f'<span style="color:{_t_status_color}; '
+                                    f'font-size:0.7rem; font-weight:600; '
+                                    f'text-transform:uppercase; letter-spacing:0.04em;">'
+                                    f'{t.status}</span>',
+                                    unsafe_allow_html=True,
+                                )
+                                meta_parts = []
+                                if t.owner:
+                                    meta_parts.append(f"Owner: {t.owner}")
+                                if t.due_date:
+                                    try:
+                                        d = dt.date.fromisoformat(t.due_date)
+                                        days = (d - dt.date.today()).days
+                                        if days < 0:
+                                            chip = f"Overdue {-days}d"
+                                            chip_bg = "#FFE5E5"; chip_fg = "#C92A2A"
+                                        elif days == 0:
+                                            chip = "Due today"
+                                            chip_bg = "#FFF4E5"; chip_fg = "#B45309"
+                                        elif days <= 7:
+                                            chip = f"Due in {days}d"
+                                            chip_bg = "#FFF4E5"; chip_fg = "#B45309"
+                                        else:
+                                            chip = f"Due {t.due_date}"
+                                            chip_bg = "rgba(0,113,227,0.10)"
+                                            chip_fg = "#0071E3"
+                                        meta_parts.append(
+                                            f'<span style="background:{chip_bg};'
+                                            f'color:{chip_fg};padding:1px 8px;'
+                                            f'border-radius:980px;font-size:0.7rem;'
+                                            f'font-weight:600;">{chip}</span>'
+                                        )
+                                    except Exception:
+                                        meta_parts.append(f"Due: {t.due_date}")
+                                if t.meeting_cadence:
+                                    meta_parts.append(f"Cadence: {t.meeting_cadence}")
+                                if meta_parts:
+                                    st.markdown(
+                                        "<small>"
+                                        + " &nbsp; · &nbsp; ".join(meta_parts)
+                                        + "</small>",
+                                        unsafe_allow_html=True,
+                                    )
+                                if t.description:
+                                    st.markdown(
+                                        f"<small style='color:#6E6E73;'>"
+                                        f"{t.description}</small>",
+                                        unsafe_allow_html=True,
+                                    )
+                                if t.notes:
+                                    st.caption(f"Notes: {t.notes}")
+                            with t_row[1]:
+                                new_t_status = st.selectbox(
+                                    "Status",
+                                    TASK_STATUSES,
+                                    index=TASK_STATUSES.index(t.status)
+                                        if t.status in TASK_STATUSES else 0,
+                                    key=f"t_status_{t.id}",
+                                    label_visibility="collapsed",
+                                )
+                                if new_t_status != t.status:
+                                    update_task(t.id, status=new_t_status)
+                                    st.rerun()
+                            with t_row[2]:
+                                if st.button(
+                                    "✕",
+                                    key=f"t_del_{t.id}",
+                                    use_container_width=True,
+                                    help="Delete this task",
+                                ):
+                                    delete_task(t.id)
+                                    st.rerun()
+
+                    # Add-task form
+                    with st.form(f"add_task_{o.id}", clear_on_submit=True):
+                        st.markdown(
+                            "<div style='font-size:0.78rem;font-weight:600;"
+                            "color:#1D1D1F;margin-top:0.4rem;'>Add a task</div>",
+                            unsafe_allow_html=True,
+                        )
+                        nt_c1, nt_c2 = st.columns(2)
+                        with nt_c1:
+                            nt_title = st.text_input(
+                                "Task title",
+                                placeholder="e.g. Close FY2024 prior-year findings",
+                                key=f"nt_title_{o.id}",
+                            )
+                            nt_owner = st.text_input(
+                                "Owner",
+                                placeholder="e.g. MLRO, Head of FCC, AML/CTF Compliance Officer",
+                                key=f"nt_owner_{o.id}",
+                            )
+                            nt_due = st.date_input(
+                                "Due date",
+                                key=f"nt_due_{o.id}",
+                            )
+                        with nt_c2:
+                            nt_desc = st.text_area(
+                                "Description (optional)",
+                                key=f"nt_desc_{o.id}",
+                                height=80,
+                            )
+                            nt_status = st.selectbox(
+                                "Status",
+                                TASK_STATUSES,
+                                key=f"nt_status_{o.id}",
+                            )
+                            nt_cadence = st.text_input(
+                                "Meeting / cadence (optional)",
+                                placeholder="e.g. Audit Committee 15 Dec 2025",
+                                key=f"nt_cadence_{o.id}",
+                            )
+                        if st.form_submit_button(
+                            "Add task",
+                            type="primary",
+                        ):
+                            if nt_title:
+                                add_task(
+                                    obligation_id=o.id,
+                                    title=nt_title,
+                                    description=nt_desc,
+                                    owner=nt_owner,
+                                    due_date=nt_due.isoformat() if nt_due else "",
+                                    status=nt_status,
+                                    meeting_cadence=nt_cadence,
+                                )
+                                st.rerun()
+                            else:
+                                st.warning("Task title is required.")
 
     # Tracked regulator directory — reference for sourcing new obligations
     render_regulator_directory(key_prefix="obligations")
