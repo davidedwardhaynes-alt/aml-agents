@@ -3506,7 +3506,7 @@ with tab_news:
                     # (live RSS items pulled on-demand) show the available
                     # summary text. In all cases a 'View source' link sits
                     # at the bottom of the expander.
-                    with st.expander("Show full report", expanded=False):
+                    with st.expander("Read more", expanded=False):
                         if item.full_article:
                             st.markdown(item.full_article)
                         else:
