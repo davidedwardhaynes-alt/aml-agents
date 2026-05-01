@@ -3695,7 +3695,7 @@ with tab_obligations:
     )
 
     # Filter controls
-    filter_col1, filter_col2, filter_col3 = st.columns([2, 2, 1])
+    filter_col1, filter_col2, filter_col3, filter_col4 = st.columns([2, 2, 2, 1])
     with filter_col1:
         ob_jur_filter = st.selectbox(
             "Filter by jurisdiction",
@@ -3709,6 +3709,13 @@ with tab_obligations:
             key="ob_status_filter",
         )
     with filter_col3:
+        ob_priority_filter = st.selectbox(
+            "Filter by priority",
+            ["All priorities", "Critical", "High", "Standard", "Low"],
+            key="ob_priority_filter",
+            help="Critical / High = legacy obligations from the last 12 months that are commonly missed.",
+        )
+    with filter_col4:
         st.markdown("<div style='height:1.85rem;'></div>", unsafe_allow_html=True)
         if st.button(
             "Reset to seed",
@@ -3761,6 +3768,20 @@ with tab_obligations:
         obligations = [o for o in obligations if o.jurisdiction == ob_jur_filter]
     if ob_status_filter != "All statuses":
         obligations = [o for o in obligations if o.status == ob_status_filter]
+    if ob_priority_filter != "All priorities":
+        obligations = [
+            o for o in obligations
+            if (getattr(o, "priority", "Standard") or "Standard") == ob_priority_filter
+        ]
+
+    # Sort: Overdue first, then Critical/High priority, then by due_date ascending.
+    _priority_rank = {"Critical": 0, "High": 1, "Standard": 2, "Low": 3}
+    _status_rank = {"Overdue": 0, "In progress": 1, "Open": 2, "Closed": 3}
+    obligations.sort(key=lambda o: (
+        _status_rank.get(o.status, 9),
+        _priority_rank.get(getattr(o, "priority", "Standard") or "Standard", 9),
+        o.due_date or "9999-12-31",
+    ))
 
     if not obligations:
         st.info("No obligations match your filter. Add one above to start tracking.")
@@ -3772,13 +3793,31 @@ with tab_obligations:
                 "Closed": "#059669",
                 "Overdue": "#dc2626",
             }.get(o.status, "#64748b")
+            # Priority styling: Critical = red, High = amber, Standard = grey
+            _priority = getattr(o, "priority", "Standard") or "Standard"
+            _priority_styles = {
+                "Critical": ("#FFE5E5", "#C92A2A"),
+                "High": ("#FFF4E5", "#B45309"),
+                "Standard": (None, None),
+                "Low": ("#F1F5F9", "#475569"),
+            }
+            _bg, _fg = _priority_styles.get(_priority, (None, None))
+            _priority_badge = (
+                f'<span style="background:{_bg}; color:{_fg}; '
+                f'padding: 2px 10px; border-radius: 980px; font-size: 0.72rem; '
+                f'font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;'
+                f' margin-left: 0.6rem;">⚠ {_priority}</span>'
+                if _bg
+                else ""
+            )
             with st.container(border=True):
                 top_row = st.columns([5, 1, 1])
                 with top_row[0]:
                     st.markdown(
                         f"**{o.title}** &nbsp; "
                         f'<span style="color: {status_color}; font-size: 0.75rem; '
-                        f'font-weight: 600; text-transform: uppercase;">{o.status}</span>',
+                        f'font-weight: 600; text-transform: uppercase;">{o.status}</span>'
+                        f"{_priority_badge}",
                         unsafe_allow_html=True,
                     )
                     st.caption(
@@ -3808,14 +3847,20 @@ with tab_obligations:
 
                 # ----------------------------------------------------------
                 # Expandable detail panel — full text, deadline calculation,
-                # evidence, source link. Only shown when the obligation has
-                # the rich-detail fields populated.
+                # evidence, source link, plus the four new fields:
+                # entities_impacted, penalties, common_mistakes, priority.
                 # ----------------------------------------------------------
+                _entities_impacted = getattr(o, "entities_impacted", "")
+                _penalties = getattr(o, "penalties", "")
+                _common_mistakes = getattr(o, "common_mistakes", "")
                 _has_detail = bool(
                     getattr(o, "full_text", "")
                     or getattr(o, "deadline_explanation", "")
                     or getattr(o, "evidence", "")
                     or getattr(o, "source_url", "")
+                    or _entities_impacted
+                    or _penalties
+                    or _common_mistakes
                 )
                 if _has_detail:
                     with st.expander("Show details", expanded=False):
@@ -3826,6 +3871,12 @@ with tab_obligations:
                                 unsafe_allow_html=True,
                             )
                             st.markdown(o.full_text)
+                        if _entities_impacted:
+                            st.markdown(
+                                "<div class='output-label'>Which entities this impacts</div>",
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(_entities_impacted)
                         if o.deadline_explanation:
                             st.markdown(
                                 "<div class='output-label'>Deadline</div>",
@@ -3835,6 +3886,22 @@ with tab_obligations:
                                 f"**{o.due_date or '—'}** &nbsp; · &nbsp; "
                                 f"{o.deadline_explanation}"
                             )
+                        if _penalties:
+                            st.markdown(
+                                "<div class='output-label' "
+                                "style='color:#C92A2A;'>"
+                                "Penalties / enforcement if not met</div>",
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(_penalties)
+                        if _common_mistakes:
+                            st.markdown(
+                                "<div class='output-label' "
+                                "style='color:#B45309;'>"
+                                "Common mistakes — pre-flight checklist</div>",
+                                unsafe_allow_html=True,
+                            )
+                            st.markdown(_common_mistakes)
                         if o.evidence:
                             st.markdown(
                                 "<div class='output-label'>Evidence on examination</div>",

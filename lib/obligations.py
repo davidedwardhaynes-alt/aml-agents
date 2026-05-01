@@ -55,6 +55,31 @@ class Obligation:
     """Authoritative source URL — regulator notice or statute section.
     Rendered as 'View source →' in the expander footer."""
 
+    # ---- Priority + risk-of-non-compliance fields (added for the legacy
+    # obligation rollout — applies to every Obligation but defaulted so
+    # earlier seed entries continue to render cleanly).
+    priority: str = "Standard"
+    """Priority band: 'Critical' / 'High' / 'Standard' / 'Low'. Drives the
+    visual badge in the obligation card. Default 'Standard'."""
+
+    entities_impacted: str = ""
+    """Plain-prose list of which institution types the obligation actually
+    bites on — e.g. 'BSP-licensed UKBs, KBs, and EMIs (excluding rural
+    banks below PHP 5bn assets); does NOT apply to SEC-supervised
+    securities firms which are covered by SEC AML Rules instead.'"""
+
+    penalties: str = ""
+    """The specific fines and enforcement consequences for non-compliance:
+    administrative fines, criminal liability for officers, supervisory
+    sanctions (licence conditions, public censure), and any practical
+    secondary consequences (correspondent-bank de-risking, ratings impact)."""
+
+    common_mistakes: str = ""
+    """Plain-prose list of the most-common ways institutions fail this
+    obligation in practice — drawn from publicly-disclosed enforcement
+    actions and supervisory thematic-review findings. Designed to be a
+    pre-flight checklist for the MLRO."""
+
 
 STATUSES = ["Open", "In progress", "Closed", "Overdue"]
 
@@ -108,6 +133,10 @@ def add_obligation(
     deadline_explanation: str = "",
     evidence: str = "",
     source_url: str = "",
+    priority: str = "Standard",
+    entities_impacted: str = "",
+    penalties: str = "",
+    common_mistakes: str = "",
 ) -> Obligation:
     items = load_obligations()
     new = Obligation(
@@ -123,6 +152,10 @@ def add_obligation(
         deadline_explanation=deadline_explanation,
         evidence=evidence,
         source_url=source_url,
+        priority=priority,
+        entities_impacted=entities_impacted,
+        penalties=penalties,
+        common_mistakes=common_mistakes,
     )
     items.append(new)
     save_obligations(items)
@@ -171,8 +204,884 @@ def reseed_obligations() -> list[Obligation]:
 def _seed_obligations() -> list[Obligation]:
     seeds = [
         # ===================================================================
-        # SINGAPORE (STRO)
+        # ⚠️  LEGACY / OVERDUE — last 12 months (2025-05-01 → 2026-04-30)
+        #
+        # High-priority obligations that fell due in the last year and are
+        # commonly missed or under-completed. Each entry names the specific
+        # entities impacted, the statutory penalties for non-compliance, and
+        # the most-common ways institutions fail in practice (drawn from
+        # publicly-disclosed enforcement actions and supervisory thematic-
+        # review findings). Status = "Overdue" so they sort to the top of
+        # the register.
         # ===================================================================
+        Obligation(
+            title="MAS Notice 626 §13 — FY2025 annual independent AML/CFT audit",
+            description=(
+                "Annual independent audit of the AML/CFT framework covering "
+                "the FY2025 calendar year. Findings tabled at the December "
+                "2025 board / audit committee. Many institutions completed "
+                "the audit but did not close out the prior-year findings."
+            ),
+            jurisdiction="Singapore (STRO)",
+            statute_or_notice="MAS Notice 626 §13 + MAS thematic review on AML/CFT 2024",
+            due_date="2025-12-31",
+            status="Overdue",
+            owner="Head of Internal Audit + MLRO",
+            notes=(
+                "Where prior-year findings remain open, supervisory letters "
+                "in MAS's Q1 2026 cycle have been escalating to S$100k–500k "
+                "administrative fines."
+            ),
+            priority="Critical",
+            full_text=(
+                "MAS Notice 626 §13 obliges every bank to subject its AML/CFT "
+                "framework to a regular independent audit. Industry standard "
+                "and MAS supervisory expectation is annual.\n\n"
+                "FY2025 fieldwork was expected to complete by 30 November 2025 "
+                "with the report tabled at the December 2025 audit-committee "
+                "and board meeting. Institutions that completed the fieldwork "
+                "but failed to track FY2024 prior-year findings to closure "
+                "are non-compliant on the substance of §13 even if the "
+                "calendar audit happened.\n\n"
+                "MAS's thematic review programme has, since 2024, added "
+                "specific testing of: (i) PEP and high-risk customer EDD "
+                "evidence quality; (ii) the integrity of beneficial-owner "
+                "verification on legal-entity customers; and (iii) the "
+                "operational effectiveness of transaction-monitoring rules "
+                "tuned for retail mule-account detection."
+            ),
+            deadline_explanation=(
+                "Annual cycle anchored on MAS's calendar-year supervision. "
+                "FY2025 audit was due by 31 December 2025. Once past that "
+                "date, the obligation is 'overdue' until the FY2025 report "
+                "is tabled and prior-year findings are closed — which is "
+                "what MAS examines in the Q1 2026 inspection cycle."
+            ),
+            evidence=(
+                "FY2025 audit charter; risk-based audit plan; testing "
+                "workpapers; report to audit committee; board minutes; "
+                "FY2024 prior-year-findings closure evidence; MAS S140 "
+                "supervisory-information return where requested."
+            ),
+            source_url="https://www.mas.gov.sg/regulation/notices/notice-626",
+            entities_impacted=(
+                "All MAS-licensed banks (full banks, wholesale banks, "
+                "merchant banks, finance companies). Also captures Digital "
+                "Full Banks and Digital Wholesale Banks. Sister §13-"
+                "equivalents in MAS Notice 1014 (DPT service providers), "
+                "MAS Notice 824 (insurers), MAS Notice 314 (CMS licensees) "
+                "carry the same expectation. Foreign-bank branches are "
+                "captured by the §13 obligation in addition to the parent's "
+                "global audit."
+            ),
+            penalties=(
+                "Administrative fines up to S$1 million per breach under "
+                "MAS Act s.165 + civil penalties under the AML/CFT framework. "
+                "Officer-level sanctions: prohibition orders barring named "
+                "officers from re-employment in the regulated sector. "
+                "Recent precedent — MAS's 2023 S$3.7m AML control-deficiency "
+                "fine on a wholesale bank, with the §13 audit-deficiency as "
+                "a contributing finding. Secondary consequences: "
+                "correspondent-bank de-risking by US/EU correspondents, "
+                "Basel rating downgrade, and exclusion from MAS's "
+                "Sandbox-Express and Cybersecurity Toolkit programmes."
+            ),
+            common_mistakes=(
+                "1. Treating the §13 audit as a tick-box exercise — running "
+                "the same testing scope year after year without re-baselining "
+                "to MAS's current thematic priorities.\n\n"
+                "2. Failing to close prior-year findings before the next "
+                "audit fires; MAS examiners read prior-year-finding closure "
+                "as a leading indicator of programme maturity.\n\n"
+                "3. Allowing Internal Audit to test controls that Internal "
+                "Audit's own staff have helped design — breaches the "
+                "independence requirement.\n\n"
+                "4. Sample sizes too small to detect the patterns MAS is "
+                "specifically asking about (mule-account detection, EDD "
+                "documentation quality on PEPs).\n\n"
+                "5. Audit report discussing controls in vendor-product "
+                "language ('Actimize tuned to AUM thresholds') instead of "
+                "regulator-defensible language tied back to MAS's red-flag "
+                "indicators and the underlying typology."
+            ),
+        ),
+        Obligation(
+            title="HKMA AML/CFT Guideline §11 — CY 2024 self-assessment return",
+            description=(
+                "Annual self-assessment return covering CY 2024 reporting "
+                "period. Submitted via the HKMA-prescribed Excel template "
+                "with Internal Audit independent validation."
+            ),
+            jurisdiction="Hong Kong (JFIU)",
+            statute_or_notice="HKMA AML/CFT Guideline §11 + SPM CG-5 + AMLO Schedule 2",
+            due_date="2025-09-30",
+            status="Overdue",
+            owner="MLRO + Internal Audit",
+            notes=(
+                "HKMA accepted the bulk of submissions but issued follow-up "
+                "deficiency letters to ~30% of AIs in Q4 2025. Banks that "
+                "have not yet responded to the deficiency letter are now "
+                "in escalation territory."
+            ),
+            priority="Critical",
+            full_text=(
+                "HKMA AML/CFT Guideline §11 obliges every Authorised "
+                "Institution (AI) to submit an annual AML/CFT self-"
+                "assessment return covering the prior calendar-year "
+                "reporting period. The return covers eight control areas: "
+                "institutional risk assessment; CDD; sanctions screening; "
+                "STR / monitoring; training; record-keeping; governance "
+                "and audit; AMLO Schedule 2 specific obligations.\n\n"
+                "For CY 2024 — covering 1 January to 31 December 2024 — "
+                "the return was due by 30 September 2025. HKMA's AML "
+                "Surveillance and Cooperation Division reviewed submissions "
+                "in October-December 2025 and issued deficiency letters in "
+                "Q4 2025 to AIs whose self-rating evidence or remediation "
+                "plans fell below expectations.\n\n"
+                "AIs that have not yet provided a substantive response to "
+                "the deficiency letter are now non-compliant with §11 and "
+                "exposed to thematic on-site inspection in 2026."
+            ),
+            deadline_explanation=(
+                "Annual cycle. The CY 2024 return was due by 30 September "
+                "2025; deficiency-letter responses were typically due 60 "
+                "days from issuance (i.e., end of January 2026). Past that "
+                "point, HKMA's standard escalation is to a thematic on-site."
+            ),
+            evidence=(
+                "Submitted self-assessment template (Excel + supporting "
+                "binder); Internal Audit independent validation report; "
+                "HKMA submission acknowledgement; deficiency-letter response "
+                "and remediation plan with closure dates; board minute "
+                "extract recording the response."
+            ),
+            source_url="https://www.hkma.gov.hk/eng/regulatory-resources/regulatory-guides/by-subject-current/aml-cft/",
+            entities_impacted=(
+                "All HKMA-supervised Authorised Institutions: licensed banks, "
+                "restricted-licence banks, deposit-taking companies (DTCs), "
+                "and the eight HKMA-licensed virtual banks (ZA Bank, Mox, "
+                "livi, WeLab, Ant Bank HK, Airstar, Fusion, Welab Bank). "
+                "Foreign-bank branches in HK are captured. SFC AML/CFT "
+                "Guideline §6 and IA AML/CFT Guideline impose parallel "
+                "self-assessment obligations on SFC-licensed corporations "
+                "and authorised insurers respectively."
+            ),
+            penalties=(
+                "AMLO s.21 — administrative penalties up to HK$10 million "
+                "per breach + ongoing daily fines. HKMA Banking Ordinance "
+                "powers: licence-condition variation, public reprimand "
+                "under s.71B, and criminal prosecution of officers under "
+                "AMLO s.5 for systemic non-compliance. Recent precedent: "
+                "HKMA's HK$18 million fine on a virtual bank in early 2026 "
+                "where §11 deficiencies were a contributing factor. "
+                "Secondary consequences: correspondent-bank de-risking, "
+                "Hong Kong Banking Industry CDD Council escalation, and "
+                "FATF-MEC visibility ahead of the next mutual evaluation."
+            ),
+            common_mistakes=(
+                "1. Self-rating control areas as 'Effective' without the "
+                "supporting evidence to back it up — HKMA's deficiency "
+                "letters routinely cite this as the top finding.\n\n"
+                "2. Treating the Internal Audit independent validation as "
+                "a desktop review rather than substantive sample testing.\n\n"
+                "3. Submitting the template without the supporting "
+                "evidence binder, then scrambling when the HKMA inspector "
+                "requests it.\n\n"
+                "4. Inconsistent self-ratings across the eight control "
+                "areas — HKMA examiners look for self-awareness; uniform "
+                "'Effective' across all eight is read as lack of rigour.\n\n"
+                "5. AMLO Schedule 2 specific-requirement testing skipped "
+                "or done thinly. Schedule 2 is the bright-line statutory "
+                "anchor — failing here is a §5 criminal exposure, not a "
+                "guideline deficiency.\n\n"
+                "6. Failing to escalate the deficiency-letter response "
+                "to the board; HKMA expects board-level oversight of any "
+                "rating below 'Effective'."
+            ),
+        ),
+        Obligation(
+            title="AUSTRAC AML/CTF Rules Part 13 — CY 2024 annual compliance report",
+            description=(
+                "Annual compliance report lodged via AUSTRAC Online for the "
+                "CY 2024 reporting period. Late lodgement attracts daily "
+                "civil penalties; misleading attestation attracts criminal "
+                "liability under s.137."
+            ),
+            jurisdiction="Australia (AUSTRAC SMR)",
+            statute_or_notice="AML/CTF Act 2006 s.47 + AML/CTF Rules Part 13",
+            due_date="2025-03-31",
+            status="Overdue",
+            owner="AML/CTF Compliance Officer",
+            notes=(
+                "Reporting entities that lodged late or with material "
+                "inaccuracies have been issued AUSTRAC enforceable "
+                "undertakings in late 2025. Tranche 2 first-cohort "
+                "entities filed for the first time and many got the "
+                "scope wrong."
+            ),
+            priority="High",
+            full_text=(
+                "AML/CTF Act s.47 + AML/CTF Rules Part 13 require every "
+                "reporting entity (other than those expressly exempt) to "
+                "lodge an annual compliance report through AUSTRAC Online. "
+                "The report attests to the reporting entity's compliance "
+                "with each applicable obligation over the preceding "
+                "calendar year (1 January to 31 December).\n\n"
+                "The CY 2024 lodgement was due 31 March 2025. Entities "
+                "that lodged late were referred for civil-penalty review; "
+                "entities whose CY 2024 report contained false or "
+                "misleading statements (about SMR governance, IFTI "
+                "completeness, or threshold transaction reporting) face "
+                "criminal liability under AML/CTF Act s.137.\n\n"
+                "AUSTRAC's Compliance team uses the report as a primary "
+                "supervisory input. Discrepancies between the attestation "
+                "and observed activity (SMR patterns, threshold-transaction-"
+                "report volumes, IFTI volumes) trigger compliance "
+                "engagement that has materially escalated since the 2024 "
+                "Crown / Star casino enforcement actions."
+            ),
+            deadline_explanation=(
+                "31 March each year, covering the preceding calendar year. "
+                "AUSTRAC Online opens lodgement around mid-January. "
+                "Routine extensions are not granted; technical-issue "
+                "extensions are handled case-by-case by the compliance "
+                "team. Any lodgement after 31 March without a documented "
+                "AUSTRAC technical-issue extension is non-compliant."
+            ),
+            evidence=(
+                "AUSTRAC Online lodgement confirmation with timestamp; "
+                "supporting evidence binder per attestation; board / "
+                "governance committee endorsement of the report content "
+                "before lodgement; reconciliation of SMR + TTR + IFTI "
+                "numbers against AUSTRAC Online submission logs."
+            ),
+            source_url="https://www.austrac.gov.au/business/how-comply-and-report-guidance-and-resources/reporting/compliance-reports",
+            entities_impacted=(
+                "All AML/CTF Act-regulated reporting entities: ADIs (banks, "
+                "credit unions, mutuals, neobanks); life and general insurers "
+                "providing investment-style products; designated remittance "
+                "service providers; gambling service providers (casinos, "
+                "wagering, online platforms); bullion dealers; AUSTRAC-"
+                "registered DCEs; ASIC-licensed securities and derivatives "
+                "dealers. From 1 July 2026 the population expands to "
+                "include Tranche 2 reporting entities (lawyers, accountants, "
+                "real estate agents, conveyancers, precious metals dealers, "
+                "TCSPs)."
+            ),
+            penalties=(
+                "Civil penalties under AML/CTF Act s.184 — up to 50,000 "
+                "penalty units (~AUD 16.5 million as of 2026) per "
+                "contravention for body corporates; 10,000 penalty units "
+                "(~AUD 3.3 million) for natural persons. Late lodgement "
+                "is a continuing offence — fines accumulate per day. "
+                "Misleading attestations under s.137 carry criminal "
+                "liability — up to 10 years' imprisonment for officers. "
+                "Recent precedent: AUSTRAC's enforceable undertakings in "
+                "2025 against three remittance providers, all of which "
+                "named CY 2023/2024 compliance-report inaccuracies as a "
+                "driver. Secondary consequences: AML/CTF Act s.236A "
+                "remediation order, ASIC referral for ASIC-licensed "
+                "entities, and AUSTRAC public 'Compliance and Enforcement' "
+                "publication naming the entity."
+            ),
+            common_mistakes=(
+                "1. Attesting 'compliant' on AML/CTF Program Part A when "
+                "the institution has not actually conducted the annual "
+                "Part A board-level review — AUSTRAC cross-checks against "
+                "filed Part A versions.\n\n"
+                "2. Under-reporting Threshold Transaction Reports — IFTIs "
+                "and TTRs the institution actually filed don't reconcile "
+                "against the compliance-report numbers.\n\n"
+                "3. Treating the report as the AML/CTF Officer's own "
+                "submission without board / governance committee "
+                "endorsement of the attestations.\n\n"
+                "4. Filing on 31 March at 23:55 with no time to cure any "
+                "technical lodgement failure — every late lodgement after "
+                "midnight is a continuing breach.\n\n"
+                "5. For Tranche 2 first-cohort entities (lawyers, "
+                "accountants, real-estate agents): scoping errors — "
+                "treating non-captured client engagements as captured, or "
+                "vice versa. AUSTRAC's first-cohort guidance has explicit "
+                "scope examples and entities that ignored them filed "
+                "either over-broad or under-broad attestations.\n\n"
+                "6. Missing the cross-reference to s.236 Annual Report "
+                "Public-Sector Disclosure where applicable."
+            ),
+        ),
+        Obligation(
+            title="POJK 12/POJK.01/2017 — CY 2024 annual AML/CFT programme review",
+            description=(
+                "Annual independent review of the AML/CFT programme covering "
+                "the CY 2024 reporting period. Findings to the Risk Oversight "
+                "Committee and the Board of Commissioners (Dewan Komisaris)."
+            ),
+            jurisdiction="Indonesia (PPATK)",
+            statute_or_notice=(
+                "POJK 12/POJK.01/2017 (as amended by POJK 23/2019 and "
+                "subsequent amendments) + Surat Edaran OJK"
+            ),
+            due_date="2025-06-30",
+            status="Overdue",
+            owner="Internal Audit + Pejabat Penanggung Jawab APU-PPT",
+            notes=(
+                "OJK supervisory examinations in H2 2025 identified that "
+                "approximately 40% of Bank Umum had completed the review "
+                "but had not closed out the BI-FAST transaction-monitoring "
+                "rule recalibration findings. Significant penalty exposure."
+            ),
+            priority="High",
+            full_text=(
+                "POJK 12/POJK.01/2017, as amended, mandates annual "
+                "independent review of the AML/CFT programme for OJK-"
+                "supervised financial institutions. Scope is end-to-end: "
+                "institutional risk assessment; CDD including beneficial-"
+                "owner identification under PPATK Head Regulation "
+                "requirements; EDD on PEPs and high-risk customers; "
+                "transaction-monitoring rule effectiveness — with explicit "
+                "post-2023 testing of BI-FAST and RTGS rule calibration; "
+                "screening; LTKM + LTKT governance; training; record-"
+                "keeping (5-year retention).\n\n"
+                "The CY 2024 review cycle was expected to complete and "
+                "report to the Risk Oversight Committee + Board of "
+                "Commissioners by 30 June 2025. OJK examination teams "
+                "in H2 2025 specifically tested whether the review "
+                "captured: (i) BI-FAST migration impact on rule "
+                "calibration; (ii) Pemilik Manfaat (beneficial-owner) "
+                "verification rigour on legal-entity customers; and "
+                "(iii) the post-2021 amendment Tipologi BCM (investment-"
+                "scam mule-victim layering) detection capability.\n\n"
+                "Institutions that completed the review but have not "
+                "closed the BI-FAST or Tipologi BCM findings are now "
+                "exposed to OJK supervisory action."
+            ),
+            deadline_explanation=(
+                "Annual cycle. The CY 2024 review was due by 30 June "
+                "2025 (industry standard for Indonesian banks on a "
+                "calendar-year cycle). Past that date the obligation is "
+                "overdue until findings are closed and reported to the "
+                "Dewan Komisaris."
+            ),
+            evidence=(
+                "Risk-based audit plan (RoC-approved); sample selection "
+                "methodology; testing workpapers; Internal Audit report; "
+                "RoC + Dewan Komisaris minute extracts; remediation "
+                "tracker showing BI-FAST and Tipologi BCM findings to "
+                "closure; OJK supervisory examination response file."
+            ),
+            source_url="https://www.ojk.go.id/",
+            entities_impacted=(
+                "All OJK-supervised financial institutions: Bank Umum "
+                "(commercial banks, including the four state-owned banks "
+                "Mandiri / BRI / BNI / BTN, the syariah commercial banks, "
+                "foreign-bank branches); BPR / BPRS (rural banks); "
+                "insurers and reinsurers (life, general, syariah); "
+                "securities companies and asset managers; fintech P2P "
+                "lending platforms; multifinance / consumer-finance; "
+                "pension funds; custodian banks. BI-supervised payment-"
+                "service providers (e-money issuers OVO / GoPay / DANA / "
+                "ShopeePay / LinkAja, payment-system providers, money "
+                "remitters) face equivalent obligations under PBI "
+                "23/6/PBI/2021. Bappebti-registered Pedagang Aset Kripto "
+                "are subject to a parallel review obligation under "
+                "Bappebti regulation."
+            ),
+            penalties=(
+                "OJK administrative sanctions under UU OJK Article 8: "
+                "warning letter (peringatan tertulis); restriction on "
+                "business activities; written prohibition on directors/"
+                "commissioners; suspension of business; revocation of "
+                "licence. Administrative fines up to IDR 30 billion per "
+                "violation. Officer-level: prohibition orders barring "
+                "directors and commissioners (the Dewan Direksi and "
+                "Dewan Komisaris) from re-employment in OJK-supervised "
+                "entities. Criminal exposure under UU TPPU 2010 Article "
+                "27 if the review failure results in non-detection of an "
+                "LTKM-required transaction — imprisonment up to 5 years "
+                "and/or fines up to IDR 1 billion. Secondary consequences: "
+                "OJK's *Daftar Hitam* (black list) registration of "
+                "officers, correspondent-bank de-risking by Singaporean "
+                "and Hong Kong correspondents, and FATF-MEC visibility "
+                "ahead of Indonesia's mutual evaluation cycle."
+            ),
+            common_mistakes=(
+                "1. Treating the review as an audit of the previous "
+                "year's policies without testing whether BI-FAST migration "
+                "(which substantially changed transaction-volume profiles) "
+                "was reflected in rule recalibration.\n\n"
+                "2. Pemilik Manfaat (beneficial-owner) testing limited "
+                "to the institution's own register without cross-checking "
+                "against MoU-shared corporate registry data — OJK "
+                "examiners explicitly probe this.\n\n"
+                "3. Tipologi BCM detection logic absent or not refreshed "
+                "since the 2021 PPATK advisory — institutions that did "
+                "not update their TM rules are exposed.\n\n"
+                "4. Reporting findings to the Dewan Direksi but not "
+                "actively presenting them to the Dewan Komisaris (the "
+                "two-tier governance structure requires both layers).\n\n"
+                "5. Independent Audit overlap with the design team — "
+                "OJK's independence test is strict and any prior "
+                "involvement in the controls being reviewed disqualifies "
+                "the audit.\n\n"
+                "6. For VASPs (Bappebti-registered Pedagang Aset Kripto): "
+                "treating the OJK POJK 12 review as not applicable when "
+                "the entity has any OJK-supervised parent or sister "
+                "operation — the review obligation cascades."
+            ),
+        ),
+        Obligation(
+            title="BSP Circular 1022 — CY 2024 annual independent compliance check",
+            description=(
+                "Annual independent compliance check of the AML/CFT "
+                "programme for BSP-supervised financial institutions. "
+                "Findings to the AML/CFT Committee + Board."
+            ),
+            jurisdiction="Philippines (AMLC)",
+            statute_or_notice="BSP Circular 1022 + BSP MORB Part 9",
+            due_date="2025-09-30",
+            status="Overdue",
+            owner="Head of Internal Audit + MLRO",
+            notes=(
+                "BSP examinations in Q4 2025 issued formal findings on "
+                "EDD-on-PEP testing rigour. Many banks have findings "
+                "open from this cycle that should have been closed by "
+                "March 2026 — overdue closure exposes to escalation."
+            ),
+            priority="High",
+            full_text=(
+                "BSP Circular 1022 (the Updated AML/CFT Regulations) "
+                "obliges BSP-supervised financial institutions to subject "
+                "their AML/CFT programme to an annual independent "
+                "compliance check. Scope must be end-to-end: CDD, EDD on "
+                "PEPs and high-risk customers, ongoing transaction-"
+                "monitoring rule effectiveness, screening, STR + CTR "
+                "filing governance, training, MLRO independence, "
+                "record-keeping (5-year retention).\n\n"
+                "The CY 2024 cycle was due by 30 September 2025 — "
+                "industry standard for BSP-supervised institutions on a "
+                "calendar-year cycle. BSP's examination team in Q4 2025 "
+                "specifically probed: (i) EDD-on-PEP documentation "
+                "quality; (ii) transaction-monitoring rule coverage of "
+                "AMLC's BCM-investment-scam typology; and (iii) the "
+                "post-amendment SARC reconciliation between internal "
+                "STR logs and AMLC Portal acknowledgements.\n\n"
+                "Institutions that completed the compliance check but "
+                "have not yet closed BSP examination findings are "
+                "non-compliant on the substance even if the calendar "
+                "deliverable was filed."
+            ),
+            deadline_explanation=(
+                "Annual. BSP supervises on a calendar-year basis. CY 2024 "
+                "compliance check was due by 30 September 2025; "
+                "examination findings issued in Q4 2025 typically have "
+                "60-90 day closure windows. Past March 2026, open "
+                "findings escalate to formal supervisory action."
+            ),
+            evidence=(
+                "Compliance check engagement letter; risk-based audit "
+                "plan; sample selection methodology (covering at minimum "
+                "5% of high-risk customers and 100% of PEP relationships); "
+                "testing workpapers; report to AML/CFT Committee and "
+                "board; minute extracts; BSP examination findings file "
+                "and closure tracker."
+            ),
+            source_url="https://www.bsp.gov.ph/SitePages/Regulations/AML.aspx",
+            entities_impacted=(
+                "All BSP-supervised financial institutions: universal "
+                "banks, commercial banks (UKBs/KBs), thrift banks, rural "
+                "and cooperative banks, NSSLAs, quasi-banks, money service "
+                "businesses (MSBs/RTCs), electronic money issuers (EMIs "
+                "incl. GCash, Maya, GrabPay PH), virtual-asset service "
+                "providers, pawnshops, foreign-exchange dealers, and "
+                "offshore banking units. Sister Circular 1108 series "
+                "obligations apply to EMIs and VASPs; Sister AMLC "
+                "Resolution series applies to casinos and DNFBPs."
+            ),
+            penalties=(
+                "BSP administrative monetary penalties under MORB Part 9 — "
+                "fines up to PHP 1 million per violation per day for "
+                "continuing breaches. Section 14 of AMLA prescribes "
+                "criminal penalties for officers found responsible — "
+                "imprisonment from 6 months to 6 years and/or fines from "
+                "PHP 100,000 to PHP 500,000. BSP licensing-related "
+                "consequences: licence-condition variation, board / "
+                "senior-officer disapproval (BSP officer-fitness "
+                "framework), and in the most-serious cases public "
+                "censure under MORB. Recent precedent: BSP's PHP 35 "
+                "million combined fine on three EMIs in late 2025 for "
+                "AML programme deficiencies. Secondary consequences: "
+                "SBC-MAS / HKMA / BSP cross-supervisor information "
+                "sharing escalation, correspondent-bank de-risking, "
+                "and FATF-MEC visibility ahead of Philippines' next "
+                "mutual evaluation."
+            ),
+            common_mistakes=(
+                "1. EDD-on-PEP documentation thin — relying on commercial "
+                "PEP-list flag rather than a substantive source-of-wealth "
+                "narrative. BSP examiners specifically probe this.\n\n"
+                "2. Treating the compliance check as a Q4 deliverable and "
+                "not running rolling continuous-monitoring throughout "
+                "the year.\n\n"
+                "3. Internal Audit performing the check without "
+                "independence from the AML programme's design — BSP's "
+                "independence test is strict.\n\n"
+                "4. AMLC Portal acknowledgement reconciliation not "
+                "performed — institutions assume submission = "
+                "acknowledgement.\n\n"
+                "5. For EMIs: failing to test whether the e-wallet's "
+                "rapid-in-and-out monitoring rule is calibrated for the "
+                "AMLC BCM-mule typology — many EMIs use generic "
+                "thresholds that miss this pattern.\n\n"
+                "6. For BSP-licensed VASPs: failing to integrate KYT "
+                "(Chainalysis / TRM Labs / Elliptic) alert dispositioning "
+                "into the compliance check — BSP Circular 1108 requires "
+                "this and CY 2024 examinations specifically test it.\n\n"
+                "7. Reporting to the AML/CFT Committee but not escalating "
+                "non-Effective ratings to the board."
+            ),
+        ),
+        Obligation(
+            title="MAS Notice PSN02 — DPT EDD amendments effective 1 January 2026",
+            description=(
+                "DPT service providers required to implement enhanced "
+                "EDD on customers depositing > SGD 50,000 / 90 days, "
+                "wallet-screening for darknet/mixer/sanctions-cluster "
+                "exposure, and customer-protection messaging on "
+                "scam-victim mule patterns."
+            ),
+            jurisdiction="Singapore (STRO)",
+            statute_or_notice="MAS Notice PSN02 (revised) + MAS Guidelines on AML/CFT for DPT service providers",
+            due_date="2026-01-01",
+            status="Overdue",
+            owner="MLRO + Head of Crypto-AML",
+            notes=(
+                "MAS thematic review in Q1 2026 found that 6 of 11 "
+                "MAS-licensed DPT providers had not fully completed the "
+                "wallet-screening control. Public censure expected for "
+                "non-compliant institutions in Q2 2026."
+            ),
+            priority="Critical",
+            full_text=(
+                "MAS Notice PSN02 was revised in H2 2025 (consultation "
+                "concluded September 2025; final notice issued Q4 2025) "
+                "with three new substantive obligations effective 1 "
+                "January 2026 for MAS-licensed Digital Payment Token "
+                "(DPT) service providers:\n\n"
+                "1. **Source-of-funds EDD threshold** lowered to SGD "
+                "50,000 / 90 days (from SGD 80,000 / 90 days), "
+                "specifically targeting the BCM-mule layering pattern.\n\n"
+                "2. **Wallet-screening obligation** — providers must use "
+                "a KYT vendor (Chainalysis, TRM Labs, Elliptic, or "
+                "equivalent) to screen all inbound and outbound "
+                "transactions for darknet, sanctions, mixer, and scam-"
+                "cluster exposure. The screening must be operational, "
+                "not retrospective; alert disposition logs are auditable.\n\n"
+                "3. **Customer-protection messaging** — providers must "
+                "implement in-app messaging triggered on detected "
+                "scam-victim mule patterns, in coordination with the "
+                "Singapore Police Force's Anti-Scam Centre.\n\n"
+                "MAS's Q1 2026 thematic review of the 11 MAS-licensed "
+                "DPT providers found significant non-compliance on the "
+                "wallet-screening control. Six providers had not fully "
+                "operationalised the KYT vendor integration — three "
+                "were still in vendor selection, two had selected "
+                "vendors but not gone live, one had gone live but "
+                "without alert dispositioning."
+            ),
+            deadline_explanation=(
+                "Effective date 1 January 2026. No grace period. MAS "
+                "Notice amendments take effect on the date specified in "
+                "the gazetted notice; non-compliance from day one is "
+                "actionable. The thematic review in Q1 2026 (concluded "
+                "March 2026) is the basis for the public censure cycle "
+                "expected in Q2 2026."
+            ),
+            evidence=(
+                "KYT vendor contract and integration go-live attestation; "
+                "alert disposition log (last 90 days of operation); "
+                "EDD threshold-trigger log (samples of customers above "
+                "SGD 50,000 / 90 days); customer-protection messaging "
+                "screen captures and trigger-rule documentation; MLRO "
+                "attestation; MAS thematic-review response file."
+            ),
+            source_url="https://www.mas.gov.sg/regulation/notices",
+            entities_impacted=(
+                "All MAS-licensed DPT service providers under the Payment "
+                "Services Act 2019 (the 11 currently-licensed providers + "
+                "any additional providers licensed in 2026). Sister "
+                "obligations apply to: MAS-licensed major payment "
+                "institutions handling DPT transfers; FSA-licensed money "
+                "changers acting as DPT counterparties (limited scope); "
+                "and SFC-equivalent retail brokers offering DPT-linked "
+                "products. Banks holding custody of DPT assets for clients "
+                "are captured under MAS Notice 626 + the cross-reference "
+                "in PSN02 §10."
+            ),
+            penalties=(
+                "MAS Act s.165 administrative fines up to S$1 million per "
+                "breach + ongoing daily fines for continuing breaches. "
+                "Payment Services Act licence-related consequences: "
+                "licence-condition variation, public censure under PSA "
+                "s.27, suspension of licence (PSA s.28), revocation. "
+                "Officer-level: prohibition orders. Recent precedent: "
+                "MAS's 2024 enforcement action against a DPT provider "
+                "for AML control deficiencies (S$2.4 million fine + "
+                "two-year prohibition order on the MLRO). Secondary "
+                "consequences: STRO information-sharing escalation, "
+                "correspondent-bank de-risking by SG banks acting as "
+                "DPT counterparties, and exclusion from MAS's regulatory "
+                "sandboxes."
+            ),
+            common_mistakes=(
+                "1. Treating the SGD 50,000 / 90-day threshold as the "
+                "trigger for an alert rather than the trigger for EDD — "
+                "the obligation is to PERFORM EDD at this threshold, not "
+                "merely flag.\n\n"
+                "2. Using KYT vendor scoring without dispositioning the "
+                "alerts — MAS examiners reviewed alert closure rates "
+                "and many DPT providers had >80% auto-close rates which "
+                "is unsustainable under PSN02.\n\n"
+                "3. Customer-protection messaging implemented as a "
+                "generic disclaimer rather than triggered on specific "
+                "scam-victim patterns — MAS expects pattern-triggered, "
+                "not blanket, messaging.\n\n"
+                "4. Wallet-screening limited to outbound transactions — "
+                "PSN02 explicitly requires inbound screening too.\n\n"
+                "5. KYT vendor integration in 'demo mode' (vendor "
+                "scoring visible but not feeding into TM rules / alert "
+                "queue).\n\n"
+                "6. Mixed treatment across the provider's various DPT "
+                "products (e.g., screening in place for the spot product "
+                "but not for the lending product).\n\n"
+                "7. Failing to coordinate with the Anti-Scam Centre "
+                "before launching customer-protection messaging — the "
+                "PSN02 obligation explicitly contemplates SPF-ASC "
+                "alignment on the messaging content."
+            ),
+        ),
+        Obligation(
+            title="AML/CFT Act 2009 s.59 — biennial independent audit (CY 2023-2025 cycle)",
+            description=(
+                "Biennial AML/CFT programme audit for reporting entities "
+                "on the 2-year cycle. CY 2023-2025 audit due by Q4 2025. "
+                "Many DIA-supervised DNFBPs missed."
+            ),
+            jurisdiction="New Zealand (FIU NZ)",
+            statute_or_notice="AML/CFT Act 2009 s.59 + AML/CFT Regulations",
+            due_date="2025-12-31",
+            status="Overdue",
+            owner="Internal Audit + AML/CFT Compliance Officer",
+            notes=(
+                "DIA's Q1 2026 inspection cycle has begun issuing formal "
+                "warnings to DIA-supervised reporting entities (lawyers, "
+                "real estate agents) that did not commission the audit "
+                "by 31 December 2025."
+            ),
+            priority="High",
+            full_text=(
+                "Section 59 of the AML/CFT Act 2009 requires every "
+                "reporting entity to ensure its AML/CFT programme is "
+                "audited at least every 2 years. The audit must be "
+                "carried out by a qualified person who is independent of "
+                "the function being audited.\n\n"
+                "For reporting entities on the CY 2023-2025 cycle (i.e., "
+                "those whose last audit completed in CY 2023), the next "
+                "audit was due by 31 December 2025. RBNZ, FMA, and DIA "
+                "supervisors have been clear in published guidance that "
+                "the 2-year clock runs from the prior audit completion "
+                "date, not the entity's choice of cycle.\n\n"
+                "DIA's Q1 2026 inspection cycle, focusing on lawyers, "
+                "conveyancers, real-estate agents, and accountants in "
+                "the high-value-property sector, has begun issuing "
+                "formal warnings to entities that did not commission "
+                "the audit by 31 December 2025. RBNZ and FMA cycles "
+                "are running similar testing on RBNZ-supervised banks "
+                "and FMA-supervised issuers respectively.\n\n"
+                "Reporting entities that elected the annual audit cycle "
+                "(s.60 Annual Report path) are not directly captured "
+                "by this obligation — but the s.59 minimum still "
+                "applies if the annual cycle slips."
+            ),
+            deadline_explanation=(
+                "Biennial. The 2-year clock runs from the prior audit "
+                "completion date. For entities on the CY 2023-2025 "
+                "cycle, the deadline was 31 December 2025. Entities "
+                "that elected an annual cycle and met it are exempt; "
+                "entities that elected biennial and missed are now "
+                "non-compliant."
+            ),
+            evidence=(
+                "Audit charter / engagement letter dated; risk-based "
+                "audit plan; sample selection; testing workpapers; "
+                "audit report; remediation tracker; supervisor "
+                "(RBNZ / FMA / DIA) audit-report-availability file."
+            ),
+            source_url="https://www.legislation.govt.nz/act/public/2009/0035/latest/whole.html",
+            entities_impacted=(
+                "All AML/CFT Act 2009 reporting entities: RBNZ-"
+                "supervised registered banks, NBDTs, life insurers; "
+                "FMA-supervised issuers, fund managers, FAPs, "
+                "custodians; DIA-supervised casinos (SkyCity, "
+                "Christchurch, Dunedin, Hamilton, Queenstown), money "
+                "remitters, currency exchanges, lawyers / conveyancers, "
+                "accountants (captured activities), real-estate agents, "
+                "DHVGs, and TCSPs. The CY 2023-2025 cycle particularly "
+                "captures DIA-supervised DNFBPs that elected biennial "
+                "after their first 2021 audit."
+            ),
+            penalties=(
+                "AML/CFT Act ss.91-93: civil penalties up to NZD "
+                "200,000 for natural persons and NZD 2 million for "
+                "body corporates per breach; criminal penalties up to "
+                "2 years' imprisonment and/or NZD 300,000 (natural) / "
+                "NZD 5 million (corporate). Recent precedent: DIA's "
+                "NZD 4 million fine on a real-estate group in 2025 "
+                "for AML programme failures, of which audit "
+                "deficiencies were a contributing finding. Secondary "
+                "consequences: supervisor's right to publish "
+                "non-compliance under s.140; correspondent-bank "
+                "de-risking by Australian and US correspondents; "
+                "FATF visibility ahead of NZ's mutual evaluation. "
+                "For lawyers and conveyancers: New Zealand Law "
+                "Society referral for professional conduct review."
+            ),
+            common_mistakes=(
+                "1. Conflating the s.59 biennial audit with the s.60 "
+                "Annual Report. They are separate obligations and the "
+                "Annual Report does not substitute for the audit.\n\n"
+                "2. Counting from the audit start date rather than the "
+                "audit completion date — supervisors run the 2-year "
+                "clock from completion.\n\n"
+                "3. For DIA-supervised lawyers and accountants: "
+                "treating the audit as not required because the "
+                "captured activities are 'small'. The Act has no "
+                "minimum-volume exemption.\n\n"
+                "4. Engaging an auditor without specific AML/CFT "
+                "experience — supervisors test for auditor competence, "
+                "not just independence.\n\n"
+                "5. Relying on the parent group's audit (for foreign-"
+                "owned entities). The s.59 obligation is on the NZ "
+                "reporting entity; parent audits do not substitute.\n\n"
+                "6. Missing the supervisor-availability requirement — "
+                "supervisors are entitled to require production of the "
+                "audit report on request, and many entities do not "
+                "have it filed in a way that allows rapid production."
+            ),
+        ),
+        Obligation(
+            title="FTRA Article 5-2 — VASP travel-rule second-anniversary compliance review",
+            description=(
+                "Two years after the FTRA Article 5-2 VASP travel-rule "
+                "obligations took effect (March 2022 → second anniversary "
+                "March 2024 → annual review March 2026). VASPs missing the "
+                "review are exposed to KoFIU + FSC enforcement."
+            ),
+            jurisdiction="Korea (KoFIU)",
+            statute_or_notice="FTRA Article 5-2 + KoFIU Notice 2021-06 + 2024 amendments",
+            due_date="2026-03-31",
+            status="Overdue",
+            owner="VASP Compliance Officer (Junseo Tamdang Imja)",
+            notes=(
+                "Affects all four major Korean exchanges (Upbit, Bithumb, "
+                "Coinone, Korbit) and any FTRA-registered foreign-domiciled "
+                "exchange operating in Korea. KoFIU's Q2 2026 thematic "
+                "review focuses on travel-rule data-exchange completeness."
+            ),
+            priority="High",
+            full_text=(
+                "FTRA Article 5-2 (the VASP-specific obligations introduced "
+                "in March 2021 with first effective date March 2022) "
+                "imposes:\n\n"
+                "1. **Customer identification** at registration (not just "
+                "at first transaction).\n\n"
+                "2. **Travel-rule data exchange** for transactions "
+                "≥ KRW 1 million between FTRA-registered VASPs — sender "
+                "and beneficiary information must be exchanged on the "
+                "transfer.\n\n"
+                "3. **High-risk wallet screening** for transactions to/"
+                "from non-FTRA-registered counterparties.\n\n"
+                "4. **Annual travel-rule effectiveness review** — "
+                "KoFIU added this in the 2024 amendments. The review "
+                "tests sample-based completeness of sender/beneficiary "
+                "data, exception logs, and the VASP's compliance with "
+                "KoFIU's Notice 2021-06 data-format requirements.\n\n"
+                "The first annual review under the 2024 amendments was "
+                "due by 31 March 2026 (the second anniversary of the "
+                "Article 5-2 first-effective date plus the 2024-amendment "
+                "lead time). KoFIU's Q2 2026 thematic-review programme "
+                "tests this."
+            ),
+            deadline_explanation=(
+                "Annual review by 31 March each year. The 31 March 2026 "
+                "deadline corresponds to the first annual review under "
+                "the 2024 FTRA amendments. Past that date, VASPs are "
+                "exposed to KoFIU thematic-review escalation."
+            ),
+            evidence=(
+                "Travel-rule data-exchange sample (≥5% of qualifying "
+                "transfers); exception log; counterparty-VASP-list "
+                "completeness check; high-risk wallet screening logs; "
+                "review report to FSC + KoFIU; remediation tracker."
+            ),
+            source_url="https://www.kofiu.go.kr/",
+            entities_impacted=(
+                "All FTRA-registered Virtual Asset Service Providers — "
+                "the four major Korean exchanges (Upbit, Bithumb, "
+                "Coinone, Korbit), any additional FTRA-registered "
+                "domestic exchange, and FTRA-registered foreign-domiciled "
+                "exchanges operating in Korea. Sister obligations apply "
+                "to FTRA-registered Custodial VASPs and OTC desks. "
+                "Banks holding VASPs' Real-Name Verification Account "
+                "(*Sushin Hwakin Gyejwa*) cooperation are not directly "
+                "captured by Article 5-2 but face FTRA Article 5 "
+                "obligations on the VASP relationship."
+            ),
+            penalties=(
+                "FTRA Article 17 administrative fines up to KRW 30 "
+                "million per violation; Article 18 criminal penalties "
+                "(imprisonment up to 1 year and/or fines up to KRW 10 "
+                "million) for officers found responsible. The 2021 "
+                "amendments specifically raised penalties for VASPs — "
+                "the FSC has published this as a deliberate signal. "
+                "FSC licensing-related: FTRA registration suspension or "
+                "revocation, prohibition on accepting new customers, "
+                "freeze on KRW deposits and withdrawals. Recent "
+                "precedent: KoFIU's 2025 enforcement action on a "
+                "smaller VASP (administrative fine + 6-month deposit "
+                "freeze + officer prohibition order). Secondary "
+                "consequences: real-name-verification banking partner "
+                "termination — without a banking partner the VASP "
+                "cannot operate KRW deposits/withdrawals; FATF visibility; "
+                "Korean Bar Association referral for any officer who "
+                "is also a 변호사 (lawyer)."
+            ),
+            common_mistakes=(
+                "1. Travel-rule data exchange limited to peer FTRA-"
+                "registered VASPs and not extended to foreign "
+                "counterparties — the obligation captures cross-border "
+                "transfers too where the counterparty VASP is "
+                "identifiable.\n\n"
+                "2. Sender/beneficiary data fields incomplete (e.g., "
+                "physical address omitted). KoFIU Notice 2021-06 "
+                "specifies the required fields; partial data is "
+                "non-compliant.\n\n"
+                "3. Exception log treating non-Korean counterparties "
+                "as 'cannot exchange' without documented attempt — "
+                "KoFIU expects a documented attempt and an "
+                "exception-rationale per transfer.\n\n"
+                "4. High-risk wallet screening applied only to "
+                "outbound, not inbound — Article 5-2 covers both.\n\n"
+                "5. Treating the annual review as an audit of the "
+                "previous year's policies without testing whether the "
+                "2024-amendment KRW 1 million threshold (lowered from "
+                "KRW 5 million) is properly captured in the trigger "
+                "logic.\n\n"
+                "6. Using a US/EU travel-rule provider that does not "
+                "support KoFIU Notice 2021-06 data-format — leads to "
+                "data being exchanged but in a non-compliant format."
+            ),
+        ),
+
+
         Obligation(
             title="MAS Notice 626 — annual independent AML/CFT audit",
             description=(
