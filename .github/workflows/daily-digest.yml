@@ -1,0 +1,75 @@
+name: Daily digest — 7am local
+
+# Fires at multiple UTC hours so each subscriber gets the digest at ~07:00
+# in their chosen timezone. The send script's due_for_send() is timezone-
+# aware and idempotent, so over-firing is safe — at most one digest goes
+# per subscriber per local-day.
+#
+# Hours covered:
+#   23 UTC → 07:00 SGT / HKT / MYT / PHT  (UTC+8)
+#   00 UTC → 07:00 WIB / ICT             (UTC+7)
+#   21 UTC → 07:00 AEST                  (UTC+10, +11 in DST → 20)
+#   06 UTC → 07:00 GMT/BST (UK)          (close enough; cron handles BST)
+#   05 UTC → 07:00 CET / CEST (DE)
+#   11 UTC → 07:00 EST/EDT (US East)
+#   14 UTC → 07:00 PST/PDT (US West)
+#
+# To dial cost down: drop hours you don't need.
+# Cost: each fire generates emails for the matching subscribers only;
+# Resend bills per-email, GitHub Actions is free for public repos.
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # 07:00 SGT / HKT / MYT / PHT
+    - cron: "0 0 * * *"    # 07:00 WIB / ICT
+    - cron: "0 21 * * *"   # 07:00 AEST (+10)
+    - cron: "0 20 * * *"   # 07:00 AEDT (+11, summer)
+    - cron: "30 1 * * *"   # 07:00 IST (+5:30)
+    - cron: "0 6 * * *"    # 07:00 BST (UK summer) — also ~07:00 GMT off-season
+    - cron: "0 5 * * *"    # 07:00 CEST (Europe summer)
+    - cron: "0 11 * * *"   # 07:00 EDT (US East summer)
+    - cron: "0 14 * * *"   # 07:00 PDT (US West summer)
+  workflow_dispatch:       # also runnable manually for smoke tests
+    inputs:
+      force:
+        description: "Bypass the 7am-local gate and send to all active subs"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Build digests but don't actually send"
+        required: false
+        type: boolean
+        default: false
+      only:
+        description: "Send to a single email only (manual test)"
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Send daily digest
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ vars.RESEND_FROM }}
+          RESEND_REPLY_TO: ${{ vars.RESEND_REPLY_TO }}
+          AML_AGENTS_BASE_URL: ${{ vars.AML_AGENTS_BASE_URL }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          if [ -n "${{ inputs.only }}" ]; then ARGS="$ARGS --only ${{ inputs.only }}"; fi
+          python scripts/send_daily_digest.py $ARGS

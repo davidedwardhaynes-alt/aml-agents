@@ -32,3 +32,14 @@ data/press_release_cache.yaml
 # bcrypt hash. Stays local-only; the user pastes the contents into the
 # Streamlit Cloud Secrets UI directly.
 DEPLOY_PASTE.txt
+
+# Daily briefing podcast MP3s + sidecars — TRACKED IN GIT so hosted deploys
+# ship with the latest audio. Cron generates fresh ones nightly.
+# data/podcasts/  ← intentionally NOT ignored
+
+# Daily briefing video MP4s + sidecars — TRACKED IN GIT for the same reason.
+# data/videos/    ← intentionally NOT ignored
+
+# Daily-digest subscription store — TRACKED IN GIT so the cron worker can
+# read the current subscriber list. Contains email addresses but no secrets.
+# data/subscriptions.yaml  ← intentionally NOT ignored

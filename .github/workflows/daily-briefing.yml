@@ -1,0 +1,64 @@
+name: Daily briefing — generate podcast + video
+
+# Generates the day's audio podcast (MP3) and video briefing (MP4) before
+# the email-digest workflow fires, so the email can link to fresh media.
+# The script + audio + slideshow are all produced in this single workflow.
+
+on:
+  schedule:
+    # 22:30 UTC = 06:30 SGT/HKT — runs 30 min before the daily-digest cron
+    # so the assets exist when the email goes out.
+    - cron: "30 22 * * *"
+  workflow_dispatch:
+    inputs:
+      podcast_only:
+        description: "Skip the video step"
+        required: false
+        type: boolean
+        default: false
+      video_only:
+        description: "Skip the podcast step"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-liberation
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Generate today's podcast + video
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.podcast_only }}" = "true" ]; then ARGS="$ARGS --podcast-only"; fi
+          if [ "${{ inputs.video_only }}" = "true" ]; then ARGS="$ARGS --video-only"; fi
+          python scripts/generate_daily_briefing.py $ARGS
+
+      - name: Commit generated media
+        run: |
+          git config user.name "briefing-bot"
+          git config user.email "bot@trustsphere.partners"
+          git add data/podcasts data/videos
+          if git diff --cached --quiet; then
+            echo "No new media — nothing to commit."
+          else
+            git commit -m "Auto-generate daily briefing ($(date -u +%Y-%m-%d))"
+            git push
+          fi
