@@ -198,18 +198,24 @@ RUBRICS = {
     "Singapore (STRO)": ROOT / "rubrics" / "strostr.md",
     "Hong Kong (JFIU)": ROOT / "rubrics" / "jfiustr.md",
     "Malaysia (FIED)": ROOT / "rubrics" / "fiedstr.md",
+    "Philippines (AMLC)": ROOT / "rubrics" / "amlcstr.md",
+    "Indonesia (PPATK)": ROOT / "rubrics" / "ppatkstr.md",
     "Australia (AUSTRAC SMR)": ROOT / "rubrics" / "austracsmr.md",
 }
 GUIDANCE = {
     "Singapore (STRO)": ROOT / "guidance" / "sg-stro.md",
     "Hong Kong (JFIU)": ROOT / "guidance" / "hk-jfiu.md",
     "Malaysia (FIED)": ROOT / "guidance" / "my-fied.md",
+    "Philippines (AMLC)": ROOT / "guidance" / "ph-amlc.md",
+    "Indonesia (PPATK)": ROOT / "guidance" / "id-ppatk.md",
     "Australia (AUSTRAC SMR)": ROOT / "guidance" / "au-austrac.md",
 }
 JURISDICTION_LABEL = {
     "Singapore (STRO)": "Singapore",
     "Hong Kong (JFIU)": "Hong Kong",
     "Malaysia (FIED)": "Malaysia",
+    "Philippines (AMLC)": "Philippines",
+    "Indonesia (PPATK)": "Indonesia",
     "Australia (AUSTRAC SMR)": "Australia",
 }
 JURISDICTION_AUTHORITIES = {
@@ -227,6 +233,16 @@ JURISDICTION_AUTHORITIES = {
         {"abbr": "BNM", "name": "Bank Negara Malaysia"},
         {"abbr": "FIED", "name": "Financial Intelligence Enforcement Dept"},
         {"abbr": "SC", "name": "Securities Commission Malaysia"},
+    ],
+    "Philippines (AMLC)": [
+        {"abbr": "AMLC", "name": "Anti-Money Laundering Council"},
+        {"abbr": "BSP", "name": "Bangko Sentral ng Pilipinas"},
+        {"abbr": "SEC", "name": "Securities and Exchange Commission"},
+    ],
+    "Indonesia (PPATK)": [
+        {"abbr": "PPATK", "name": "Pusat Pelaporan dan Analisis Transaksi Keuangan"},
+        {"abbr": "OJK", "name": "Otoritas Jasa Keuangan"},
+        {"abbr": "BI", "name": "Bank Indonesia"},
     ],
     "Australia (AUSTRAC SMR)": [
         {"abbr": "AUSTRAC", "name": "AUS Transaction Reports & Analysis Centre"},
@@ -299,6 +315,50 @@ ENTITY_CATEGORIES = {
         "Casino / gaming operator",
         "Pawnbroker",
     ],
+    "Philippines (AMLC)": [
+        "— Select —",
+        "Universal / commercial bank (UKB / KB) — BSP-supervised",
+        "Thrift bank — BSP-supervised",
+        "Rural / cooperative bank — BSP-supervised",
+        "Non-stock savings and loan association (NSSLA)",
+        "Quasi-bank / financing company — BSP-supervised",
+        "Money service business (MSB) — remittance / money changer",
+        "Electronic money issuer (EMI) — BSP-licensed (e.g. GCash, Maya)",
+        "Virtual asset service provider (VASP) — BSP-licensed",
+        "Pawnshop — BSP-supervised",
+        "Foreign exchange dealer",
+        "Securities broker-dealer / investment house — SEC-supervised",
+        "Mutual fund / investment company — SEC-supervised",
+        "Lending / financing company — SEC-supervised",
+        "Life insurance company — IC-supervised",
+        "Non-life insurance company — IC-supervised",
+        "Pre-need company — IC-supervised",
+        "Casino — PAGCOR / IRR / POGO-licensed",
+        "Real estate broker / developer (DNFBP)",
+        "Jewellery / precious metals / stones dealer (DNFBP)",
+        "Lawyer / accountant (DNFBP, where carrying out specified transactions)",
+    ],
+    "Indonesia (PPATK)": [
+        "— Select —",
+        "Bank Umum (commercial bank) — OJK-supervised",
+        "Bank Umum Syariah (Sharia commercial bank) — OJK-supervised",
+        "Bank Perekonomian Rakyat (BPR / BPRS — rural bank) — OJK-supervised",
+        "Insurer / reinsurer — OJK-supervised",
+        "Securities company / investment manager — OJK-supervised",
+        "Fintech P2P lending platform — OJK-supervised",
+        "Multifinance / consumer finance — OJK-supervised",
+        "Pension fund (Dana Pensiun) — OJK-supervised",
+        "Custodian bank — OJK-supervised",
+        "E-money issuer / payment service provider — BI-supervised",
+        "Money remitter (KUPVA Bukan Bank) — BI-supervised",
+        "Crypto-asset trader (Pedagang Aset Kripto) — Bappebti-registered",
+        "Notary (Notaris) — PPATK direct",
+        "Advocate (Advokat) — PPATK direct",
+        "Public accountant (Akuntan Publik) — PPATK direct",
+        "Real-estate agent (Agen Properti) — PPATK direct",
+        "Precious metals / stones dealer — PPATK direct",
+        "Automotive dealer — PPATK direct",
+    ],
     "Australia (AUSTRAC SMR)": [
         "— Select —",
         "Authorised deposit-taking institution (ADI) — major bank",
@@ -359,6 +419,24 @@ SAMPLE_LIBRARY = {
         'E-money issuer — wallet-based mule activity': ('Malaysia (FIED) — E-money issuer wallet mule', 'Malaysia (FIED) — E-money issuer wallet mule'),
         'Pawnbroker — gold cash layering': ('Malaysia (FIED) — Pawnbroker gold layering', 'Malaysia (FIED) — Pawnbroker gold layering'),
 },
+    "Philippines (AMLC)": {
+        "EMI mule — BCM investment-scam layering": (
+            "Philippines (AMLC)", "Philippines (AMLC)",
+        ),
+        "Casino — POGO chip-walking + cross-property redemption": (
+            "Philippines (AMLC) — POGO casino chip-walking",
+            "Philippines (AMLC) — POGO casino chip-walking",
+        ),
+    },
+    "Indonesia (PPATK)": {
+        "Bank Umum — KKN procurement-corruption layering": (
+            "Indonesia (PPATK)", "Indonesia (PPATK)",
+        ),
+        "Pedagang Aset Kripto — BCM investment-scam mule": (
+            "Indonesia (PPATK) — Crypto Pedagang Aset Kripto mule",
+            "Indonesia (PPATK) — Crypto Pedagang Aset Kripto mule",
+        ),
+    },
     "Australia (AUSTRAC SMR)": {
         "Crypto DCE — structuring + mule victim": (
             "Australia (AUSTRAC SMR)", "Australia (AUSTRAC SMR)",
@@ -862,6 +940,214 @@ SAMPLE_CASES = {
         'red_flags': "Four cash purchases of AUD 9,400 - 9,800 — all just below AUD 10,000 TTR threshold. Customer rotated between staff/tills across visits — apparent attempt to evade internal pattern-recognition. Cash paid in AUD 100 notes, similar bank-band wraps. Customer's stated purpose for purchases varied (different reasons given to different staff). Declared occupation vague ('business owner'). PMD is operating under Tranche 2 obligations effective from 2026; this is one of the firm's first SMR cases under the new regime.",
         'analyst_notes': "PMD has registered with AUSTRAC under Tranche 2 phase-1 (March 2026). Store manager flagged the pattern after Visit 3; AML/CTF Compliance Officer (newly appointed for Tranche 2) reviewed Visits 1-4 in aggregate. Cross-staff coordination broke down on Visit 2 because new staff didn't recognize Visit 1 customer; AUSTRAC industry guidance for Tranche 2 emphasizes the need for robust customer-recognition across visits. Activity matches FATF DNFBP precious-metals typology for cash layering. SMR obligation under s.41 applies. Recommend SMR + internal staff training + customer no-future-service tagging + retrospective TTR review for any aggregated purchases above AUD 10k that may have escaped reporting.",
     },
+
+    # ===== Philippines (AMLC) =====
+    "Philippines (AMLC)": {
+        "customer_name": "Maria Theresa Santos",
+        "customer_id": "BSP-EMI-PH-2026-04-CUST-3128",
+        "customer_kyc": (
+            "Filipino-resident retail customer of a BSP-licensed EMI (e.g. GCash / Maya). "
+            "Declared occupation: BPO call-centre agent. Declared monthly income: PHP 28,000. "
+            "Account opened 2024-08; first 18 months activity consistent with payroll deposit, "
+            "P2P transfers to family in Visayas region, occasional small e-commerce purchases. "
+            "Risk rating: Low at onboarding, no PEP / sanctions hit."
+        ),
+        "transactions": (
+            "2026-04-08 | PHP 95,000 inbound | InstaPay from 'Investment Recovery Specialist Inc' (unverified counterparty)\n"
+            "2026-04-09 | PHP 92,000 outbound | InstaPay to crypto on-ramp (BSP-licensed VASP)\n"
+            "2026-04-10 | PHP 110,000 inbound | InstaPay from same 'Investment Recovery Specialist Inc'\n"
+            "2026-04-10 | PHP 108,000 outbound | InstaPay to second BSP-licensed VASP wallet\n"
+            "2026-04-12 | PHP 145,000 inbound | InstaPay from 'Investment Recovery Specialist Inc'\n"
+            "2026-04-12 | PHP 142,000 outbound | InstaPay to GCash wallet of unrelated retail customer"
+        ),
+        "alert_reason": (
+            "Inbound flow ~10x declared monthly income within 5 days; consistent in-then-out "
+            "pattern with retention <1% per leg; counterparty matches AMLC investment-scam mule "
+            "typology (BCM Resolution 2025-series)."
+        ),
+        "red_flags": (
+            "Pattern matches AMLC published typology for Business-Email-Compromise / "
+            "Investment-Scam mule activity: rapid in-and-out, near-pass-through retention, "
+            "consistent counterparty name suggestive of advance-fee fraud, layering through "
+            "two VASPs and a P2P recipient. Customer's declared profile (BPO agent, PHP 28k "
+            "monthly) is grossly inconsistent with PHP 350k flows in 5 days. Counterparty "
+            "'Investment Recovery Specialist Inc' is unregistered with SEC and matches the "
+            "naming pattern in AMLC's 2025 BCM-victim mule advisory."
+        ),
+        "analyst_notes": (
+            "EDD initiated 2026-04-13 by EMI's compliance team. Customer outreach via "
+            "in-app secure message: customer stated the transfers were 'helping a friend "
+            "recover money she lost to investors' but could not name the friend, the "
+            "platform, or the original investment vehicle. Customer not aware that her "
+            "wallet may be used in a layering chain (typical mule-victim profile). Tipping-"
+            "off considerations under AMLA s.9(c)(2) shaped the wording of the EDD request — "
+            "no reference to STR or AMLC was made. AMLC Resolution series on BCM-investment "
+            "scams applies; Recommend STR + temporary EMI wallet hold per BSP Circular 1108 "
+            "freeze provisions + customer financial-literacy referral. Cross-flag the two "
+            "VASP recipient wallets to peer institutions via AMLC information-sharing."
+        ),
+    },
+    "Philippines (AMLC) — POGO casino chip-walking": {
+        "customer_name": "Mr Liu Wei",
+        "customer_id": "POGO-PH-2026-04-CUST-7218",
+        "customer_kyc": (
+            "PRC national, Hong Kong-resident, regular guest at a PAGCOR-licensed integrated "
+            "resort in Entertainment City, Manila. Declared occupation: 'business consultant'. "
+            "Source-of-funds declared: 'business proceeds and personal savings'. KYC: PRC "
+            "passport, HK ID. Casino enrolled customer at junket-promoter referral level. "
+            "Prior visits 2025: average chip purchase USD 80,000 per visit; play patterns "
+            "consistent with declared profile."
+        ),
+        "transactions": (
+            "2026-04-12 (Visit 1, IRR-A) | USD 320,000 chip purchase | cash + USD wire from HK | minimal play (~30 min)\n"
+            "2026-04-12 (Visit 1, IRR-A) | USD 305,000 chip redemption | requested manager's cheque payable to HK-incorporated trading company\n"
+            "2026-04-13 (Visit 2, IRR-B same operator) | USD 280,000 chip purchase | cash | minimal play\n"
+            "2026-04-13 (Visit 2, IRR-B) | USD 270,000 chip redemption | wire to BVI account\n"
+            "2026-04-14 (Visit 3, IRR-A) | USD 350,000 chip purchase | wire from HK | minimal play\n"
+            "2026-04-14 (Visit 3, IRR-A) | USD 340,000 chip redemption | wire to Cambodia account\n"
+            "Total: USD 950,000 cycled through 72 hours; 95% retention loss on play of <2%."
+        ),
+        "alert_reason": (
+            "Classic chip-walking / cross-property redemption pattern; minimal play with "
+            "<3% loss; redemption proceeds payable to multiple offshore third parties; "
+            "patterns inconsistent with prior 2025 visit profile."
+        ),
+        "red_flags": (
+            "Three-visit pattern over 72 hours showing consistent chip-walk: large purchase, "
+            "minimal play, near-full redemption to a different offshore third party each "
+            "time. Cross-property redemption via two IRRs operated by the same parent group — "
+            "matches AMLC and PAGCOR-published casino layering typology. Redemption "
+            "destinations (HK trading company, BVI, Cambodia) suggestive of layering through "
+            "multiple jurisdictions. No business or personal connection between the customer "
+            "and any of the three redemption beneficiaries declared. Junket-promoter referral "
+            "tier known to be associated with cross-border layering activity per AMLC "
+            "intelligence shared with PAGCOR licensees."
+        ),
+        "analyst_notes": (
+            "Surveillance and AML compliance teams at both IRR-A and IRR-B coordinated review "
+            "on 2026-04-15 once the cross-property pattern surfaced via the operator's "
+            "consolidated player-tracking system. EDD requested: source-of-funds documentation "
+            "for the three chip-purchase deposits and business rationale for each of the three "
+            "third-party redemption beneficiaries. Customer declined to provide source-of-funds "
+            "documentation, citing 'commercial confidentiality'. AMLC casino reporting "
+            "obligations under the Casino IRR apply; the Casino is an independent reporting "
+            "entity to AMLC. Recommend STR + customer no-future-service tagging at both IRRs + "
+            "junket-promoter relationship review + AMLC Resolution series filing of the "
+            "redemption-beneficiary names for inter-licensee circulation. Tipping-off "
+            "compliance under AMLA s.9(c)(2) maintained throughout."
+        ),
+    },
+
+    # ===== Indonesia (PPATK) =====
+    "Indonesia (PPATK)": {
+        "customer_name": "Bapak Andi Wijaya",
+        "customer_id": "OJK-BU-ID-2026-04-CUST-9914",
+        "customer_kyc": (
+            "Indonesian national, Jakarta-resident retail customer of a tier-1 Bank Umum. "
+            "Declared occupation: civil servant (PNS) at a regional government office in "
+            "South Sulawesi. Declared monthly salary: IDR 12,000,000. Account opened "
+            "2023-03; activity through end-2025 consistent with salary deposit, regular "
+            "household and family transfers, modest savings. Risk rating: Medium (PEP-"
+            "adjacent — local government official with procurement signing authority); "
+            "EDD review last completed Q2 2025."
+        ),
+        "transactions": (
+            "2026-04-05 | IDR 1,250,000,000 inbound | BI-FAST from PT Karya Mandiri (construction company) | reference 'consulting fee'\n"
+            "2026-04-06 | IDR 380,000,000 outbound | BI-FAST to private brokerage account (customer's spouse, also OJK-licensed)\n"
+            "2026-04-07 | IDR 410,000,000 outbound | BI-FAST to OVO wallet (customer's adult child)\n"
+            "2026-04-08 | IDR 215,000,000 outbound | wire to Singapore-based investment account (customer's individual offshore account)\n"
+            "2026-04-10 | IDR 240,000,000 outbound | property-developer escrow account (Jakarta)\n"
+            "Total: IDR 1.245bn dispersed within 5 days against declared profile of IDR 12m/month salary."
+        ),
+        "alert_reason": (
+            "Inbound flow ~100x declared monthly income within 5 days; counterparty PT Karya "
+            "Mandiri is a regional construction contractor with awarded contracts at the "
+            "customer's signing-authority office; fan-out layering pattern matches PPATK "
+            "Tipologi KKN (corruption-proceeds layering)."
+        ),
+        "red_flags": (
+            "Inbound IDR 1.25bn from PT Karya Mandiri — public procurement records show "
+            "this contractor was awarded tender T-2026-038 by the customer's office on "
+            "2026-03-28. Reference 'consulting fee' is implausible given customer's role "
+            "as awarding authority (conflict-of-interest at minimum, gratification offence "
+            "at worst per UU Tipikor 1999 / 2001). Subsequent fan-out layering across spouse, "
+            "child, offshore investment account, and a property escrow — classic UU TPPU "
+            "Article 2 corruption-proceeds layering pattern documented in PPATK Tipologi KKN. "
+            "Customer's PEP-adjacent risk rating triggered the bank's transaction-monitoring "
+            "rule for procurement-counterparty inflows; EDD threshold breached on the "
+            "first inbound."
+        ),
+        "analyst_notes": (
+            "Bank's compliance function escalated to *Pejabat Penanggung Jawab APU-PPT* on "
+            "2026-04-09 after BI-FAST monitoring rule fired on Day 1. EDD initiated: "
+            "documentation requested for the consulting engagement underlying PT Karya "
+            "Mandiri's IDR 1.25bn payment, including signed engagement letter, scope of "
+            "work, deliverables. Customer produced a brief unsigned MoU dated 2026-03-15 "
+            "(post-tender award) and could not articulate deliverables when asked. "
+            "Tipping-off compliance under UU TPPU 2010 Article 12 maintained — EDD "
+            "communication did not reference LTKM or PPATK. UU TPPU 2010 Article 2 "
+            "predicate offence(s): corruption / KKN. Parallel KPK interest highly likely "
+            "given the public-procurement nexus. Recommend LTKM filing to PPATK via GRIPS + "
+            "internal hold on remaining customer funds + flag spouse and adult-child "
+            "accounts for connected-party EDD + escalate to bank's Group Head of FCC for "
+            "consideration of formal customer-relationship termination subject to UU TPPU "
+            "tipping-off restrictions. PPATK ordinarily channels KKN cases to KPK via "
+            "PPATK-direct disclosure rather than the bank disclosing to KPK."
+        ),
+    },
+    "Indonesia (PPATK) — Crypto Pedagang Aset Kripto mule": {
+        "customer_name": "Ms Siti Nurhaliza",
+        "customer_id": "BAPPEBTI-PAK-ID-2026-04-CUST-4072",
+        "customer_kyc": (
+            "Indonesian national, Surabaya-resident retail customer of a Bappebti-registered "
+            "crypto-asset trader (Pedagang Aset Kripto — PAK). Declared occupation: online "
+            "marketplace seller. Declared monthly turnover: IDR 18,000,000. Account opened "
+            "2025-11; previous activity consistent with small Tokocrypto / Indodax buys "
+            "(~IDR 2-5m / month). Risk rating: Low at onboarding, no PEP, no sanctions hit."
+        ),
+        "transactions": (
+            "2026-04-15 | IDR 480,000,000 inbound | OVO wallet from 'Asuransi Konsultan Pemulihan' (unverified counterparty)\n"
+            "2026-04-15 | IDR 470,000,000 USDT purchase | on-ramp via Pedagang Aset Kripto\n"
+            "2026-04-15 | 31,000 USDT outbound | TRC-20 to external wallet (Cambodia exchange-cluster KYT hit)\n"
+            "2026-04-17 | IDR 520,000,000 inbound | DANA wallet from same 'Asuransi Konsultan Pemulihan'\n"
+            "2026-04-17 | IDR 510,000,000 USDT purchase | on-ramp via Pedagang Aset Kripto\n"
+            "2026-04-17 | 33,500 USDT outbound | TRC-20 to second Cambodia-cluster wallet\n"
+            "Total: IDR 1bn in / out via crypto on-ramp + off-ramp in 3 days; <1% retention."
+        ),
+        "alert_reason": (
+            "Inbound flow ~55x declared monthly turnover within 3 days; near-pass-through "
+            "retention; off-ramp destination wallets KYT-tagged to Cambodia-cluster "
+            "investment-scam off-ramp ring; counterparty matches PPATK Tipologi BCM "
+            "investment-scam mule pattern."
+        ),
+        "red_flags": (
+            "Pattern matches PPATK Tipologi BCM investment-scam mule profile: rapid "
+            "in-then-out via PAK, near-zero retention, off-ramp destinations matching KYT "
+            "vendor tags for Cambodia-based scam-cluster wallets (KYT vendor: Chainalysis "
+            "+ TRM Labs cross-confirmation). Counterparty 'Asuransi Konsultan Pemulihan' "
+            "(literally 'Insurance Recovery Consultant') unregistered with OJK; naming "
+            "pattern matches PPATK 2026 advisory on advance-fee / recovery-scam mule "
+            "recruitment via OJK-unregulated 'asuransi' branded entities. Customer's "
+            "declared profile (online marketplace seller, IDR 18m/month) grossly "
+            "inconsistent with IDR 1bn in 3 days. Two separate e-wallet on-ramp channels "
+            "(OVO, DANA) used for same flow — consistent with mule cross-channel layering."
+        ),
+        "analyst_notes": (
+            "PAK's compliance function flagged via the Chainalysis KYT alert on the first "
+            "TRC-20 outbound (Cambodia-cluster KYT score 87). EDD initiated 2026-04-18: "
+            "customer unable to explain source of inbound flows, named 'Asuransi Konsultan "
+            "Pemulihan' but could not produce contracts, invoices, or contact details. "
+            "Customer appeared confused — typical mule-victim profile (recruitment via "
+            "Telegram / WhatsApp 'easy money' messaging). Tipping-off compliance under "
+            "UU TPPU 2010 Article 12 maintained throughout EDD. UU TPPU 2010 Article 2 "
+            "predicate offences: fraud + cybercrime + transnational money laundering. "
+            "Recommend LTKM to PPATK via GRIPS + customer wallet hold + customer "
+            "financial-literacy referral + flag the two Cambodia-cluster destination "
+            "wallets to peer PAKs via Bappebti and PPATK information-sharing channels. "
+            "Cross-flag OVO / DANA wallet IDs that funded the on-ramps for connected-party "
+            "EDD by the originating e-money issuers under PBI 23/6/PBI/2021 obligations."
+        ),
+    },
 }
 
 # Default sample for fallback (when jurisdiction not yet in SAMPLE_CASES)
@@ -1054,6 +1340,8 @@ FILING_PORTALS = {
     "Singapore (STRO)": ("SONAR (Singapore Police Force)", "https://eservices.police.gov.sg/sonar"),
     "Hong Kong (JFIU)": ("STREAMS (JFIU)", "https://www.jfiu.gov.hk/en/str_what.html"),
     "Malaysia (FIED)": ("FINS (BNM AML/CFT portal)", "https://amlcft.bnm.gov.my/"),
+    "Philippines (AMLC)": ("AMLC Portal", "https://www.amlc.gov.ph/"),
+    "Indonesia (PPATK)": ("GRIPS (PPATK reporting portal)", "https://www.ppatk.go.id/"),
     "Australia (AUSTRAC SMR)": ("AUSTRAC Online", "https://online.austrac.gov.au/"),
 }
 

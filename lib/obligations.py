@@ -648,6 +648,248 @@ def _seed_obligations() -> list[Obligation]:
         ),
 
         # ===================================================================
+        # PHILIPPINES (AMLC)
+        # ===================================================================
+        Obligation(
+            title="AMLA s.9 / AMLC Registration — STR + CTR continuous filing",
+            description=(
+                "Continuous obligation to file Suspicious Transaction Reports "
+                "and Covered Transaction Reports with AMLC within 5 working "
+                "days of suspicion / threshold breach. STR threshold: "
+                "reasonable ground to suspect. CTR threshold: PHP 500,000 "
+                "single-day cash."
+            ),
+            jurisdiction="Philippines (AMLC)",
+            statute_or_notice=(
+                "AMLA RA 9160 s.9 + AMLA-IRR Rule 9 + BSP Circular 1022"
+            ),
+            due_date="2026-12-31",
+            status="In progress",
+            owner="Compliance Officer / MLRO",
+            notes=(
+                "Continuous obligation tracked via STR + CTR governance KPI: "
+                "median alert-to-filing latency target ≤5 working days; CTR "
+                "completeness reconciled monthly against branch cash logs."
+            ),
+            full_text=(
+                "Section 9 of the Anti-Money Laundering Act of 2001 (RA 9160, "
+                "as amended) imposes the core STR and CTR filing obligations on "
+                "all covered persons. The STR obligation is continuous and "
+                "crystallises when the institution has reasonable ground to "
+                "suspect that a transaction relates to one of the predicate "
+                "offences listed in s.3(i). The CTR obligation is bright-line: "
+                "any single-day cash transaction at PHP 500,000 or above must "
+                "be reported.\n\n"
+                "Reports are filed to AMLC via the AMLC Portal. Designated "
+                "Compliance Officers / MLROs are accountable. The 5-working-"
+                "day filing window applies to both STR and CTR (AMLA-IRR "
+                "Rule 9.1).\n\n"
+                "Failure to file is sanctionable under AMLA s.14 — administrative "
+                "fines per violation per day plus criminal penalties for "
+                "officers found responsible. Late filings are treated as "
+                "non-compliant unless a documented systems-failure exception "
+                "applies.\n\n"
+                "BSP Circular 1022 reinforces the obligation for BSP-supervised "
+                "institutions and adds expectations on transaction-monitoring "
+                "rule effectiveness, EDD on PEPs and high-risk customers, and "
+                "AML compliance officer independence. The compliance officer "
+                "reports the STR filing-latency dashboard to the board "
+                "quarterly."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. The 31 December year-end deadline shown "
+                "here is a tracking anchor for the annual STR + CTR governance "
+                "KPI: zero AMLA s.9 timeliness exceptions outstanding at year-"
+                "end, and CTR-completeness reconciliation closed."
+            ),
+            evidence=(
+                "AMLC Portal submission log; STR + CTR reference numbers; "
+                "alert-to-filing latency dashboard; CTR-vs-branch-cash-log "
+                "reconciliation; tipping-off log (zero entries expected); "
+                "compliance officer quarterly board pack."
+            ),
+            source_url="https://www.amlc.gov.ph/",
+        ),
+        Obligation(
+            title="BSP Circular 1022 — annual AML/CFT independent compliance check",
+            description=(
+                "Annual independent compliance check of the AML/CFT programme "
+                "by Internal Audit or accredited external auditor; findings "
+                "reported to the BSP-mandated AML/CFT Committee and the board."
+            ),
+            jurisdiction="Philippines (AMLC)",
+            statute_or_notice="BSP Circular 1022 + BSP MORB Part 9",
+            due_date="2026-12-31",
+            status="Open",
+            owner="Head of Internal Audit + MLRO",
+            notes=(
+                "BSP examiners increasingly probe sample selection methodology "
+                "and the rigour of EDD-on-PEP testing. Coordinate scope with "
+                "AML/CFT Committee in Q1."
+            ),
+            full_text=(
+                "BSP Circular 1022 (the *Updated Anti-Money Laundering / "
+                "Combating the Financing of Terrorism Regulations*) requires "
+                "BSP-supervised financial institutions to subject their AML/CFT "
+                "programme to independent compliance checking on a regular "
+                "basis. Industry practice — confirmed by BSP supervisory "
+                "expectations — is annual.\n\n"
+                "Scope must cover the framework end-to-end: customer due "
+                "diligence including beneficial-ownership identification, "
+                "ongoing monitoring rule effectiveness, screening (sanctions, "
+                "PEP, adverse media), STR and CTR filing governance, training "
+                "adequacy, MLRO independence, and record-keeping (5-year "
+                "retention).\n\n"
+                "Independence is a BSP focus. Internal Audit may perform the "
+                "check provided it has not designed or operated any of the "
+                "controls being tested. Where Internal Audit lacks specialist "
+                "capability (e.g. KYT for VASP-licensed institutions, EDD "
+                "testing for high-net-worth private banking), external "
+                "co-source is expected.\n\n"
+                "Findings, management response and remediation plan are "
+                "tabled at the AML/CFT Committee and the board. Open items "
+                "carry into the BSP supervisory examination cycle."
+            ),
+            deadline_explanation=(
+                "Annual. BSP supervises on a calendar-year basis. Audit "
+                "fieldwork typically completes by 30 November so the report "
+                "lands at the December AML/CFT Committee and board meeting. "
+                "The 31 December year-end deadline reflects this practical "
+                "anchor."
+            ),
+            evidence=(
+                "Independent compliance check engagement letter; risk-based "
+                "audit plan; sample selection methodology; testing workpapers; "
+                "report to AML/CFT Committee and board; minute extracts; "
+                "remediation tracker."
+            ),
+            source_url="https://www.bsp.gov.ph/SitePages/Regulations/AML.aspx",
+        ),
+
+        # ===================================================================
+        # INDONESIA (PPATK)
+        # ===================================================================
+        Obligation(
+            title="UU TPPU 2010 Article 23 — LTKM continuous filing (3-day window)",
+            description=(
+                "Continuous obligation to file LTKM (Suspicious Financial "
+                "Transaction Reports) with PPATK via GRIPS within 3 working "
+                "days of suspicion crystallisation. Tipping-off prohibited "
+                "under Article 12."
+            ),
+            jurisdiction="Indonesia (PPATK)",
+            statute_or_notice=(
+                "UU TPPU 2010 Article 23 + POJK 12/POJK.01/2017 + PPATK Head Reg series"
+            ),
+            due_date="2026-12-31",
+            status="In progress",
+            owner="Pejabat Penanggung Jawab APU-PPT (MLRO equivalent)",
+            notes=(
+                "Continuous obligation tracked via LTKM governance KPI: median "
+                "alert-to-filing latency target ≤3 working days; tighter "
+                "window than SG / HK / MY peers."
+            ),
+            full_text=(
+                "Article 23 of Law No. 8 of 2010 on Prevention and Eradication "
+                "of Money Laundering Crimes (UU TPPU) imposes the core LTKM "
+                "filing obligation on all *Pihak Pelapor* (reporting parties). "
+                "The obligation is continuous and crystallises when the "
+                "institution knows or has reasonable suspicion that a "
+                "transaction relates to one of the predicate offences listed "
+                "in Article 2.\n\n"
+                "Reports are filed to PPATK via GRIPS (Gathering Reports & "
+                "Information Processing System) within 3 working days. This "
+                "window is materially shorter than peer jurisdictions (5 days "
+                "in SG and PH, 'as soon as practicable' in HK and MY) and "
+                "drives Indonesian banks to invest in same-day MLRO triage "
+                "capacity.\n\n"
+                "Article 12 prohibits *Pihak Pelapor* and its officers from "
+                "disclosing the existence of an LTKM to the *Pengguna Jasa* "
+                "(customer). Article 27 prescribes criminal penalties "
+                "(imprisonment up to 5 years and/or fines up to IDR 1 billion) "
+                "for officers found responsible for non-filing or for "
+                "tipping-off.\n\n"
+                "POJK 12/POJK.01/2017 and PBI 23/6/PBI/2021 layer additional "
+                "transaction-monitoring, EDD-on-PEP, and customer-due-"
+                "diligence expectations onto the underlying UU TPPU "
+                "obligation."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. The 31 December year-end deadline "
+                "shown here is the annual KPI tracking anchor: zero UU TPPU "
+                "Article 23 timeliness exceptions outstanding at year-end."
+            ),
+            evidence=(
+                "GRIPS submission log; LTKM reference numbers; alert-to-filing "
+                "latency dashboard (3-day target); tipping-off log (zero "
+                "entries); MLRO quarterly board pack; reconciliation against "
+                "PPATK acknowledgements."
+            ),
+            source_url="https://www.ppatk.go.id/",
+        ),
+        Obligation(
+            title="POJK 12/POJK.01/2017 — annual AML/CFT programme review + audit",
+            description=(
+                "Annual review of the AML/CFT programme by Internal Audit "
+                "with findings to the Risk Oversight Committee and the Board "
+                "of Commissioners. Independent assurance on CDD, monitoring, "
+                "screening, LTKM governance, training."
+            ),
+            jurisdiction="Indonesia (PPATK)",
+            statute_or_notice=(
+                "POJK 12/POJK.01/2017 (as amended) + Surat Edaran OJK related"
+            ),
+            due_date="2026-12-31",
+            status="Open",
+            owner="Internal Audit + Pejabat Penanggung Jawab APU-PPT",
+            notes=(
+                "Coordinate with Risk Oversight Committee on testing scope by "
+                "end-Q1. OJK examiners focus on EDD-on-PEP rigour and BI-FAST "
+                "transaction-monitoring rule effectiveness."
+            ),
+            full_text=(
+                "POJK 12/POJK.01/2017 (Penerapan Program Anti Pencucian Uang "
+                "dan Pencegahan Pendanaan Terorisme di Sektor Jasa Keuangan), "
+                "as amended, is the foundational AML/CFT regulation for OJK-"
+                "supervised financial institutions in Indonesia. It mandates "
+                "annual independent review of the institution's AML/CFT "
+                "programme.\n\n"
+                "Scope is end-to-end: institutional risk assessment; CDD "
+                "(including beneficial-ownership *Pemilik Manfaat* "
+                "identification under PPATK Head Regulation requirements); "
+                "EDD on PEPs, foreign customers, and customers in higher-"
+                "risk sectors; transaction monitoring including BI-FAST and "
+                "RTGS rule effectiveness; screening (sanctions, PEP, adverse "
+                "media); LTKM and LTKT governance; training; record-keeping "
+                "(5-year retention); MLRO independence.\n\n"
+                "Independent Audit reports findings to the Risk Oversight "
+                "Committee (RoC) and the Board of Commissioners (Dewan "
+                "Komisaris). The two-tier governance structure means the "
+                "Board of Commissioners must record active engagement with "
+                "the findings rather than pro forma acknowledgement.\n\n"
+                "OJK examination teams routinely sample-test the audit "
+                "workpapers as part of their supervisory examination, with "
+                "particular focus on whether the testing of EDD-on-PEP and "
+                "the rigour of transaction-monitoring rule calibration are "
+                "robust."
+            ),
+            deadline_explanation=(
+                "Annual. OJK supervises on a calendar-year basis. Audit "
+                "fieldwork typically completes by 30 November so the report "
+                "lands at the December RoC / Board of Commissioners meeting. "
+                "The 31 December year-end deadline reflects this practical "
+                "anchor."
+            ),
+            evidence=(
+                "Risk-based audit plan (RoC-approved); sample selection "
+                "methodology; testing workpapers; Internal Audit report; "
+                "RoC + Dewan Komisaris minute extracts; remediation tracker; "
+                "OJK supervisory examination response file."
+            ),
+            source_url="https://www.ojk.go.id/",
+        ),
+
+        # ===================================================================
         # AUSTRALIA (AUSTRAC SMR)
         # ===================================================================
         Obligation(
