@@ -890,6 +890,238 @@ def _seed_obligations() -> list[Obligation]:
         ),
 
         # ===================================================================
+        # JAPAN (JAFIC)
+        # ===================================================================
+        Obligation(
+            title="APTCP Act Article 8 — STR continuous filing (without delay)",
+            description=(
+                "Continuous obligation to file Suspicious Transaction Reports "
+                "with JAFIC without delay (ichihaku-naku) once suspicion is "
+                "formed. Tipping-off prohibited under Article 8(3)."
+            ),
+            jurisdiction="Japan (JAFIC)",
+            statute_or_notice=(
+                "APTCP Act Article 8 + FSA Inspection Manual + Cabinet Order"
+            ),
+            due_date="2026-12-31",
+            status="In progress",
+            owner="Hōkoku Sekinin-sha (designated AML reporter)",
+            notes=(
+                "Continuous obligation. Median STR filing latency target: 30 "
+                "days from internal escalation. JAFIC publishes Sankō Jirei "
+                "(reference cases) annually; align internal red-flag library."
+            ),
+            full_text=(
+                "Article 8(1) of the Act on Prevention of Transfer of Criminal "
+                "Proceeds (APTCP Act) imposes the core STR filing obligation on "
+                "every Tokutei Jigyōsha (specified business operator). The "
+                "obligation is continuous and crystallises when the institution "
+                "has suspicion that the transaction relates to criminal proceeds "
+                "under the Sotaihō or Mayaku tokurei-hō predicate offence "
+                "framework.\n\n"
+                "Reports are filed to JAFIC (within the National Police Agency) "
+                "via the JAFIC online portal. The standard is 'without delay' "
+                "(ichihaku-naku) — for FSA-supervised institutions, supervisory "
+                "expectations target median filing within 30 days of internal "
+                "MLRO determination, with same-day filing for high-risk "
+                "patterns.\n\n"
+                "Article 8(3) prohibits disclosure of the STR to the customer "
+                "or to any unauthorised party. Articles 25-26 prescribe "
+                "administrative fines up to JPY 1 million and criminal "
+                "penalties (imprisonment up to 6 months and/or fines up to "
+                "JPY 500,000) for officers found responsible for non-filing "
+                "or for tipping-off.\n\n"
+                "FSA-supervised institutions additionally face supervisory "
+                "expectations from the FSA AML/CFT Inspection Manual on STR "
+                "governance — quarterly MLRO review, tipping-off log "
+                "(zero entries), and reconciliation against JAFIC "
+                "acknowledgements."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. The 31 December year-end deadline "
+                "shown here is the annual KPI tracking anchor: zero APTCP "
+                "Article 8 timeliness exceptions outstanding at year-end."
+            ),
+            evidence=(
+                "JAFIC online-portal submission log; STR reference numbers; "
+                "alert-to-filing latency dashboard (30-day target); "
+                "tipping-off log (zero entries); MLRO quarterly board pack; "
+                "FSA inspection-readiness file."
+            ),
+            source_url="https://www.npa.go.jp/sosikihanzai/jafic/",
+        ),
+        Obligation(
+            title="FSA AML/CFT Inspection Manual — annual independent review",
+            description=(
+                "Annual independent review of the AML/CFT programme by Internal "
+                "Audit or external auditor, with findings reported to the board "
+                "(*torishimari-yakukai*) and the FSA-mandated AML committee."
+            ),
+            jurisdiction="Japan (JAFIC)",
+            statute_or_notice="FSA AML/CFT Inspection Manual + APTCP Act",
+            due_date="2026-12-31",
+            status="Open",
+            owner="Internal Audit + Hōkoku Sekinin-sha",
+            notes=(
+                "FSA inspections post-2022 have probed the rigour of "
+                "tokushu-sagi mule-victim transaction-monitoring. Coordinate "
+                "scope with audit committee in Q2."
+            ),
+            full_text=(
+                "The FSA AML/CFT Inspection Manual obliges FSA-supervised "
+                "financial institutions to conduct an annual independent review "
+                "of their AML/CFT programme. Scope includes: institutional "
+                "risk assessment; CDD (Honnin Tokutei Jikō Kakunin); enhanced "
+                "due diligence on PEPs and high-risk customers; ongoing "
+                "monitoring rule effectiveness with specific testing of "
+                "tokushu-sagi mule-victim red-flag indicators; sanctions and "
+                "PEP screening; STR governance and JAFIC reconciliation; "
+                "training; record-keeping (7-year retention under APTCP Act).\n\n"
+                "The reviewer must be independent of the function being "
+                "reviewed. Internal Audit may perform the review provided it "
+                "has not designed or operated any of the controls being "
+                "tested. External co-source is expected for specialist "
+                "scope (e.g., crypto-asset exchange service provider AML/CFT, "
+                "trade-finance sanctions screening).\n\n"
+                "Findings are reported to the board (torishimari-yakukai) and "
+                "any FSA-mandated AML committee. Open items at year-end are "
+                "tracked through to closure and disclosed in the bank's FSA "
+                "supervisory examination response."
+            ),
+            deadline_explanation=(
+                "Annual. Most Japanese financial institutions follow a "
+                "March-end fiscal year. Audit fieldwork typically completes "
+                "by January-February so the report can be tabled at the "
+                "March board meeting. The 31 December deadline shown here "
+                "reflects the standard FSA-aligned calendar-year review "
+                "anchor for foreign-bank branches and FSA-supervised "
+                "institutions on a December year-end."
+            ),
+            evidence=(
+                "Independent review charter; risk-based audit plan; sample "
+                "selection methodology; testing workpapers; board minute "
+                "extracts; FSA inspection-response file; remediation tracker."
+            ),
+            source_url="https://www.fsa.go.jp/en/laws_regulations/index.html",
+        ),
+
+        # ===================================================================
+        # KOREA (KoFIU)
+        # ===================================================================
+        Obligation(
+            title="FTRA Article 4 — STR continuous filing obligation",
+            description=(
+                "Continuous obligation to file Suspicious Transaction Reports "
+                "with KoFIU without delay (jichae-eobsi) once reasonable "
+                "suspicion is formed. Tipping-off prohibited under FTRA "
+                "Article 12."
+            ),
+            jurisdiction="Korea (KoFIU)",
+            statute_or_notice="FTRA Article 4 + FTRA Enforcement Decree + FSC Notice",
+            due_date="2026-12-31",
+            status="In progress",
+            owner="Junseo Tamdang Imja (designated Compliance Officer)",
+            notes=(
+                "Continuous obligation. Median STR filing latency target: 30 "
+                "days. KoFIU publishes quarterly Sangye Sarye (suspicious-"
+                "pattern case examples); align internal red-flag library."
+            ),
+            full_text=(
+                "Article 4 of the Act on Reporting and Use of Specific "
+                "Financial Transaction Information (FTRA) imposes the core "
+                "STR filing obligation on every Bogo Gigwan (reporting "
+                "institution). The obligation is continuous and crystallises "
+                "when the institution has reasonable suspicion that a "
+                "transaction relates to a predicate offence under the Act on "
+                "Regulation and Punishment of Concealment of Criminal "
+                "Proceeds, that the customer's identity may be false, or "
+                "that the transaction may be related to terrorism financing.\n\n"
+                "Reports are filed to KoFIU via the electronic reporting "
+                "system. 'Without delay' (jichae-eobsi) is the standard; "
+                "industry practice targets within 30 days for routine STRs "
+                "and immediate filing for terrorism-financing-suspected "
+                "transactions.\n\n"
+                "Article 12 prohibits disclosure of the STR to the customer "
+                "or to any unauthorised party. Articles 17-18 prescribe "
+                "administrative fines up to KRW 30 million and criminal "
+                "penalties (imprisonment up to 1 year and/or fines up to "
+                "KRW 10 million) for officers found responsible. The 2021 "
+                "amendments substantially raised penalties for VASPs.\n\n"
+                "CTR (Currency Transaction Report) for cash transactions ≥ "
+                "KRW 10 million in a single banking day is filed automatically "
+                "and separately. STR is filed in addition where suspicion "
+                "exists; both obligations apply."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. The 31 December year-end deadline "
+                "shown here is the annual KPI tracking anchor: zero FTRA "
+                "Article 4 timeliness exceptions outstanding at year-end."
+            ),
+            evidence=(
+                "KoFIU electronic-reporting submission log; STR reference "
+                "numbers; alert-to-filing latency dashboard; tipping-off "
+                "log (zero entries); Compliance Officer quarterly board "
+                "pack; FSC/FSS inspection-response file."
+            ),
+            source_url="https://www.kofiu.go.kr/",
+        ),
+        Obligation(
+            title="FSC Supervisory Regulation — annual AML/CFT independent audit",
+            description=(
+                "Annual independent audit of the AML/CFT programme covering "
+                "CDD, EDD, transaction monitoring, sanctions screening, STR "
+                "governance, and training. Findings reported to the board "
+                "and Audit Committee."
+            ),
+            jurisdiction="Korea (KoFIU)",
+            statute_or_notice=(
+                "FSC Supervisory Regulation on AML/CFT + FSS Inspection Manual"
+            ),
+            due_date="2026-12-31",
+            status="Open",
+            owner="Internal Audit + Junseo Tamdang Imja",
+            notes=(
+                "FSS inspections post-2021 emphasise voice-phishing "
+                "transaction-monitoring rule effectiveness. Coordinate "
+                "scope with Audit Committee in Q1."
+            ),
+            full_text=(
+                "FSC Supervisory Regulations and the FSS Inspection Manual "
+                "require FSC/FSS-supervised financial institutions to "
+                "conduct annual independent audits of their AML/CFT "
+                "programmes. Scope must cover: institutional risk "
+                "assessment; CDD and EDD; ongoing transaction monitoring "
+                "with specific testing of voice-phishing-mule and BCM-"
+                "investment-scam-mule pattern detection; sanctions and PEP "
+                "screening; STR + CTR governance and KoFIU reconciliation; "
+                "VASP-specific FTRA Article 5-2 obligations where applicable "
+                "(travel-rule data exchange, high-risk wallet screening); "
+                "training; record-keeping.\n\n"
+                "Independence is a FSS supervisory expectation. Internal "
+                "Audit may perform the audit provided it has not designed "
+                "or operated any of the controls being tested. External "
+                "co-source is expected for VASP testing and complex sanctions "
+                "exposure (DPRK / North Korea nexus).\n\n"
+                "Findings are reported to the Audit Committee and the "
+                "board. Open items carry into the FSS supervisory inspection "
+                "cycle. The 2021 FTRA amendments raised the bar for VASP "
+                "audits significantly."
+            ),
+            deadline_explanation=(
+                "Annual. FSC supervises on a calendar-year basis. Audit "
+                "fieldwork typically completes by November so the report "
+                "lands at the December board / Audit Committee meeting. "
+                "The 31 December deadline reflects this practical anchor."
+            ),
+            evidence=(
+                "Audit Committee-approved audit plan; testing workpapers; "
+                "audit report; board minute extract; remediation tracker; "
+                "FSS supervisory examination response file."
+            ),
+            source_url="https://www.fsc.go.kr/eng/",
+        ),
+
+        # ===================================================================
         # AUSTRALIA (AUSTRAC SMR)
         # ===================================================================
         Obligation(
@@ -1050,6 +1282,127 @@ def _seed_obligations() -> list[Obligation]:
                 "endorsement of the report before lodgement."
             ),
             source_url="https://www.austrac.gov.au/business/how-comply-and-report-guidance-and-resources/reporting/compliance-reports",
+        ),
+
+        # ===================================================================
+        # NEW ZEALAND (FIU NZ)
+        # ===================================================================
+        Obligation(
+            title="AML/CFT Act 2009 s.40 — SAR continuous filing (3 working days)",
+            description=(
+                "Continuous obligation to file Suspicious Activity Reports "
+                "with FIU NZ via goAML as soon as practicable, and in any "
+                "event within 3 working days, after suspicion is formed. "
+                "Tipping-off prohibited under s.46."
+            ),
+            jurisdiction="New Zealand (FIU NZ)",
+            statute_or_notice=(
+                "AML/CFT Act 2009 s.40 + AML/CFT Regulations + RBNZ/FMA/DIA "
+                "Sectoral Guidance"
+            ),
+            due_date="2026-12-31",
+            status="In progress",
+            owner="AML/CFT Compliance Officer (s.56 nominee)",
+            notes=(
+                "Continuous obligation. 3-working-day window is one of the "
+                "tighter peer windows (with Indonesia at 3 days). FIU NZ "
+                "publishes Quarterly Typology Reports — align internal "
+                "red-flag library."
+            ),
+            full_text=(
+                "Section 40 of the Anti-Money Laundering and Countering "
+                "Financing of Terrorism Act 2009 imposes the core SAR "
+                "filing obligation on every reporting entity. The threshold "
+                "is reasonable grounds to suspect that a transaction or "
+                "activity is or may be relevant to the investigation or "
+                "prosecution of money laundering, terrorism financing, drug "
+                "trafficking, or any offence punishable by 12+ months' "
+                "imprisonment.\n\n"
+                "Reports are filed via goAML, the UNODC platform deployed "
+                "by FIU NZ. The standard is 'as soon as practicable' and in "
+                "any event within 3 working days (AML/CFT Regulations).\n\n"
+                "Section 46 prohibits disclosure of the SAR to the customer "
+                "or to any unauthorised party. Sections 91-93 prescribe "
+                "civil and criminal penalties: up to NZD 200,000 for "
+                "natural persons and NZD 2 million for body corporates "
+                "(civil); up to 2 years' imprisonment and/or NZD 300,000 / "
+                "NZD 5 million (criminal).\n\n"
+                "Prescribed Transaction Reports (PTRs) are a separate "
+                "obligation: cash transactions ≥ NZD 10,000 and "
+                "international wire transfers ≥ NZD 1,000 are reported via "
+                "goAML on a near-real-time basis (operational standard "
+                "10 working days, but supervisors expect faster). PTRs do "
+                "not substitute for SARs where suspicion exists."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. The 31 December year-end deadline "
+                "shown here is the annual KPI tracking anchor: zero "
+                "AML/CFT Act s.40 timeliness exceptions outstanding at "
+                "year-end and PTR-completeness reconciliation closed."
+            ),
+            evidence=(
+                "goAML SAR + PTR submission log; reference numbers; "
+                "alert-to-filing latency dashboard (3-working-day target); "
+                "tipping-off log (zero entries); AML/CFT Compliance Officer "
+                "quarterly board pack; supervisor (RBNZ / FMA / DIA) "
+                "inspection-response file."
+            ),
+            source_url="https://www.police.govt.nz/about-us/structure/teams-and-units/financial-intelligence-unit",
+        ),
+        Obligation(
+            title="AML/CFT Act 2009 s.59 — biennial independent audit",
+            description=(
+                "Biennial independent audit of the AML/CFT programme — "
+                "scope, control effectiveness, training, governance — by "
+                "Internal Audit, external auditor, or qualified consultant. "
+                "Findings to senior management and the supervisor."
+            ),
+            jurisdiction="New Zealand (FIU NZ)",
+            statute_or_notice="AML/CFT Act 2009 s.59 + AML/CFT Regulations",
+            due_date="2026-12-31",
+            status="Open",
+            owner="Internal Audit + AML/CFT Compliance Officer",
+            notes=(
+                "Biennial cadence under s.59 — but most reporting entities "
+                "elect annual cycle to align with the AML/CFT Annual Report "
+                "(s.60). RBNZ / FMA / DIA inspections expect either way."
+            ),
+            full_text=(
+                "Section 59 of the AML/CFT Act 2009 requires every "
+                "reporting entity to ensure its AML/CFT programme is "
+                "audited at least every 2 years. The audit must be "
+                "carried out by an appropriately qualified person who is "
+                "independent of the function being audited. Internal "
+                "Audit may perform the audit provided it has not designed "
+                "or operated any of the controls being tested.\n\n"
+                "Scope must cover the full AML/CFT programme: institutional "
+                "risk assessment; CDD and EDD; ongoing monitoring; PTR + "
+                "SAR governance with goAML reconciliation; sanctions and "
+                "PEP screening; training; record-keeping. Sectoral "
+                "supervisor expectations (RBNZ for banks/NBDTs/life "
+                "insurers; FMA for FMA-supervised entities; DIA for casinos / "
+                "remittance / DNFBPs) layer on additional testing focus.\n\n"
+                "Audit findings are reported to senior management; "
+                "supervisors expect the audit report to be provided on "
+                "request and are entitled under the Act to require its "
+                "production. The s.60 Annual Report (separate obligation) "
+                "incorporates the auditor's findings."
+            ),
+            deadline_explanation=(
+                "Biennial minimum. Most reporting entities elect annual "
+                "audit cycle to align with the s.60 Annual Report (due "
+                "31 August each year for entities with March balance "
+                "date, 30 November for June balance date, etc.). The 31 "
+                "December anchor reflects the calendar-year supervisory "
+                "examination cycle."
+            ),
+            evidence=(
+                "Audit charter / engagement letter; risk-based audit plan; "
+                "sample selection; testing workpapers; audit report; "
+                "remediation tracker; supervisor's audit-report request "
+                "file."
+            ),
+            source_url="https://www.legislation.govt.nz/act/public/2009/0035/latest/whole.html",
         ),
     ]
     save_obligations(seeds)

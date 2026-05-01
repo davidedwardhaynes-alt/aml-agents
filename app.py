@@ -210,7 +210,10 @@ RUBRICS = {
     "Malaysia (FIED)": ROOT / "rubrics" / "fiedstr.md",
     "Philippines (AMLC)": ROOT / "rubrics" / "amlcstr.md",
     "Indonesia (PPATK)": ROOT / "rubrics" / "ppatkstr.md",
+    "Japan (JAFIC)": ROOT / "rubrics" / "jaficstr.md",
+    "Korea (KoFIU)": ROOT / "rubrics" / "kofiustr.md",
     "Australia (AUSTRAC SMR)": ROOT / "rubrics" / "austracsmr.md",
+    "New Zealand (FIU NZ)": ROOT / "rubrics" / "nzfiustr.md",
 }
 GUIDANCE = {
     "Singapore (STRO)": ROOT / "guidance" / "sg-stro.md",
@@ -218,7 +221,10 @@ GUIDANCE = {
     "Malaysia (FIED)": ROOT / "guidance" / "my-fied.md",
     "Philippines (AMLC)": ROOT / "guidance" / "ph-amlc.md",
     "Indonesia (PPATK)": ROOT / "guidance" / "id-ppatk.md",
+    "Japan (JAFIC)": ROOT / "guidance" / "jp-jafic.md",
+    "Korea (KoFIU)": ROOT / "guidance" / "kr-kofiu.md",
     "Australia (AUSTRAC SMR)": ROOT / "guidance" / "au-austrac.md",
+    "New Zealand (FIU NZ)": ROOT / "guidance" / "nz-fiu.md",
 }
 JURISDICTION_LABEL = {
     "Singapore (STRO)": "Singapore",
@@ -226,7 +232,10 @@ JURISDICTION_LABEL = {
     "Malaysia (FIED)": "Malaysia",
     "Philippines (AMLC)": "Philippines",
     "Indonesia (PPATK)": "Indonesia",
+    "Japan (JAFIC)": "Japan",
+    "Korea (KoFIU)": "Korea",
     "Australia (AUSTRAC SMR)": "Australia",
+    "New Zealand (FIU NZ)": "New Zealand",
 }
 JURISDICTION_AUTHORITIES = {
     "Singapore (STRO)": [
@@ -254,8 +263,24 @@ JURISDICTION_AUTHORITIES = {
         {"abbr": "OJK", "name": "Otoritas Jasa Keuangan"},
         {"abbr": "BI", "name": "Bank Indonesia"},
     ],
+    "Japan (JAFIC)": [
+        {"abbr": "JAFIC", "name": "Japan Financial Intelligence Center"},
+        {"abbr": "FSA", "name": "Financial Services Agency"},
+        {"abbr": "BOJ", "name": "Bank of Japan"},
+    ],
+    "Korea (KoFIU)": [
+        {"abbr": "KoFIU", "name": "Korea Financial Intelligence Unit"},
+        {"abbr": "FSC", "name": "Financial Services Commission"},
+        {"abbr": "FSS", "name": "Financial Supervisory Service"},
+    ],
     "Australia (AUSTRAC SMR)": [
         {"abbr": "AUSTRAC", "name": "AUS Transaction Reports & Analysis Centre"},
+    ],
+    "New Zealand (FIU NZ)": [
+        {"abbr": "FIU NZ", "name": "Financial Intelligence Unit (NZ Police)"},
+        {"abbr": "RBNZ", "name": "Reserve Bank of New Zealand"},
+        {"abbr": "FMA", "name": "Financial Markets Authority"},
+        {"abbr": "DIA", "name": "Department of Internal Affairs"},
     ],
 }
 
@@ -369,6 +394,47 @@ ENTITY_CATEGORIES = {
         "Precious metals / stones dealer — PPATK direct",
         "Automotive dealer — PPATK direct",
     ],
+    "Japan (JAFIC)": [
+        "— Select —",
+        "City bank (megabank — Mitsubishi UFJ, Mizuho, Sumitomo Mitsui, Resona)",
+        "Regional bank — first-tier (e.g. Bank of Yokohama, Chiba Bank)",
+        "Regional bank — second-tier (Daini-chigin)",
+        "Shinkin bank (cooperative regional bank)",
+        "Shinyo kumiai (credit cooperative)",
+        "Securities firm — Type I FIBO (e.g. Nomura, Daiwa, SMBC Nikko)",
+        "Investment management firm — Type II FIBO",
+        "Life insurer (Seimei Hoken)",
+        "Non-life insurer (Songai Hoken)",
+        "Money lender (Shōhi-sha kinyū / consumer finance)",
+        "Crypto-asset exchange service provider (Anshō Kōkan-gyōsha — FSA-registered)",
+        "Funds-transfer service provider (Shikin Idō-gyōsha)",
+        "Prepaid payment-instrument issuer (above threshold)",
+        "Real estate agent — METI-supervised",
+        "Dealer in precious metals / stones (Kikinzoku-shōnin)",
+        "Attorney (Bengoshi) — DNFBP captured activities",
+        "Judicial scrivener (Shihō shoshi) — DNFBP",
+        "Certified public accountant (Kōnin kaikei-shi) — DNFBP",
+        "Tax accountant (Zeirishi) — DNFBP",
+        "Trust / corporate-service provider (TCSP)",
+    ],
+    "Korea (KoFIU)": [
+        "— Select —",
+        "Commercial bank (시중은행 — KB, Shinhan, Hana, Woori, NH)",
+        "Foreign-bank branch (Korea office)",
+        "Special bank (특수은행 — IBK, KEB Hana, KDB)",
+        "Mutual savings bank (저축은행)",
+        "Securities firm (증권회사)",
+        "Asset management company (자산운용회사)",
+        "Investment trust company",
+        "Life insurer (생명보험)",
+        "Non-life insurer (손해보험)",
+        "Credit-card / capital company (여신전문금융회사)",
+        "E-money issuer / electronic-payment service provider (전자지급결제대행업)",
+        "Virtual asset service provider (가상자산사업자 — FTRA-registered, e.g. Upbit, Bithumb, Coinone, Korbit)",
+        "Casino — Kangwon Land / Paradise / Grand Korea Leisure",
+        "Notary (한정 captured activities)",
+        "Lawyer (한정 captured activities)",
+    ],
     "Australia (AUSTRAC SMR)": [
         "— Select —",
         "Authorised deposit-taking institution (ADI) — major bank",
@@ -385,6 +451,24 @@ ENTITY_CATEGORIES = {
         "Accountant / conveyancer (Tranche 2 — from 2026)",
         "Real estate agent (Tranche 2 — from 2026)",
         "Precious metals dealer (Tranche 2 — from 2026)",
+    ],
+    "New Zealand (FIU NZ)": [
+        "— Select —",
+        "Registered bank (RBNZ-supervised — ANZ, ASB, BNZ, Westpac, Kiwibank)",
+        "Non-bank deposit taker (NBDT) — RBNZ-supervised",
+        "Life insurer — RBNZ-supervised",
+        "Issuer / fund manager — FMA-supervised",
+        "Derivatives issuer — FMA-supervised",
+        "Financial advice provider — FMA-supervised",
+        "Custodian / DIMS provider — FMA-supervised",
+        "Equity crowdfunding / P2P lending service — FMA-supervised",
+        "Casino (DIA-supervised — SkyCity, Christchurch, Dunedin, Hamilton, Queenstown)",
+        "Money remitter / currency exchange — DIA-supervised",
+        "Lawyer / conveyancer (DNFBP — DIA-supervised)",
+        "Accountant (DNFBP — DIA-supervised, captured activities)",
+        "Real estate agent (DNFBP — DIA-supervised)",
+        "Dealer in high-value goods (DHVG — cash ≥ NZD 10,000)",
+        "Trust / corporate service provider (TCSP) — DIA-supervised",
     ],
 }
 
@@ -445,6 +529,21 @@ SAMPLE_LIBRARY = {
         "Pedagang Aset Kripto — BCM investment-scam mule": (
             "Indonesia (PPATK) — Crypto Pedagang Aset Kripto mule",
             "Indonesia (PPATK) — Crypto Pedagang Aset Kripto mule",
+        ),
+    },
+    "Japan (JAFIC)": {
+        "City bank — tokushu sagi mule layering": (
+            "Japan (JAFIC)", "Japan (JAFIC)",
+        ),
+    },
+    "Korea (KoFIU)": {
+        "Commercial bank — voice phishing mule + VASP layering": (
+            "Korea (KoFIU)", "Korea (KoFIU)",
+        ),
+    },
+    "New Zealand (FIU NZ)": {
+        "Real estate (DIA-DNFBP) — Auckland cash buyer": (
+            "New Zealand (FIU NZ)", "New Zealand (FIU NZ)",
         ),
     },
     "Australia (AUSTRAC SMR)": {
@@ -1158,6 +1257,185 @@ SAMPLE_CASES = {
             "EDD by the originating e-money issuers under PBI 23/6/PBI/2021 obligations."
         ),
     },
+
+    # ===== Japan (JAFIC) =====
+    "Japan (JAFIC)": {
+        "customer_name": "Mr Tanaka Hiroshi",
+        "customer_id": "FSA-CB-JP-2026-04-CUST-58217",
+        "customer_kyc": (
+            "Japanese national, Tokyo-resident retail customer of a city bank "
+            "(megabank — Mitsubishi UFJ-class). Declared occupation: retired "
+            "company employee. Declared monthly pension income: JPY 280,000. "
+            "Account opened 2018; activity through end-2025 consistent with "
+            "pension deposit, household payments, and modest term-deposit "
+            "rotations. Risk rating: Standard (no PEP, no foreign-resident "
+            "trigger). Honnin Tokutei Jikō Kakunin (identity verification) "
+            "via My Number Card on file."
+        ),
+        "transactions": (
+            "2026-04-12 | inbound JPY 4,200,000 cash | over-counter deposit at branch | customer stated 'savings'\n"
+            "2026-04-12 | outbound JPY 4,150,000 | Zengin wire to 'recovery support firm' (unverified counterparty) | customer counter to teller queries\n"
+            "2026-04-15 | inbound JPY 3,800,000 cash | over-counter deposit (different branch) | customer stated 'savings'\n"
+            "2026-04-15 | outbound JPY 3,750,000 | Zengin wire to a second 'consulting firm' counterparty\n"
+            "2026-04-19 | inbound JPY 5,100,000 cash | over-counter deposit (third branch) | customer agitated, declined to detail purpose\n"
+            "2026-04-19 | outbound JPY 5,050,000 | Zengin wire to a third counterparty"
+        ),
+        "alert_reason": (
+            "Inbound cash 50x declared monthly pension across 7 days; rapid in-and-out "
+            "with Zengin transfers to three unrelated 'recovery / consulting' firm "
+            "counterparties; customer cycling across branches; pattern matches the "
+            "JAFIC tokushu sagi (specialised fraud) mule-victim typology."
+        ),
+        "red_flags": (
+            "Pattern matches JAFIC's *tokushu sagi* / *ore-ore* refund-scam mule-victim "
+            "typology — elderly customer recruited by phone caller posing as 'tax-refund "
+            "specialist' or 'It's me' relative needing emergency funds; customer is the "
+            "victim, not the bad actor. Branch-rotation strongly suggestive of caller "
+            "coaching to evade single-branch pattern recognition. Counterparty firms — "
+            "'recovery support', 'consulting' — match published JAFIC reference cases. "
+            "Customer's distressed demeanour and inability to explain the purpose of "
+            "transfers is a typical victim-recognition red flag."
+        ),
+        "analyst_notes": (
+            "Bank's transaction-monitoring rule fired on the second cash-deposit-then-"
+            "Zengin-transfer cycle. Branch staff escalated to MLRO function on 2026-04-15. "
+            "Customer outreach 2026-04-19 (after third cycle): customer initially evasive, "
+            "eventually disclosed receiving phone calls from a person claiming to be a "
+            "'tax bureau official' arranging a refund that required upfront payment of "
+            "'processing fees'. Customer was not aware these were fraud transfers. "
+            "Tipping-off compliance under APTCP Article 8(3) maintained — no reference "
+            "to STR or JAFIC in initial customer communications. After customer "
+            "recognition, branch initiated a victim-protection conversation in "
+            "coordination with police. APTCP Act Article 8 STR obligation applies. "
+            "Recommend STR + temporary account hold + customer-protection coordination "
+            "with NPA *tokushu sagi* prevention unit + flag the three counterparty "
+            "Zengin destination accounts to JBA inter-bank intelligence channel. "
+            "JAFIC published reference cases on tokushu sagi mule-victim layering."
+        ),
+    },
+
+    # ===== Korea (KoFIU) =====
+    "Korea (KoFIU)": {
+        "customer_name": "Ms Kim Min-ji",
+        "customer_id": "FSC-CB-KR-2026-04-CUST-71803",
+        "customer_kyc": (
+            "Korean national, Seoul-resident retail customer of a tier-1 commercial "
+            "bank (Shinhan / KB-class). Declared occupation: office worker. Declared "
+            "monthly salary: KRW 3,800,000. Account opened 2022; activity through "
+            "end-2025 consistent with salary deposit, household payments, KakaoPay / "
+            "NaverPay e-wallet top-ups. Risk rating: Standard. Goegaek Hwakin "
+            "(customer verification) via RRN + Driver Licence on file."
+        ),
+        "transactions": (
+            "2026-04-08 | inbound KRW 18,000,000 | KFTC retail wire from 'Investment Recovery Center Inc' (unverified) | reference 'compensation refund'\n"
+            "2026-04-08 | outbound KRW 17,800,000 | KRW-USDT on-ramp via Upbit (FTRA-registered VASP)\n"
+            "2026-04-09 | outbound 12,800 USDT | TRC-20 to external wallet (Cambodia-cluster KYT score 91)\n"
+            "2026-04-11 | inbound KRW 22,000,000 | KFTC retail wire from same 'Investment Recovery Center Inc'\n"
+            "2026-04-11 | outbound KRW 21,750,000 | KRW-USDT on-ramp via Bithumb (FTRA-registered VASP)\n"
+            "2026-04-11 | outbound 15,800 USDT | TRC-20 to second Cambodia-cluster wallet"
+        ),
+        "alert_reason": (
+            "Inbound flow ~10x declared monthly salary in 4 days; near-pass-through "
+            "retention; KRW-to-USDT on-ramp at two different FTRA-registered VASPs; "
+            "destination wallets KYT-tagged to Cambodia-cluster scam-off-ramp ring; "
+            "matches KoFIU voice-phishing-victim mule typology."
+        ),
+        "red_flags": (
+            "Pattern matches KoFIU published *Sangye Sarye* (suspicious-pattern case) "
+            "for voice-phishing (*boishu pishing*) victim mule activity: rapid in-and-"
+            "out via VASP, near-zero retention, destinations tagged to Cambodia "
+            "scam-cluster off-ramp wallets (Chainalysis + TRM Labs cross-confirmation). "
+            "Counterparty 'Investment Recovery Center Inc' unregistered with FSC; naming "
+            "pattern matches recent KoFIU advisory on advance-fee / recovery-scam mule "
+            "recruitment. Customer's declared profile (office worker, KRW 3.8m / month) "
+            "grossly inconsistent with KRW 40m in 4 days. Use of two separate "
+            "FTRA-registered VASPs (Upbit + Bithumb) consistent with mule cross-"
+            "platform layering pattern."
+        ),
+        "analyst_notes": (
+            "Bank's transaction-monitoring rule fired on the first VASP on-ramp on "
+            "2026-04-08. KoFIU's 2024 *Sangye Sarye* case set #2024-07 (Cambodia-"
+            "cluster voice-phishing layering) flagged a near-identical fact pattern. "
+            "Bank's *Junseo Tamdang Imja* (Compliance Officer) initiated EDD on "
+            "2026-04-09: customer described receiving phone calls from someone "
+            "claiming to be a 'prosecutor' investigating an alleged identity-theft "
+            "case requiring 'temporary fund relocation for safekeeping'. Customer "
+            "was unaware of being a victim of voice-phishing fraud. Tipping-off "
+            "compliance under FTRA Article 12 maintained. FTRA Article 4 STR "
+            "obligation applies; predicate offence: voice phishing under the "
+            "Special Act on Voice Phishing + transnational money laundering. "
+            "Recommend STR to KoFIU + temporary account hold + customer-protection "
+            "coordination with FSS investor-protection bureau and Korean National "
+            "Police Agency cyber bureau + flag the two destination wallet IDs to "
+            "Upbit + Bithumb for cross-VASP travel-rule data exchange + parallel "
+            "engagement with the Special Act on Voice Phishing rapid-freeze "
+            "framework. Cambodia-cluster off-ramp wallets cross-flagged to KoFIU "
+            "for international-cooperation channels with Cambodia FIU."
+        ),
+    },
+
+    # ===== New Zealand (FIU NZ) =====
+    "New Zealand (FIU NZ)": {
+        "customer_name": "Pacific Sunrise Holdings Ltd",
+        "customer_id": "DIA-RE-NZ-2026-04-CUST-2104",
+        "customer_kyc": (
+            "NZ-incorporated company, registered Auckland, beneficial owner declared "
+            "as Mr Wei Liu (Chinese national, no NZ residency, Hong Kong primary "
+            "address). Declared business activity: 'investment company'. NZBN obtained "
+            "2026-02. Account-equivalent relationship is with a DIA-supervised "
+            "Auckland real-estate agency (the reporting entity). Standard CDD under "
+            "AML/CFT Act s.14 conducted at engagement; EDD under s.22 triggered at "
+            "purchase price + cross-border-funds source."
+        ),
+        "transactions": (
+            "2026-04-08 | Buyer-side purchase agreement signed | Mosman-style Remuera waterfront residence | NZD 9,800,000\n"
+            "2026-04-12 | Initial deposit NZD 980,000 | wire from HK-based 'family office' account (not in customer's name) | source-of-funds documentation requested\n"
+            "2026-04-15 | Settlement scheduled | balance NZD 8,820,000 to settle via solicitor's trust account\n"
+            "2026-04-15 | EDD documentation requested but not produced | customer counsel cited 'commercial confidentiality of source-of-wealth'\n"
+            "2026-04-18 | PTR (NZD 1,000+ international wire) filed for 980k deposit; SAR consideration triggered"
+        ),
+        "alert_reason": (
+            "Auckland waterfront purchase 18% above CoreLogic comparable; deposit wire "
+            "from non-customer-name 'family office' in Hong Kong; UBO chain has "
+            "undocumented 'family wealth from agriculture' source-of-wealth claim; "
+            "EDD source-of-funds documentation declined. Pattern matches FIU NZ "
+            "Auckland real-estate cash-buyer typology."
+        ),
+        "red_flags": (
+            "Customer is a NZ shell company incorporated 2 months before purchase, "
+            "with foreign-resident UBO. Deposit funded from a third-party HK 'family "
+            "office' account, not the customer's or the UBO's named account. UBO's "
+            "declared source of wealth — 'family wealth from agriculture' — produced "
+            "no supporting documentation (bank statements, tax records, sale-of-"
+            "business records). Purchase price 18% above recent CoreLogic comparable "
+            "for Remuera waterfront properties. Customer counsel's invocation of "
+            "'commercial confidentiality' for source-of-wealth is a recognised "
+            "FIU NZ red-flag indicator under the Auckland real-estate-cash-buyer "
+            "typology. Pattern matches FIU NZ 2025 *Quarterly Typology Report* on "
+            "high-value-property layering via NZ-incorporated shell."
+        ),
+        "analyst_notes": (
+            "Real-estate agency is DIA-supervised under the AML/CFT Act 2009. "
+            "Standard CDD on the customer (NZ-incorporated company with foreign UBO) "
+            "triggered s.22 EDD given the high-value-property + cross-border-funds "
+            "+ recent-incorporation profile. EDD documentation requests met with "
+            "non-cooperation. Solicitor (also a DIA-supervised reporting entity) "
+            "received the trust-account settlement instructions and identified "
+            "parallel red flags under their own AML/CFT programme. PTR filed for "
+            "the 980k deposit (international wire ≥ NZD 1,000 threshold). "
+            "Tipping-off compliance under s.46 maintained throughout — customer "
+            "communications referenced only standard CDD requirements. Crimes Act "
+            "s.243 money-laundering offence and Tax Administration Act tax-evasion "
+            "offence are the most likely predicate offence anchors. Recommend SAR "
+            "to FIU NZ via goAML within the 3-working-day window + suspension of "
+            "the agency's involvement in the transaction (subject to commercial "
+            "and contractual considerations) + flag the HK 'family office' "
+            "originator account to the agency's correspondent bank for inter-"
+            "institution intelligence. Coordinated SAR with the customer's "
+            "solicitor expected. FIU NZ's *Quarterly Typology Reports* reference "
+            "this pattern in the Auckland-Queenstown high-value-property series."
+        ),
+    },
 }
 
 # Default sample for fallback (when jurisdiction not yet in SAMPLE_CASES)
@@ -1352,7 +1630,10 @@ FILING_PORTALS = {
     "Malaysia (FIED)": ("FINS (BNM AML/CFT portal)", "https://amlcft.bnm.gov.my/"),
     "Philippines (AMLC)": ("AMLC Portal", "https://www.amlc.gov.ph/"),
     "Indonesia (PPATK)": ("GRIPS (PPATK reporting portal)", "https://www.ppatk.go.id/"),
+    "Japan (JAFIC)": ("JAFIC online portal (NPA)", "https://www.npa.go.jp/sosikihanzai/jafic/"),
+    "Korea (KoFIU)": ("KoFIU electronic reporting (FSC)", "https://www.kofiu.go.kr/"),
     "Australia (AUSTRAC SMR)": ("AUSTRAC Online", "https://online.austrac.gov.au/"),
+    "New Zealand (FIU NZ)": ("goAML (FIU NZ Police)", "https://www.police.govt.nz/about-us/structure/teams-and-units/financial-intelligence-unit"),
 }
 
 st.set_page_config(
