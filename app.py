@@ -4499,6 +4499,14 @@ with tab_news:
                             f"font-size:11px;font-weight:600;'>"
                             f"~{max(1, pod.duration_seconds // 60)} min  ·  OpenAI alloy</span>"
                         )
+                    elif _voice.startswith("edge:dialogue"):
+                        badge = (
+                            "<span style='background:rgba(52,199,89,0.12);"
+                            "color:#1B5E20;padding:2px 8px;border-radius:980px;"
+                            f"font-size:11px;font-weight:600;'>"
+                            f"~{max(1, pod.duration_seconds // 60)} min  ·  "
+                            f"Two-host conversation (Ryan + Sonia, free)</span>"
+                        )
                     elif _voice.startswith("edge"):
                         badge = (
                             "<span style='background:rgba(52,199,89,0.12);"

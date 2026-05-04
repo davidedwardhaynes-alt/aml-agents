@@ -37,12 +37,32 @@ OPENAI_TTS_ENDPOINT = "https://api.openai.com/v1/audio/speech"
 OPENAI_TTS_MODEL = "gpt-4o-mini-tts"
 OPENAI_TTS_VOICE = "alloy"  # warm, neutral; works for SG/HK MLRO audience
 
-PODCAST_SYSTEM_PROMPT = """You are the daily host of AML Agents Briefing, a 3 to 5 minute \
-audio show for MLROs, heads of financial crime compliance, AML supervisors, and senior \
-compliance leaders across the Asia-Pacific region. Your voice is closest to Financial Times \
-audio briefings, Bloomberg Surveillance, and The Indicator from Planet Money. \
-Authoritative, conversational, specific. No marketing fluff. No hedging where facts are clear. \
-No words like "shocking" or "groundbreaking."
+PODCAST_SYSTEM_PROMPT = """You are the writer for AML Agents Briefing, a 4 to 6 minute \
+two-host conversation podcast for MLROs, heads of financial crime compliance, AML \
+supervisors, and senior compliance leaders across the Asia-Pacific region. Voice is \
+closest to NPR's *The Indicator from Planet Money*, *FT News Briefing*, and *Bloomberg \
+Surveillance Daybreak Asia*. Authoritative, conversational, specific. No marketing fluff. \
+No hedging where facts are clear. No words like "shocking" or "groundbreaking."
+
+TWO HOSTS — the script is a dialogue between two co-hosts:
+
+ALEX is the lead host. Voice: UK male, broadcast-style, authoritative. Drives the \
+agenda. Introduces each story. Frames the regulatory significance.
+
+JORDAN is the practitioner co-host. Voice: UK female, warm, sharp. Translates \
+regulatory developments into operational implications for the listener. Asks Alex \
+follow-up questions to draw out detail. Provides the action items.
+
+FORMAT — the script MUST use these EXACT speaker tags, one per turn, on a new line:
+
+ALEX: [Alex's spoken line]
+JORDAN: [Jordan's spoken line]
+
+Use the speaker tags ONLY at the start of a turn. Do not write "ALEX says" or "JORDAN \
+asks" inside narration. The tag is the dialogue prefix; everything after the colon is \
+literal spoken text. Each turn is one or more sentences. Aim for natural exchange — \
+short rejoinders ("Right, and...", "That's the key point.", "So what should listeners \
+do?") interleaved with longer explanatory turns.
 
 CRITICAL — this script is read aloud by a text-to-speech engine, so:
 - Write only what should be spoken. Do not include any markdown, bullet points, \
@@ -81,26 +101,31 @@ exchanges Upbit, Bithumb, Coinone, and Korbit" rather than relying on commas alo
 - Read each sentence aloud in your head before writing the next. If it sounds \
 choppy, rewrite it.
 
-Flow (deliver as continuous prose, no headings):
-1. Open with a brief framing line that orients the listener. Always say, in the first \
-sentence or two, that this is an audio overview of today's most material APAC AML and \
-financial-crime developments, and direct the listener to amlagents dot streamlit dot app \
-for the underlying detail, full obligation register, news sources, and horizon scanning. \
-Then move directly into the single most material item of the day. The whole opening \
-should fit inside the first 25 seconds.
-2. Spend 60 to 90 seconds on the highest-impact news story. Include its operational \
-implication for the listener.
-3. Spend 30 to 45 seconds each on two further stories, with natural transitions.
-4. Close with 30 seconds of forward-looking what-to-watch content tied to an upcoming \
-deadline or horizon item.
-5. Sign off naturally. In the sign-off, repeat the prompt to visit amlagents dot \
-streamlit dot app for full detail and the obligation register.
+Flow (deliver as a dialogue alternating ALEX and JORDAN turns, no headings):
+1. ALEX opens with the welcome and frames the day. He says this is an audio overview of \
+today's most material APAC AML and financial-crime developments, and directs the listener \
+to amlagents dot streamlit dot app for the underlying detail, full obligation register, \
+news sources, and horizon scanning. JORDAN comes in with a short reaction ("Big day, \
+Alex.") and previews the agenda. The whole opening should fit inside the first 30 seconds.
+2. ALEX introduces the highest-impact news story. JORDAN asks at least one follow-up \
+question, then summarises the operational implication for listeners. Total 90-120 seconds \
+across 6-10 alternating turns.
+3. ALEX transitions to the second story; JORDAN drives the action item. Total 45-60 \
+seconds across 4-6 alternating turns.
+4. JORDAN introduces the third story (so the agenda alternates lead); ALEX adds the \
+read-across. Total 45-60 seconds across 4-6 alternating turns.
+5. ALEX moves to forward-looking what-to-watch. JORDAN closes each segment with one \
+or two concrete next steps for the listener's coming week. 45-60 seconds.
+6. JORDAN signs off with the prompt to visit amlagents dot streamlit dot app for full \
+detail. ALEX adds the final word. Natural, friendly sign-off.
 
 ACTION ITEMS — this is a working briefing, not a news bulletin. The listener is an \
-MLRO, head of FCC, fraud lead, or AML supervisor with a busy morning. Every segment must \
-give them at least one concrete action, suggestion, or next step they can take today. \
-Be specific:
-- Reference the role you are addressing where it sharpens the action: "If you are the \
+MLRO, head of FCC, fraud lead, or AML supervisor with a busy morning. Every story \
+segment must give them at least one concrete action, suggestion, or next step they can \
+take today. JORDAN typically delivers the action items, prompted by a transition cue \
+from ALEX such as "So what should listeners do?" or "What's the read-across?". Be \
+specific:
+- Reference the role being addressed where it sharpens the action: "If you're the \
 MLRO at a virtual bank...", "For heads of fraud at an EMI...", "For AML/CTF compliance \
 officers running tranche-two readiness..."
 - Suggest a specific artefact or process: "convene your transaction-monitoring team \
@@ -112,11 +137,12 @@ ready for the December audit committee", "confirm your KYT vendor integration co
 both inbound and outbound flows."
 - For enforcement actions, draw the lesson: "the read-across for your bank is...", \
 "what regulators in your jurisdiction will look for next is..."
-- For the closing what-to-watch segment, end with two or three concrete next steps the \
-listener should take in the coming week.
+- For the closing what-to-watch segment, JORDAN names two or three concrete next steps \
+listeners should take in the coming week.
 
-Length: 700 to 1000 words (about 4 to 5.5 minutes spoken at 175 words per minute). \
-The action-items requirement adds roughly 100 to 150 words to the previous target. \
+Length: 900 to 1300 words total across both speakers (about 5 to 7 minutes spoken at \
+175 words per minute). MUST be at least 900 words. The dialogue-format and action-items \
+requirements add roughly 200 to 300 words over a single-host format. \
 Reference real regulatory frameworks (FATF Recommendations, MAS Notices, HKMA Guidelines, \
 the AMLA, the AML/CTF Act, Indonesia's Law Number 8 of 2010) with specificity. Use first \
 names and last initials for executives where appropriate.
@@ -184,15 +210,26 @@ def _scrub_for_tts(text: str) -> str:
     # Handle both surrounded-by-spaces and tight-bound forms.
     out = re.sub(r"\s*[—–]\s*", ", ", out)
 
-    # Line-leading bullet markers
-    out = re.sub(r"^[ \t]*[-*•][ \t]+", "", out, flags=re.MULTILINE)
+    # Line-leading bullet markers — skip lines starting with a SPEAKER:
+    # tag (we preserve those for the dialogue parser).
+    out = re.sub(
+        r"^(?![A-Z]+:)[ \t]*[-*•][ \t]+",
+        "",
+        out,
+        flags=re.MULTILINE,
+    )
 
     # Markdown headers
     out = re.sub(r"^#+[ \t]*", "", out, flags=re.MULTILINE)
 
-    # Numbered list prefixes "1." / "1)" — drop the prefix; the sentence
-    # itself usually carries the ordering naturally.
-    out = re.sub(r"^\s*\d+[.)][ \t]+", "", out, flags=re.MULTILINE)
+    # Numbered list prefixes "1." / "1)" — skip lines starting with
+    # SPEAKER: tag.
+    out = re.sub(
+        r"^(?![A-Z]+:)\s*\d+[.)][ \t]+",
+        "",
+        out,
+        flags=re.MULTILINE,
+    )
 
     # Strip asterisks used for emphasis (gTTS reads "asterisk")
     out = re.sub(r"\*+", "", out)
@@ -232,48 +269,118 @@ def _silent_mp3_bytes(seconds: int = 5) -> bytes:
     return frame * n_frames
 
 
+# Edge Neural voices — paired so they sound complementary in dialogue.
+EDGE_VOICE_ALEX = "en-GB-RyanNeural"   # UK male, lead host
+EDGE_VOICE_JORDAN = "en-GB-SoniaNeural"  # UK female, co-host
+
+# Map speaker tag → voice name. Extra aliases for robustness if Claude
+# slips into HOST/HOST-1 etc.
+SPEAKER_VOICES = {
+    "ALEX": EDGE_VOICE_ALEX,
+    "HOST": EDGE_VOICE_ALEX,
+    "HOST 1": EDGE_VOICE_ALEX,
+    "HOST1": EDGE_VOICE_ALEX,
+    "A": EDGE_VOICE_ALEX,
+    "JORDAN": EDGE_VOICE_JORDAN,
+    "CO-HOST": EDGE_VOICE_JORDAN,
+    "HOST 2": EDGE_VOICE_JORDAN,
+    "HOST2": EDGE_VOICE_JORDAN,
+    "J": EDGE_VOICE_JORDAN,
+    "B": EDGE_VOICE_JORDAN,
+}
+
+
+def _split_dialogue_turns(script: str) -> list[tuple[str, str]]:
+    """Parse a multi-speaker script into [(voice, text), ...].
+
+    Returns an empty list when the script doesn't contain any recognised
+    speaker tags — caller falls back to single-voice synthesis."""
+    import re
+
+    if not script:
+        return []
+
+    pattern = re.compile(
+        r"^[ \t]*([A-Z][A-Z0-9 \-_]{0,15}):[ \t]*",
+        flags=re.MULTILINE,
+    )
+    matches = list(pattern.finditer(script))
+    if not matches:
+        return []
+
+    turns: list[tuple[str, str]] = []
+    for i, m in enumerate(matches):
+        tag = m.group(1).upper().strip()
+        voice = SPEAKER_VOICES.get(tag)
+        if not voice:
+            continue
+        start = m.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(script)
+        text = script[start:end].strip()
+        if text:
+            turns.append((voice, text))
+    return turns
+
+
+async def _edge_tts_synthesize_one(text: str, voice: str) -> bytes:
+    """Render a single utterance via edge-tts. Returns raw MP3 bytes."""
+    import edge_tts  # type: ignore
+
+    communicate = edge_tts.Communicate(text=text, voice=voice)
+    chunks: list[bytes] = []
+    async for chunk in communicate.stream():
+        if chunk.get("type") == "audio":
+            chunks.append(chunk["data"])
+    return b"".join(chunks)
+
+
 def _synthesize_via_edge_tts(script: str) -> bytes | None:
     """Free natural-sounding TTS using Microsoft Edge's Azure Cognitive
     Services neural voices, via the `edge-tts` library. No API key
-    required; the same endpoint that powers Edge browser's read-aloud.
+    required; same endpoint that powers Edge browser's read-aloud.
 
-    Voice 'en-GB-RyanNeural' is a UK male broadcast voice — closest to
-    FT audio and Bloomberg Surveillance hosts in cadence and authority.
-    Far more natural than gTTS; close enough to OpenAI TTS for a daily
-    briefing that the demo can run on it indefinitely without paid
-    credits.
+    DIALOGUE MODE: when the script contains recognised speaker tags
+    (ALEX:, JORDAN:, HOST:, etc.), each turn is synthesised with its
+    own voice and the resulting MP3 streams are concatenated. The MP3
+    container format permits raw stream concat — every player handles
+    the result correctly.
 
-    Returns MP3 bytes or None if edge-tts isn't installed / the call
-    fails."""
+    SOLO MODE: when no speaker tags are present, the entire script is
+    rendered in en-GB-RyanNeural.
+
+    Returns MP3 bytes or None on failure."""
     if not script:
         return None
     try:
         import asyncio
-        import edge_tts  # type: ignore
+        import edge_tts  # noqa: F401 — import-presence check only
     except Exception:
         return None
-    try:
-        async def _run() -> bytes:
-            communicate = edge_tts.Communicate(
-                text=script,
-                voice="en-GB-RyanNeural",
-                # rate / volume / pitch tweaks could go here. Defaults
-                # produce a calm, broadcast-style delivery.
-            )
-            chunks: list[bytes] = []
-            async for chunk in communicate.stream():
-                if chunk.get("type") == "audio":
-                    chunks.append(chunk["data"])
-            return b"".join(chunks)
 
+    turns = _split_dialogue_turns(script)
+
+    async def _run_dialogue() -> bytes:
+        parts: list[bytes] = []
+        for voice, text in turns:
+            audio = await _edge_tts_synthesize_one(text, voice)
+            if audio:
+                parts.append(audio)
+        return b"".join(parts)
+
+    async def _run_solo() -> bytes:
+        return await _edge_tts_synthesize_one(script, EDGE_VOICE_ALEX)
+
+    coro = _run_dialogue() if turns else _run_solo()
+
+    try:
         try:
-            data = asyncio.run(_run())
+            data = asyncio.run(coro)
         except RuntimeError:
-            # In case we're already inside an event loop (e.g. Streamlit
-            # script-run context), fall back to a fresh loop.
+            # If we're inside an event loop (e.g. Streamlit script-run
+            # context), spin up a fresh loop.
             loop = asyncio.new_event_loop()
             try:
-                data = loop.run_until_complete(_run())
+                data = loop.run_until_complete(coro)
             finally:
                 loop.close()
         if not data or len(data) < 1024:
@@ -418,7 +525,15 @@ def _synthesize_audio(
     # 2. Free natural-voice fallback: Microsoft Edge Neural TTS
     edge_audio = _synthesize_via_edge_tts(script)
     if edge_audio:
-        return edge_audio, False, "edge:en-GB-RyanNeural"
+        # Distinguish dialogue (2 voices) from solo so the player badge
+        # can label correctly.
+        was_dialogue = bool(_split_dialogue_turns(script))
+        voice_tag = (
+            "edge:dialogue:Ryan+Sonia"
+            if was_dialogue
+            else "edge:en-GB-RyanNeural"
+        )
+        return edge_audio, False, voice_tag
 
     # 3. Free robotic-voice fallback: gTTS
     gtts_audio = _synthesize_via_gtts(script)
