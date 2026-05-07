@@ -51,6 +51,15 @@ jobs:
           if [ "${{ inputs.video_only }}" = "true" ]; then ARGS="$ARGS --video-only"; fi
           python scripts/generate_daily_briefing.py $ARGS
 
+      - name: Upload today's podcast to SoundCloud
+        # Skips silently when SOUNDCLOUD_* secrets aren't configured —
+        # cron stays green even before the user completes the OAuth bootstrap.
+        env:
+          SOUNDCLOUD_CLIENT_ID:     ${{ secrets.SOUNDCLOUD_CLIENT_ID }}
+          SOUNDCLOUD_CLIENT_SECRET: ${{ secrets.SOUNDCLOUD_CLIENT_SECRET }}
+          SOUNDCLOUD_REFRESH_TOKEN: ${{ secrets.SOUNDCLOUD_REFRESH_TOKEN }}
+        run: python scripts/upload_daily_podcast.py
+
       - name: Commit generated media
         run: |
           git config user.name "briefing-bot"

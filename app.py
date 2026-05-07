@@ -5168,6 +5168,26 @@ with tab_news:
                         "this URL — new episodes appear automatically each "
                         "morning."
                     )
+
+                    # SoundCloud status row — if today's sidecar carries a
+                    # soundcloud_url, surface it directly so listeners can
+                    # play / share / embed from SoundCloud.
+                    try:
+                        if pod and pod.sidecar_path.exists():
+                            _meta = json.loads(pod.sidecar_path.read_text())
+                            sc_url = _meta.get("soundcloud_url")
+                            if sc_url:
+                                st.markdown(
+                                    f"<div style='margin-top:0.6rem; "
+                                    f"font-size:0.82rem;'>"
+                                    f"🎧 <strong>SoundCloud:</strong> "
+                                    f"<a href='{sc_url}' target='_blank' "
+                                    f"rel='noopener noreferrer'>{sc_url}</a>"
+                                    f"</div>",
+                                    unsafe_allow_html=True,
+                                )
+                    except Exception:
+                        pass
             except Exception:
                 pass
 
