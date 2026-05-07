@@ -63,8 +63,14 @@ from lib.tasks import (
     update_task,
 )
 from lib.digest import build_digest as build_digest_payload
-from lib.podcast import latest_podcast as latest_podcast_meta
-from lib.video import latest_video as latest_video_meta
+from lib.podcast import (
+    latest_podcast as latest_podcast_meta,
+    recent_podcasts as recent_podcasts_meta,
+)
+from lib.video import (
+    latest_video as latest_video_meta,
+    recent_videos as recent_videos_meta,
+)
 from lib.obligations import (  # noqa: I001 — keep grouped for diff cleanliness
     reseed_obligations,
     STATUSES,
@@ -5035,12 +5041,16 @@ with tab_news:
                             f"~{max(1, pod.duration_seconds // 60)} min  ·  OpenAI alloy</span>"
                         )
                     elif _voice.startswith("edge:dialogue"):
+                        # Voice pair changed from Sonia → Libby on 2026-05-07.
+                        # Render the badge using the actual stored voice tag
+                        # so older sidecars still label correctly.
+                        pair = _voice.split(":")[-1] if ":" in _voice else "Ryan + Libby"
                         badge = (
                             "<span style='background:rgba(52,199,89,0.12);"
                             "color:#1B5E20;padding:2px 8px;border-radius:980px;"
                             f"font-size:11px;font-weight:600;'>"
                             f"~{max(1, pod.duration_seconds // 60)} min  ·  "
-                            f"Two-host conversation (Ryan + Sonia, free)</span>"
+                            f"Two-host conversation ({pair}, free)</span>"
                         )
                     elif _voice.startswith("edge"):
                         badge = (
@@ -5131,6 +5141,69 @@ with tab_news:
                         st.markdown(meta.get("script", "_(no script available)_"))
                     except Exception:
                         st.markdown("_(transcript unavailable)_")
+
+            # ----------------------------------------------------------
+            # Previous briefings — last 3 days under today's, so listeners
+            # can catch up on what they missed. Each row pairs the audio
+            # player with a video link (when the video MP4 has real
+            # content) and a transcript expander.
+            # ----------------------------------------------------------
+            recent_pods = recent_podcasts_meta(n=4)
+            recent_vids = recent_videos_meta(n=4)
+            vids_by_date = {v.date: v for v in recent_vids}
+            today_iso = dt.date.today().isoformat()
+            # Skip today's entry (already rendered above) and take the next 3.
+            prior = [p for p in recent_pods if p.date != today_iso][:3]
+
+            if prior:
+                st.markdown(
+                    "<div class='output-label' style='margin-top:1.5rem;'>"
+                    "Previous briefings</div>",
+                    unsafe_allow_html=True,
+                )
+                for prev in prior:
+                    with st.container(border=True):
+                        prev_v = vids_by_date.get(prev.date)
+                        prev_label = prev.title or f"AML Agents Briefing — {prev.date}"
+                        st.markdown(
+                            f"**{prev_label}**  &nbsp; "
+                            f"<span style='font-size:0.72rem;color:#6E6E73;'>"
+                            f"{prev.date}  ·  ~{max(1, prev.duration_seconds // 60)} min"
+                            f"</span>",
+                            unsafe_allow_html=True,
+                        )
+                        if prev.mp3_path.exists():
+                            try:
+                                with open(prev.mp3_path, "rb") as f:
+                                    st.audio(f.read(), format="audio/mp3")
+                            except Exception:
+                                st.caption("(audio file unreadable)")
+                        # Show a small transcript expander for each prior day
+                        with st.expander("Show transcript", expanded=False):
+                            try:
+                                pmeta = json.loads(prev.sidecar_path.read_text())
+                                st.markdown(
+                                    pmeta.get("script", "_(no script available)_")
+                                )
+                            except Exception:
+                                st.markdown("_(transcript unavailable)_")
+                        # Link to the matching video MP4, when one was generated
+                        # with real content (size > 0). Streamlit can't show
+                        # multiple inline videos efficiently, so the prior-day
+                        # videos are exposed as a download/open link.
+                        if (
+                            prev_v
+                            and prev_v.mp4_path.exists()
+                            and prev_v.mp4_path.stat().st_size > 0
+                        ):
+                            st.markdown(
+                                f"<div style='font-size:0.78rem; margin-top:0.4rem;'>"
+                                f"🎬 Video briefing for {prev.date} — "
+                                f"<a href='https://github.com/davidedwardhaynes-alt/aml-agents/raw/main/data/videos/{prev.date}.mp4' "
+                                f"target='_blank' rel='noopener noreferrer'>"
+                                f"download MP4 →</a></div>",
+                                unsafe_allow_html=True,
+                            )
 
     n_col1, n_col2, n_col3, n_col4 = st.columns([2, 2, 1, 1])
     with n_col1:

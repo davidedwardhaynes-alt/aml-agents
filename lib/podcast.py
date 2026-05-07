@@ -270,8 +270,13 @@ def _silent_mp3_bytes(seconds: int = 5) -> bytes:
 
 
 # Edge Neural voices — paired so they sound complementary in dialogue.
-EDGE_VOICE_ALEX = "en-GB-RyanNeural"   # UK male, lead host
-EDGE_VOICE_JORDAN = "en-GB-SoniaNeural"  # UK female, co-host
+# Voice picks tuned by user feedback:
+#   - 2026-05-07: SoniaNeural sounded "a bit flat", swapped to Libby which
+#     has a warmer, more conversational delivery while keeping en-GB.
+#   - Both voices get a small rate boost (+5%) for conversational pace.
+EDGE_VOICE_ALEX = "en-GB-RyanNeural"    # UK male, lead host
+EDGE_VOICE_JORDAN = "en-GB-LibbyNeural"  # UK female, co-host (warmer than Sonia)
+EDGE_RATE = "+6%"                        # slightly faster than default for both
 
 # Map speaker tag → voice name. Extra aliases for robustness if Claude
 # slips into HOST/HOST-1 etc.
@@ -287,6 +292,9 @@ SPEAKER_VOICES = {
     "HOST2": EDGE_VOICE_JORDAN,
     "J": EDGE_VOICE_JORDAN,
     "B": EDGE_VOICE_JORDAN,
+    # Legacy alias — earlier scripts used SoniaNeural for Jordan; we
+    # silently route any "SONIA" tag to the new voice.
+    "SONIA": EDGE_VOICE_JORDAN,
 }
 
 
@@ -323,10 +331,13 @@ def _split_dialogue_turns(script: str) -> list[tuple[str, str]]:
 
 
 async def _edge_tts_synthesize_one(text: str, voice: str) -> bytes:
-    """Render a single utterance via edge-tts. Returns raw MP3 bytes."""
+    """Render a single utterance via edge-tts. Returns raw MP3 bytes.
+
+    `rate` is set to EDGE_RATE on every utterance so both voices feel
+    conversationally paced rather than newsreader-flat."""
     import edge_tts  # type: ignore
 
-    communicate = edge_tts.Communicate(text=text, voice=voice)
+    communicate = edge_tts.Communicate(text=text, voice=voice, rate=EDGE_RATE)
     chunks: list[bytes] = []
     async for chunk in communicate.stream():
         if chunk.get("type") == "audio":
@@ -529,7 +540,7 @@ def _synthesize_audio(
         # can label correctly.
         was_dialogue = bool(_split_dialogue_turns(script))
         voice_tag = (
-            "edge:dialogue:Ryan+Sonia"
+            "edge:dialogue:Ryan+Libby"
             if was_dialogue
             else "edge:en-GB-RyanNeural"
         )
@@ -630,6 +641,25 @@ def latest_podcast() -> PodcastResult | None:
     if candidates:
         return _load_sidecar(candidates[0])
     return None
+
+
+def recent_podcasts(n: int = 4) -> list[PodcastResult]:
+    """Return up to N most recent podcasts, newest first.
+
+    The first entry is the same as `latest_podcast()` when one exists for
+    today; subsequent entries are the prior days in descending date order.
+    Used by the in-app "Previous briefings" section so listeners can
+    catch up on the last few days from a single expander."""
+    if not PODCAST_DIR.exists():
+        return []
+    candidates = sorted(PODCAST_DIR.glob("*.json"), reverse=True)
+    out: list[PodcastResult] = []
+    for path in candidates[:n]:
+        try:
+            out.append(_load_sidecar(path))
+        except Exception:
+            continue
+    return out
 
 
 def _load_sidecar(path: Path) -> PodcastResult:

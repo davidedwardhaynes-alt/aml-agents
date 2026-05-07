@@ -313,6 +313,20 @@ def latest_video() -> VideoResult | None:
     return None
 
 
+def recent_videos(n: int = 4) -> list[VideoResult]:
+    """Return up to N most recent videos, newest first."""
+    if not VIDEO_DIR.exists():
+        return []
+    candidates = sorted(VIDEO_DIR.glob("*.json"), reverse=True)
+    out: list[VideoResult] = []
+    for path in candidates[:n]:
+        try:
+            out.append(_load_sidecar(path))
+        except Exception:
+            continue
+    return out
+
+
 def _load_sidecar(path: Path) -> VideoResult:
     data = json.loads(path.read_text())
     return VideoResult(
