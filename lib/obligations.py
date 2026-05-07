@@ -968,6 +968,337 @@ def _seed_obligations() -> list[Obligation]:
             ),
         ),
         Obligation(
+            title="BNM AMLA s.13 — FY2024 CTR completeness reconciliation",
+            description=(
+                "Annual reconciliation of cash transaction reports filed under "
+                "AMLA s.13 against BNM's FINS acknowledgement records, plus "
+                "branch-level un-filed-batch close-out for FY2024. "
+                "Overdue for ~30% of conventional banks per BNM Q1 2026 "
+                "examination findings."
+            ),
+            jurisdiction="Malaysia (FIED)",
+            statute_or_notice=(
+                "AMLA 2001 s.13 + BNM AML/CFT Sectoral Guidelines"
+            ),
+            due_date="2025-09-30",
+            status="Overdue",
+            owner="MLRO + Head of Branch Operations",
+            notes=(
+                "BNM examiners in Q1 2026 specifically test branch-level "
+                "un-filed CTR batches; overdue closure exposes to s.86 "
+                "administrative-action escalation."
+            ),
+            priority="High",
+            full_text=(
+                "AMLA s.13 imposes a continuous CTR (Cash Transaction Report) "
+                "filing obligation on every reporting institution for cash "
+                "transactions equal to or exceeding RM 25,000 in a single "
+                "transaction. Reports are filed via BNM's FINS portal, and "
+                "FY2024 saw ~RM 2.3 billion of CTRs filed across the "
+                "Malaysian banking sector.\n\n"
+                "The annual reconciliation closes the loop: every CTR "
+                "captured by the bank's transaction-monitoring system at "
+                "branch and head-office level must reconcile against the "
+                "FINS acknowledgement record. BNM's Sectoral Guidelines "
+                "set the expectation that this reconciliation completes "
+                "within 90 days of year-end (i.e., 30 September for the "
+                "calendar-year FY2024 cycle).\n\n"
+                "Branch-level un-filed batches are the most common finding. "
+                "BNM's Q1 2026 examination cycle has documented that "
+                "approximately 30% of conventional banks had unreconciled "
+                "branch CTR batches from FY2024 — typically due to manual "
+                "branch-to-head-office transfer failures, over-the-counter "
+                "thresholds being applied incorrectly, or system-integration "
+                "gaps with newer branch tellers."
+            ),
+            deadline_explanation=(
+                "Annual cycle. The FY2024 CTR reconciliation was due 30 "
+                "September 2025. Past that date, BNM examiners treat any "
+                "remaining un-reconciled FY2024 CTRs as a compliance "
+                "deficiency. The 31 December 2025 hard-stop reflects the "
+                "BNM-issued grace period for institutions with branch-"
+                "system migrations underway in 2025."
+            ),
+            evidence=(
+                "FINS submission log; reconciliation workpapers; branch-by-"
+                "branch un-filed-batch tracker; remediation closure file; "
+                "MLRO sign-off; BNM examination response file."
+            ),
+            source_url="https://amlcft.bnm.gov.my/",
+            entities_impacted=(
+                "All BNM-supervised reporting institutions: commercial banks "
+                "(domestic + foreign-bank branches), Islamic banks, "
+                "investment banks, development financial institutions, "
+                "insurers, takaful operators, money services businesses, "
+                "remittance-agency licensees, and prescribed DNFBPs (legal, "
+                "accounting, real estate, gem and precious-metals dealers, "
+                "TCSPs). The CTR threshold of RM 25,000 has not been "
+                "revised since 2014 and applies uniformly."
+            ),
+            penalties=(
+                "AMLA s.86 administrative penalties — up to RM 1 million "
+                "per breach + ongoing daily fines for continuing breaches. "
+                "Officer-level criminal exposure under AMLA s.13(2) — "
+                "imprisonment up to 1 year and/or fines up to RM 1 million. "
+                "BNM's Securities Commission cross-supervisor coordination "
+                "channel triggers in serious cases. Recent precedent: "
+                "BNM's RM 8 million combined fine on three local banks in "
+                "Q3 2025 for AMLA s.13/14 deficiencies. Secondary "
+                "consequences: correspondent-bank de-risking by Singaporean "
+                "and Hong Kong correspondents, FATF-MEC visibility ahead "
+                "of Malaysia's next mutual evaluation."
+            ),
+            common_mistakes=(
+                "1. Branch-level CTR batches not flowing through to head-"
+                "office consolidation — typically due to manual transfer "
+                "failures or system-integration gaps.\n\n"
+                "2. RM 25,000 threshold applied inconsistently across "
+                "branches (some apply per-transaction, some per-day-per-"
+                "customer). The s.13 rule is per-transaction; aggregation "
+                "rules are separate under s.14 (structuring).\n\n"
+                "3. FY2024 reconciliation treated as a tick-box rather than "
+                "substantive sample testing of the reconciled records "
+                "against branch teller logs.\n\n"
+                "4. CTRs filed but BNM acknowledgements not retrieved — "
+                "submission ≠ acknowledgement, and BNM's reconciliation "
+                "test runs the other direction.\n\n"
+                "5. Foreign-currency-equivalent CTRs (cash deposits in "
+                "USD/SGD that exceed RM 25,000 equivalent) often missed "
+                "by branch tellers using the SGD/USD-denominated thresholds "
+                "from internal product templates rather than the RM-"
+                "denominated AMLA threshold.\n\n"
+                "6. Overlap with AMLA s.14 STR governance mishandled — "
+                "where a CTR is filed but the underlying activity also "
+                "triggers STR suspicion, both must be filed."
+            ),
+        ),
+        Obligation(
+            title="FSA CAESP AML/CFT Guideline — 2024-amendment effectiveness review",
+            description=(
+                "Annual review of Crypto-Asset Exchange Service Provider "
+                "(CAESP) AML/CFT controls under the 2024 FSA Guideline "
+                "amendments. First review cycle covers the period from the "
+                "amendment's effective date in October 2024."
+            ),
+            jurisdiction="Japan (JAFIC)",
+            statute_or_notice=(
+                "FSA Crypto-Asset Exchange Service Provider AML/CFT "
+                "Guidelines (2024 amendments) + APTCP Act"
+            ),
+            due_date="2025-10-31",
+            status="Overdue",
+            owner="Head of Crypto-AML + Hōkoku Sekinin-sha",
+            notes=(
+                "Affects the ~30 FSA-registered CAESPs (bitFlyer, Coincheck, "
+                "GMO Coin, Bitbank, BitTrade, etc.). FSA's Q1 2026 thematic "
+                "review found ~half had not completed the post-amendment "
+                "review."
+            ),
+            priority="High",
+            full_text=(
+                "The FSA's 2024 amendments to the Crypto-Asset Exchange "
+                "Service Provider (Anshō Kōkan-gyōsha) AML/CFT Guidelines "
+                "introduced three substantive new obligations effective 1 "
+                "October 2024:\n\n"
+                "1. **Travel-rule data exchange** for transactions ≥ JPY "
+                "100,000 between FSA-registered CAESPs and foreign "
+                "counterparty exchanges, aligned with FATF Recommendation "
+                "16's travel-rule expectations.\n\n"
+                "2. **High-risk wallet screening** using KYT vendors "
+                "(Chainalysis, TRM Labs, Elliptic) for inbound and "
+                "outbound transfers; alert dispositioning logs auditable.\n\n"
+                "3. **Mandatory reporting of mixer/tumbler exposure** — "
+                "any transfer with ≥ 2-hop exposure to a designated mixer "
+                "must be considered for STR filing.\n\n"
+                "The first effectiveness review cycle was due by 31 October "
+                "2025 — one year after the amendment effective date. FSA's "
+                "Q1 2026 thematic review found approximately half of the "
+                "registered CAESPs had not completed substantive review of "
+                "the new obligations. Subsequent FSA on-site inspections "
+                "have begun in Q2 2026."
+            ),
+            deadline_explanation=(
+                "Annual cycle anchored to the amendment's October 2024 "
+                "effective date. The 31 October 2025 deadline is one year "
+                "from effective date. Subsequent annual reviews fall on "
+                "the same anchor."
+            ),
+            evidence=(
+                "Travel-rule data-exchange sample; KYT vendor alert-"
+                "disposition log; mixer-exposure STR consideration log; "
+                "review report to FSA + JAFIC; remediation tracker; "
+                "Hōkoku Sekinin-sha sign-off; FSA on-site inspection "
+                "response file."
+            ),
+            source_url="https://www.fsa.go.jp/en/news/index.html",
+            entities_impacted=(
+                "All FSA-registered Crypto-Asset Exchange Service Providers "
+                "(*Anshō Kōkan-gyōsha*) — approximately 30 currently-"
+                "registered providers including bitFlyer, Coincheck, GMO "
+                "Coin, Bitbank, BitTrade, BITPoint, Liquid by FTX (rebranded), "
+                "and others. Sister obligations apply to FSA-registered "
+                "Crypto-Asset Custodial Service Providers and to Type I "
+                "and Type II Financial Instruments Business Operators "
+                "(FIBOs) that interact with crypto-assets in their "
+                "investment-advisory or asset-management products."
+            ),
+            penalties=(
+                "FSA Banking Act + Payment Services Act administrative "
+                "penalties — fines up to JPY 30 million per breach + "
+                "ongoing daily fines. Officer-level criminal exposure "
+                "under APTCP Article 25 — imprisonment up to 6 months "
+                "and/or fines up to JPY 500,000. Critically, the FSA can "
+                "issue **business-improvement orders** (gyōmu kaizen "
+                "meirei) under the Payment Services Act, which require "
+                "the CAESP to halt new customer onboarding until "
+                "remediation is complete — a commercially severe "
+                "consequence. Recent precedent: FSA's August 2025 "
+                "business-improvement order against a mid-tier CAESP "
+                "for AML deficiencies including inadequate travel-rule "
+                "implementation. Secondary consequences: JVCEA (Japan "
+                "Virtual Currency Exchange Association) self-regulation "
+                "review; potential withdrawal of correspondent banking "
+                "support from JPY-onramp banking partners."
+            ),
+            common_mistakes=(
+                "1. Travel-rule data-exchange limited to peer FSA-"
+                "registered CAESPs; not extended to foreign counterparties. "
+                "The 2024-amendment scope explicitly includes cross-border "
+                "transfers where the counterparty CAESP is identifiable.\n\n"
+                "2. KYT vendor scoring deployed but alerts auto-closed at "
+                ">85% — not sustainable under FSA expectations. FSA "
+                "examiners explicitly review alert closure rates.\n\n"
+                "3. Mixer-exposure STR consideration log is binary "
+                "(file/don't-file) without documented MLRO opinion on "
+                "each non-filed alert. APTCP Article 8 requires a "
+                "documented MLRO opinion on every alert escalated.\n\n"
+                "4. JPY 100,000 travel-rule threshold treated as the "
+                "trigger for a check rather than the trigger for the "
+                "actual data exchange. The obligation is to EXCHANGE "
+                "data above this threshold, not merely to flag.\n\n"
+                "5. Travel-rule data fields incomplete (e.g., physical-"
+                "address field omitted). FATF-RWG specifies the required "
+                "fields; partial-data exchange is non-compliant.\n\n"
+                "6. JVCEA self-regulation findings ignored — JVCEA's "
+                "industry-association Q3 2025 thematic review identified "
+                "the same issues, but compliance teams treated the "
+                "JVCEA findings as advisory rather than substantively "
+                "remediating."
+            ),
+        ),
+        Obligation(
+            title="HKMA SPM CG-5 — Q4 2025 STR Quality Thematic Review response",
+            description=(
+                "HKMA issued a Q4 2025 thematic review of STR narrative "
+                "quality across HKMA-supervised AIs, with deficiency "
+                "letters issued to ~25% of the AI population in early "
+                "2026. Closure of the Q4 2025 thematic findings is the "
+                "current obligation."
+            ),
+            jurisdiction="Hong Kong (JFIU)",
+            statute_or_notice=(
+                "HKMA SPM CG-5 (Guideline on Anti-Money Laundering "
+                "and Counter-Financing of Terrorism) + AMLO Schedule 2"
+            ),
+            due_date="2026-04-30",
+            status="Overdue",
+            owner="MLRO + Head of FCC",
+            notes=(
+                "Q4 2025 thematic findings: STR narratives lacking "
+                "specific reference to the predicate-offence indicia, "
+                "and weak EDD documentation supporting the suspicion "
+                "rationale. ~25% of HKMA AIs received deficiency letters."
+            ),
+            priority="High",
+            full_text=(
+                "The HKMA's Q4 2025 thematic review of STR quality is the "
+                "third in a multi-year cycle examining STR governance "
+                "across HKMA-supervised Authorised Institutions. Findings "
+                "issued December 2025 with formal deficiency letters in "
+                "January 2026 to approximately 25% of the AI population.\n\n"
+                "Two predominant findings:\n\n"
+                "1. **STR narrative quality**: many AIs file STRs that "
+                "describe the activity but fail to articulate the specific "
+                "predicate-offence indicia. The HKMA expects every STR to "
+                "reference the relevant Crimes Ordinance schedule offence(s) "
+                "by name and to explain why the analyst believes the "
+                "suspicion crystallises against that predicate.\n\n"
+                "2. **EDD documentation supporting suspicion rationale**: "
+                "where the suspicion rationale relies on customer profile "
+                "deviation or PEP status, the supporting EDD documentation "
+                "is often thin or stale. AMLO Schedule 2 §5(4) requires "
+                "that EDD information be 'kept up to date and relevant' — "
+                "stale EDD is a Schedule 2 breach in its own right, "
+                "independent of the STR.\n\n"
+                "Closure of the deficiency-letter findings was due by 30 "
+                "April 2026. AIs with open findings beyond that date face "
+                "escalation to thematic on-site inspection in Q3 2026."
+            ),
+            deadline_explanation=(
+                "Deficiency-letter closure window: 90 days from issuance "
+                "(letters issued January 2026 → 30 April 2026 closure "
+                "deadline). HKMA does not grant routine extensions; "
+                "technical-issue extensions are case-by-case."
+            ),
+            evidence=(
+                "Sample of revised STR narratives demonstrating predicate-"
+                "offence-specific language; EDD-refresh logs for the "
+                "thematic-review sample customer cohort; deficiency-letter "
+                "response with closure dates; revised internal STR-quality "
+                "QA scoresheet; MLRO sign-off; board / Risk Committee "
+                "minute extract recording the review."
+            ),
+            source_url="https://www.hkma.gov.hk/eng/regulatory-resources/regulatory-guides/by-subject-current/aml-cft/",
+            entities_impacted=(
+                "All HKMA-supervised Authorised Institutions: licensed "
+                "banks (Tier 1 / 2 / foreign-bank branches), restricted-"
+                "licence banks, deposit-taking companies, the eight HKMA-"
+                "licensed virtual banks, and Stored Value Facility "
+                "licensees of HKMA. Sister obligations under SFC AML/CFT "
+                "Guideline §6 capture SFC-licensed corporations; under IA "
+                "AML/CFT Guideline capture authorised insurers."
+            ),
+            penalties=(
+                "AMLO s.21 — administrative penalties up to HK$10 million "
+                "per breach + ongoing daily fines. HKMA Banking Ordinance "
+                "powers: licence-condition variation, public reprimand "
+                "under s.71B, and AMLO s.5 criminal prosecution of "
+                "officers for systemic non-compliance. The HKMA published "
+                "two enforcement actions in Q1 2026 specifically citing "
+                "STR-quality deficiencies as a contributing finding "
+                "(combined HK$22 million in fines). Secondary consequences: "
+                "Banking Industry CDD Council escalation; correspondent-"
+                "bank de-risking by US/EU correspondents; FATF-MEC "
+                "visibility."
+            ),
+            common_mistakes=(
+                "1. STR narrative describes the activity ('cash deposits "
+                "totalling HK$3 million across 5 days') but does not "
+                "name the predicate-offence ('possible drug-trafficking "
+                "proceeds layering under Drug Trafficking (Recovery of "
+                "Proceeds) Ordinance Schedule 1 offences').\n\n"
+                "2. Suspicion rationale relies on PEP status without "
+                "current PEP-list refresh or supporting open-source "
+                "intelligence.\n\n"
+                "3. EDD documentation 'on file' is stale — original "
+                "source-of-wealth narrative dated 2 years ago, not "
+                "refreshed despite the AMLO Schedule 2 §5(4) currency "
+                "requirement.\n\n"
+                "4. 'Reasonable grounds' element under AMLO insufficiently "
+                "documented — the analyst's rationale is recorded as a "
+                "single sentence rather than the multi-paragraph "
+                "narrative HKMA expects.\n\n"
+                "5. Cross-reference to prior STRs on the same customer "
+                "absent — HKMA examiners look for awareness of pattern.\n\n"
+                "6. Deficiency-letter response treated as administrative "
+                "rather than substantive — many AIs respond with 'we "
+                "agree, we will improve' without producing the revised "
+                "STR sample, the EDD-refresh evidence, or the QA-"
+                "scoresheet update."
+            ),
+        ),
+
+        Obligation(
             title="FTRA Article 5-2 — VASP travel-rule second-anniversary compliance review",
             description=(
                 "Two years after the FTRA Article 5-2 VASP travel-rule "

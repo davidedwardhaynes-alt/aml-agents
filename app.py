@@ -545,15 +545,51 @@ SAMPLE_LIBRARY = {
         "City bank — tokushu sagi mule layering": (
             "Japan (JAFIC)", "Japan (JAFIC)",
         ),
+        "Crypto exchange (CAESP) — JPY-to-USDT layering": (
+            "Japan (JAFIC) — CAESP USDT layering",
+            "Japan (JAFIC) — CAESP USDT layering",
+        ),
+        "Real estate (METI-supervised) — Tokyo cash buyer": (
+            "Japan (JAFIC) — Real estate cash buyer",
+            "Japan (JAFIC) — Real estate cash buyer",
+        ),
+        "Funds-transfer (Shikin Idō) — DPRK sanctions corridor": (
+            "Japan (JAFIC) — Shikin Ido DPRK corridor",
+            "Japan (JAFIC) — Shikin Ido DPRK corridor",
+        ),
     },
     "Korea (KoFIU)": {
         "Commercial bank — voice phishing mule + VASP layering": (
             "Korea (KoFIU)", "Korea (KoFIU)",
         ),
+        "VASP (Upbit/Bithumb-class) — DPRK Lazarus layering": (
+            "Korea (KoFIU) — VASP DPRK Lazarus",
+            "Korea (KoFIU) — VASP DPRK Lazarus",
+        ),
+        "Casino (Kangwon Land / Paradise) — chip-walking": (
+            "Korea (KoFIU) — Casino chip-walking",
+            "Korea (KoFIU) — Casino chip-walking",
+        ),
+        "E-money (KakaoPay / NaverPay) — illegal pyramid layering": (
+            "Korea (KoFIU) — E-money illegal pyramid",
+            "Korea (KoFIU) — E-money illegal pyramid",
+        ),
     },
     "New Zealand (FIU NZ)": {
         "Real estate (DIA-DNFBP) — Auckland cash buyer": (
             "New Zealand (FIU NZ)", "New Zealand (FIU NZ)",
+        ),
+        "Registered bank (RBNZ) — investment-scam victim mule": (
+            "New Zealand (FIU NZ) — Bank investment-scam mule",
+            "New Zealand (FIU NZ) — Bank investment-scam mule",
+        ),
+        "Casino (DIA-supervised SkyCity) — chip-walking layering": (
+            "New Zealand (FIU NZ) — SkyCity chip-walking",
+            "New Zealand (FIU NZ) — SkyCity chip-walking",
+        ),
+        "Lawyer / conveyancer (DIA-DNFBP) — trust account misuse": (
+            "New Zealand (FIU NZ) — Lawyer trust account",
+            "New Zealand (FIU NZ) — Lawyer trust account",
         ),
     },
     "Australia (AUSTRAC SMR)": {
@@ -1444,6 +1480,505 @@ SAMPLE_CASES = {
             "institution intelligence. Coordinated SAR with the customer's "
             "solicitor expected. FIU NZ's *Quarterly Typology Reports* reference "
             "this pattern in the Auckland-Queenstown high-value-property series."
+        ),
+    },
+
+    # ===================================================================
+    # Japan (JAFIC) — additional 3 sample cases
+    # ===================================================================
+    "Japan (JAFIC) — CAESP USDT layering": {
+        "customer_name": "Mr Sato Kenji",
+        "customer_id": "FSA-CAESP-JP-2026-04-CUST-91204",
+        "customer_kyc": (
+            "Japanese national, Osaka-resident retail customer of an "
+            "FSA-registered Crypto-Asset Exchange Service Provider "
+            "(*Anshō Kōkan-gyōsha*) — bitFlyer-class. Declared occupation: "
+            "self-employed e-commerce seller. Declared monthly income: "
+            "JPY 600,000. Account opened 2024 with CAESP-tier-2 KYC "
+            "(My Number Card + selfie liveness). Risk rating: Standard. "
+            "Expected profile: retail crypto trading, sub-JPY 2m monthly."
+        ),
+        "transactions": (
+            "2026-04-12 | inbound JPY 8,400,000 | Zengin wire from 'consulting fees' counterparty (unverified) | retail JPY deposit\n"
+            "2026-04-12 | converted JPY 8,300,000 to 56,200 USDT (TRC-20) | spot order book\n"
+            "2026-04-13 | outbound 56,000 USDT | TRC-20 to external wallet TKb...x9q (KYT score 87, mixer-cluster tagged)\n"
+            "2026-04-15 | inbound JPY 9,200,000 | second Zengin wire from same counterparty\n"
+            "2026-04-15 | converted JPY 9,100,000 to 61,500 USDT\n"
+            "2026-04-15 | outbound 61,200 USDT | TRC-20 to second mixer-cluster wallet"
+        ),
+        "alert_reason": (
+            "Inbound flow 14× declared monthly income; rapid JPY-to-USDT conversion "
+            "with near-zero retention; destination wallets KYT-tagged to mixer-"
+            "cluster ring. Pattern matches FSA Crypto-Asset Exchange AML/CFT "
+            "Guideline tokushu sagi crypto-cash-out typology."
+        ),
+        "red_flags": (
+            "Pattern matches FSA's 2024 published reference case on tokushu sagi "
+            "(specialised fraud) crypto-cash-out: rapid Zengin in, JPY-to-USDT, "
+            "TRC-20 out to mixer-cluster wallets. Counterparty 'consulting fees' "
+            "naming pattern matches JAFIC Sankō Jirei tokushu sagi recruiter "
+            "indicia. Customer's declared profile (e-commerce, JPY 600k/month) "
+            "grossly inconsistent with JPY 17.6m in 4 days. KYT scores 87 on "
+            "both destination wallets (Chainalysis + TRM cross-confirmation) "
+            "indicate Hydra-successor mixer cluster."
+        ),
+        "analyst_notes": (
+            "CAESP's TM rule fired on the second JPY-to-USDT conversion cycle. "
+            "Customer outreach 2026-04-15 (after second cycle): customer evasive, "
+            "claimed JPY transfers were 'consulting fees from a referred client'. "
+            "EDD documentation declined under 'commercial confidentiality'. "
+            "Tipping-off compliance under APTCP Article 8(3) maintained throughout. "
+            "FSA Crypto-Asset Exchange Service Provider AML/CFT Guidelines apply "
+            "in addition to APTCP Article 8 STR. Recommend STR to JAFIC + temporary "
+            "account freeze + flag the two TRC-20 destination wallets to JVCEA "
+            "industry-association cross-VASP intelligence channel + parallel "
+            "engagement with NPA Cyber Bureau on the mixer-cluster destination "
+            "addresses. Cross-flag the originating Zengin counterparty to JBA "
+            "intelligence."
+        ),
+    },
+
+    "Japan (JAFIC) — Real estate cash buyer": {
+        "customer_name": "Tokyo Heritage Trading Co Ltd (株式会社東京遺産通商)",
+        "customer_id": "METI-RE-JP-2026-CUST-1843",
+        "customer_kyc": (
+            "Japan-incorporated trading company, registered Tokyo Minato-ku "
+            "(Hōjin Bangō: 8013301042371). Beneficial owner declared as Mr "
+            "Aleksandr V., Russian national, no Japanese residency. Declared "
+            "business activity: 'commodity trading'. Account-equivalent "
+            "relationship is with a METI-supervised real-estate agency in "
+            "Tokyo. CDD performed at engagement; EDD requested at the "
+            "purchase-price + foreign-UBO + cross-border-funds trigger."
+        ),
+        "transactions": (
+            "2026-04-08 | Buyer-side purchase agreement signed | Minato-ku Roppongi luxury condominium | JPY 480,000,000 (~4.8 oku-en)\n"
+            "2026-04-12 | Initial deposit JPY 48,000,000 | wire from Cyprus-based 'family office' account (not in customer's name)\n"
+            "2026-04-15 | Settlement scheduled | balance JPY 432,000,000 via shihō shoshi escrow\n"
+            "2026-04-16 | EDD source-of-wealth documentation declined | customer counsel cited 'commercial confidentiality'"
+        ),
+        "alert_reason": (
+            "Roppongi luxury-condo purchase 22% above recent comparable transactions; "
+            "deposit wire from non-customer-name Cyprus 'family office'; UBO chain "
+            "has Russian-domiciled prior business with sanctions-adjacent profile. "
+            "Pattern matches JAFIC published reference case on real-estate "
+            "high-value-property layering by foreign UBO."
+        ),
+        "red_flags": (
+            "Customer is a Japanese shell company incorporated 4 months before the "
+            "purchase, with foreign-resident UBO. Deposit funded from a third-party "
+            "Cyprus 'family office' account, not the customer's or the UBO's named "
+            "account. UBO Mr Aleksandr V. previously domiciled in Russia until "
+            "2023; declared source of wealth ('commodity trading from family business') "
+            "produced no supporting documentation. Purchase price 22% above recent "
+            "Minato Roppongi comparables. METI 2024 real-estate AML guidelines list "
+            "all of these as red-flag indicators. Sanctions-screening of the Cyprus "
+            "originator account flagged 'partial match' with EU-listed sanctioned "
+            "intermediary; warrants escalation."
+        ),
+        "analyst_notes": (
+            "Real-estate agency is METI-supervised under APTCP Article 2. EDD trigger "
+            "at the high-value + foreign-UBO + cross-border-funds combination. EDD "
+            "documentation requests met with non-cooperation. Shihō shoshi (judicial "
+            "scrivener) handling the escrow has filed parallel concerns under their "
+            "own APTCP obligations. Tipping-off compliance under Article 8(3) "
+            "maintained — customer communications referenced only standard CDD "
+            "requirements. Sotaihō predicate offences (organised-crime layering and "
+            "tax evasion) and FEFTA cross-border notification both apply. Recommend "
+            "STR to JAFIC + suspension of agency involvement (subject to commercial "
+            "considerations) + flag the Cyprus 'family office' originator to the "
+            "agency's correspondent bank for MOF-FEFTA notification + coordinated "
+            "STR with the shihō shoshi. Sanctions desk escalation to METI parallel "
+            "track. Pattern matches JAFIC reference cases on Tokyo high-value-"
+            "property layering by foreign UBO."
+        ),
+    },
+
+    "Japan (JAFIC) — Shikin Ido DPRK corridor": {
+        "customer_name": "Pacific Trade Solutions GK",
+        "customer_id": "FSA-SI-JP-2026-CUST-3902",
+        "customer_kyc": (
+            "Japan-registered Goudou Gaisha (合同会社), incorporated 2024 Q3, "
+            "registered Yokohama. Beneficial owner declared as Mr Kim T., "
+            "naturalised Japanese citizen of Korean ethnic origin (Zainichi). "
+            "Declared business: 'Pacific commodity exports'. Reporting "
+            "institution is an FSA-licensed Funds-Transfer Service Provider "
+            "(*Shikin Idō-gyōsha*). CDD onboarding April 2025, no flags."
+        ),
+        "transactions": (
+            "2026-04-10 | inbound JPY 28,000,000 | aggregated from 6 separate Tokyo retail counterparties (each ~JPY 4.5m)\n"
+            "2026-04-11 | outbound JPY 27,800,000 | Shikin Idō wire to a Dalian (PRC) trading company beneficiary | reference 'commodity prepayment'\n"
+            "2026-04-15 | inbound JPY 31,000,000 | aggregated from 7 Tokyo retail counterparties\n"
+            "2026-04-15 | outbound JPY 30,800,000 | Shikin Idō wire to second Dalian trading company\n"
+            "2026-04-19 | inbound JPY 22,500,000 | aggregated from 5 retail counterparties\n"
+            "2026-04-19 | outbound JPY 22,400,000 | Shikin Idō wire to a Vladivostok (Russia) trading company | reference 'oil products advance'"
+        ),
+        "alert_reason": (
+            "Repeating aggregation-then-outbound pattern with PRC and Russia "
+            "beneficiaries; aggregation counterparties are all Tokyo retail "
+            "individuals; reference fields identical 'commodity prepayment' / "
+            "'oil products advance'. Pattern matches JAFIC + UN Panel of Experts "
+            "DPRK sanctions-evasion typology — Zainichi-network remittance via "
+            "Dalian/Vladivostok front companies."
+        ),
+        "red_flags": (
+            "Aggregation-then-outbound pattern with international destinations is "
+            "high-risk under FATF Recommendation 16. Beneficiary trading companies "
+            "in Dalian and Vladivostok are well-documented in UN Panel of Experts "
+            "reports as DPRK sanctions-evasion conduits. Aggregation counterparties "
+            "(13 retail individuals across 9 days) appear coordinated — same "
+            "transfer-amount tier, same reference language, same window. Customer's "
+            "declared 'Pacific commodity exports' is inconsistent with the volume, "
+            "velocity, and the specific Dalian-Vladivostok corridor. Mr Kim T.'s "
+            "Zainichi ethnic-Korean profile is itself not a red flag, but combined "
+            "with the corridor and counterparty profile is consistent with "
+            "JAFIC-published DPRK-sanctions-evasion typology."
+        ),
+        "analyst_notes": (
+            "TM fired on the third aggregation-then-outbound cycle. EDD requested "
+            "2026-04-19. Customer counsel asserted commercial confidentiality and "
+            "declined to produce trade documentation. Tipping-off compliance under "
+            "Article 8(3) maintained. Recommend immediate STR to JAFIC + immediate "
+            "outbound-transaction freeze + parallel notification to MOF/Customs "
+            "under FEFTA's North Korea sanctions framework + parallel notification "
+            "to NPA Public Security Bureau (organised-crime division). UN "
+            "Resolution 1718/2270 sanctions framework potentially applicable; if "
+            "any beneficiary entity is on the UN consolidated list, asset-freeze "
+            "obligations under Foreign Exchange and Foreign Trade Act apply "
+            "immediately and override commercial considerations. Coordinate "
+            "via JAFIC for international-cooperation channels with PRC and Russia "
+            "FIU equivalents. Sotaihō organised-crime predicate and Public "
+            "Intimidation Crimes Financing Act predicate both potentially apply."
+        ),
+    },
+
+    # ===================================================================
+    # Korea (KoFIU) — additional 3 sample cases
+    # ===================================================================
+    "Korea (KoFIU) — VASP DPRK Lazarus": {
+        "customer_name": "Mr Park Jung-Soo",
+        "customer_id": "FTRA-VASP-KR-2026-CUST-44519",
+        "customer_kyc": (
+            "Korean national, Seoul-resident, customer of an FTRA-registered "
+            "tier-1 VASP (Upbit / Bithumb-class). Declared occupation: "
+            "self-employed software developer. Declared monthly income KRW "
+            "8,000,000. Account opened 2023; uses Real-Name Verification "
+            "Account (Sushin Hwakin Gyejwa) at NH Bank. Risk rating: Medium."
+        ),
+        "transactions": (
+            "2026-04-08 | inbound 4.2 BTC (~KRW 380,000,000) | external wallet bc1q...m4n (Chainalysis tag: 'Lazarus Group cluster')\n"
+            "2026-04-08 | converted 4.2 BTC to KRW 378,000,000 | spot order book\n"
+            "2026-04-09 | outbound KRW 376,000,000 | KFTC wire to NH Bank account in customer's name\n"
+            "2026-04-09 | outbound KRW 200,000,000 | structured KRW withdrawals to four third-party Korean accounts (KRW 50m each)\n"
+            "2026-04-12 | inbound 3.8 BTC | second external wallet (KYT score 95; flagged North Korea exposure)\n"
+            "2026-04-12 | similar conversion + structured withdrawal pattern"
+        ),
+        "alert_reason": (
+            "Inbound BTC tagged by Chainalysis and TRM Labs as 'Lazarus Group "
+            "cluster' (DPRK state-sponsored cybercrime); structured withdrawal "
+            "to multiple third-party KRW accounts; pattern matches KoFIU + FSC "
+            "2025 advisory on DPRK-Lazarus crypto-laundering."
+        ),
+        "red_flags": (
+            "Inbound wallets tagged by both Chainalysis and TRM Labs as Lazarus "
+            "Group cluster — DPRK state-sponsored APT group well-documented in "
+            "UN Panel of Experts reports. Lazarus crypto-theft proceeds typically "
+            "laundered through East Asian VASPs (Korea, Japan, Singapore) before "
+            "off-ramp. Customer's structured KRW withdrawal pattern (KRW 50m "
+            "tranches just under the KRW 100m KFTC scrutiny threshold) is "
+            "classic Lazarus-cohort layering. Customer profile (software "
+            "developer) ostensibly plausible for crypto holding but the volume "
+            "(KRW 800m+ in a week) is grossly inconsistent. KoFIU advisory "
+            "issued Q4 2025 specifically addresses this typology."
+        ),
+        "analyst_notes": (
+            "VASP's KYT auto-flagged the first inbound wallet within 90 seconds "
+            "of confirmation. Junseo Tamdang Imja escalated immediately. NIS "
+            "(National Intelligence Service) and KoFIU coordination protocol "
+            "engaged given DPRK nexus. Tipping-off under FTRA Article 12 "
+            "maintained. FTRA Article 4 STR obligation crystallised on KYT "
+            "alert; immediate filing required (not 30-day window). Asset freeze "
+            "under domestic sanctions regulation activated on the NH Bank "
+            "downstream account. Recommend STR + immediate freeze + FSC notification "
+            "+ NIS coordination + cross-VASP travel-rule data exchange to flag "
+            "the four KRW destination accounts to peer Korean banks. Korean "
+            "Bar Association referral if any of the third-party recipient "
+            "accounts belongs to a 변호사 (lawyer). UN Resolution 1718/2270 "
+            "sanctions framework applies; do not engage with customer outside "
+            "of NIS-coordinated channels."
+        ),
+    },
+
+    "Korea (KoFIU) — Casino chip-walking": {
+        "customer_name": "Mr Lee Han-Suk",
+        "customer_id": "FTRA-CASINO-KR-2026-CUST-12087",
+        "customer_kyc": (
+            "Korean national, Seoul-resident, regular customer of Kangwon "
+            "Land casino (the only foreigner-and-Korean casino in Korea; "
+            "FTRA-registered). Declared occupation: senior corporate "
+            "executive. Declared annual income KRW 200,000,000. Customer "
+            "in 'high-roller' tier; risk rating: High at onboarding."
+        ),
+        "transactions": (
+            "2026-04-08 | cash buy-in KRW 150,000,000 | over-counter at cage\n"
+            "2026-04-08 | minimal table play (~10% of buy-in) | departed with KRW 135,000,000 in chips\n"
+            "2026-04-09 | re-entered casino | attempted to redeem KRW 135,000,000 chips for cash\n"
+            "2026-04-09 | also visited Paradise Walker Hill (Seoul) — chips stamped from Kangwon Land redeemed for KRW 50,000,000 cash + KRW 85,000,000 cashier's cheque\n"
+            "2026-04-12 | repeat cycle: KRW 200,000,000 buy-in at Kangwon Land, minimal play, redemption split across Paradise + Grand Korea Leisure properties"
+        ),
+        "alert_reason": (
+            "Classic chip-walking: large cash buy-in, minimal play, redemption "
+            "across multiple FTRA-registered casinos. Pattern designed to "
+            "convert cash to casino-issued cashier's cheques without genuine "
+            "gambling, evading the cash-source explanation."
+        ),
+        "red_flags": (
+            "Buy-in to play ratio of ~10% is the signature chip-walking indicator. "
+            "Cross-property redemption (Kangwon Land chips redeemed at Paradise / "
+            "Grand Korea Leisure) is a layering technique to break the audit "
+            "trail. Cashier's-cheque redemption is the laundering objective: a "
+            "casino-issued instrument with no source-of-funds question. KoFIU's "
+            "2024 published Sangye Sarye case set explicitly addresses this "
+            "pattern. Customer's declared KRW 200m annual income inconsistent "
+            "with KRW 350m+ across two days. Chip-walking is also a recognised "
+            "predicate-offence indicator under the Concealment of Criminal "
+            "Proceeds Act (Article 3 — concealment via gambling instruments)."
+        ),
+        "analyst_notes": (
+            "Kangwon Land's TM fired on the second cycle. Cross-property "
+            "intelligence shared via FTRA-mandated casino-industry information-"
+            "sharing channel. EDD requested 2026-04-13; customer claimed "
+            "'switching strategies' but produced no source-of-funds for the "
+            "buy-in cash. Tipping-off under FTRA Article 12 maintained. "
+            "Recommend coordinated STR to KoFIU + cross-casino freeze on the "
+            "customer's player accounts at all three properties + FIU "
+            "intelligence-sharing with the customer's bank for KRW 100m+ "
+            "deposit pattern review. KoFIU + FSC Casino-Sector AML Guidelines "
+            "apply. Article 9 safe-harbour invoked. Coordinate with Korean "
+            "National Police Agency (Casino Crimes Unit) on potential predicate "
+            "offence — illegal gambling proceeds layering or tax evasion."
+        ),
+    },
+
+    "Korea (KoFIU) — E-money illegal pyramid": {
+        "customer_name": "Ms Choi Soo-Yeon",
+        "customer_id": "FTRA-EMI-KR-2026-CUST-78231",
+        "customer_kyc": (
+            "Korean national, Busan-resident, e-wallet customer of a major "
+            "FSC-licensed e-money issuer (KakaoPay / NaverPay / Toss-class; "
+            "FTRA Bogo Gigwan). Declared occupation: small-business owner. "
+            "Declared monthly income KRW 5,000,000. Account opened 2024."
+        ),
+        "transactions": (
+            "2026-04-08 | inbound KRW 320,000,000 | aggregated across 47 micro-deposits from 47 unique senders (each KRW 4.5–8m)\n"
+            "2026-04-08 | outbound KRW 318,000,000 | bulk withdrawal to single bank account (Hana Bank) in customer's name\n"
+            "2026-04-12 | repeat: KRW 410,000,000 inbound from 62 micro-senders, bulk withdrawal\n"
+            "2026-04-15 | repeat: KRW 380,000,000 inbound from 55 micro-senders, bulk withdrawal\n"
+            "Most senders' e-wallet KYC profiles share a common 'investment opportunity' onboarding code"
+        ),
+        "alert_reason": (
+            "Aggregation pattern from many small senders into a single beneficiary "
+            "with bulk withdrawal — classic illegal-pyramid (*bul-beob piramideu*) "
+            "operator-tier layering. Senders share a common onboarding code "
+            "indicating coordinated recruitment."
+        ),
+        "red_flags": (
+            "Pattern matches KoFIU 2025 advisory on illegal-pyramid scheme "
+            "operator-tier layering — operator collects from recruits via "
+            "e-wallet (low scrutiny), then bulk-withdraws to a clean bank "
+            "account. Senders' shared onboarding-code field is a strong "
+            "indicator of coordinated MLM recruitment, which under Korean "
+            "law (Door-to-Door Sales Act and Multi-Level Marketing Act) is "
+            "criminal where the scheme has no genuine product. Customer's "
+            "declared KRW 5m monthly income inconsistent with KRW 1.1bn+ in "
+            "a week. EMI customer-service tickets reveal complaints from "
+            "two senders alleging being unable to recruit further, "
+            "consistent with the typical pyramid-collapse stage."
+        ),
+        "analyst_notes": (
+            "EMI's TM fired on the second aggregation cycle. Sender-graph "
+            "analysis showed a recruitment tree consistent with multi-level "
+            "marketing pyramid. Customer outreach 2026-04-15: customer "
+            "claimed 'investment club organising' but produced no documents. "
+            "EDD declined. Tipping-off under FTRA Article 12 maintained. "
+            "Recommend STR to KoFIU + immediate e-wallet freeze + Hana "
+            "Bank cross-flag for KRW 1.1bn deposit review + FSC investor-"
+            "protection bureau notification + Korean National Police Agency "
+            "(Economic Crimes Unit) referral for illegal-pyramid prosecution. "
+            "Under FTRA Article 5-2's e-money provisions, victim "
+            "identification protocols apply to the recruited senders — many "
+            "of whom are also victims, not perpetrators. Coordinated approach "
+            "via the FSC's special pyramid-scheme rapid-response framework."
+        ),
+    },
+
+    # ===================================================================
+    # New Zealand (FIU NZ) — additional 3 sample cases
+    # ===================================================================
+    "New Zealand (FIU NZ) — Bank investment-scam mule": {
+        "customer_name": "Mrs Margaret Wilson",
+        "customer_id": "RBNZ-NZ-2026-CUST-58420",
+        "customer_kyc": (
+            "New Zealand citizen, Auckland-resident, retired (age 68). "
+            "Customer of an RBNZ-supervised registered bank (ANZ / ASB / "
+            "BNZ / Westpac / Kiwibank-class) for over 20 years. Income "
+            "primarily NZ Superannuation + modest dividend income. "
+            "Account profile through Q1 2026: routine pension deposit, "
+            "household payments. Risk rating: Low."
+        ),
+        "transactions": (
+            "2026-04-08 | outbound NZD 180,000 | international wire to a Singapore-based 'investment platform' beneficiary (unverified)\n"
+            "2026-04-12 | outbound NZD 220,000 | second wire to same Singapore beneficiary, reference 'top-up investment'\n"
+            "2026-04-15 | outbound NZD 95,000 | third wire — different Singapore beneficiary, customer claimed 'platform recovery fee'\n"
+            "Customer's source-of-funds: drained term deposit (NZD 320,000) + remortgage on principal residence (NZD 250,000)"
+        ),
+        "alert_reason": (
+            "Three large international outbounds in 8 days, totalling NZD "
+            "495,000, from a customer with no prior international-wire history. "
+            "Funded by drained term deposit + remortgage. Beneficiary 'investment "
+            "platform' unverifiable. Pattern matches FIU NZ Quarterly Typology "
+            "Report on investment-scam victim mule activity (the customer is "
+            "the victim, not the bad actor)."
+        ),
+        "red_flags": (
+            "FIU NZ's 2025 Quarterly Typology Report documents this exact pattern: "
+            "elderly New Zealander, contacted by phone or messaging-app "
+            "purporting to offer 'high-yield investment opportunity' on a "
+            "Singapore-based platform; customer drains savings + remortgages; "
+            "subsequent transfers escalate as 'recovery fees' or 'platform "
+            "tax' are demanded. Customer's pension-only income inconsistent "
+            "with NZD 495,000 in 8 days. Remortgage of principal residence to "
+            "fund foreign 'investment' is the signature investment-scam-victim "
+            "indicator. Source: FIU NZ AML/CFT Q3 2025 Typology Report."
+        ),
+        "analyst_notes": (
+            "Bank's TM fired on the second wire (which exceeded the customer's "
+            "lifetime international-wire profile). Branch contact 2026-04-15 "
+            "during the third wire request. Customer initially defensive — "
+            "described the platform in terms suggestive of scam coaching "
+            "('they said the bank wouldn't understand the opportunity'). "
+            "Branch escalated to AML/CFT Compliance Officer; investor-"
+            "protection conversation initiated in coordination with the SFO "
+            "Financial Crime Unit. Tipping-off compliance under s.46 maintained. "
+            "Recommend SAR + PTR (the international wires exceed NZD 1,000 "
+            "threshold) + customer-protection conversation in coordination with "
+            "Police FCG (Financial Crimes Group) + cross-flag the two Singapore "
+            "beneficiary accounts to MAS / STRO via FIU-to-FIU information-"
+            "sharing channel. Bank's wider customer base reviewed for similar "
+            "pattern; two additional potential victims identified and surfaced. "
+            "AML/CFT Act s.40 SAR obligation applies."
+        ),
+    },
+
+    "New Zealand (FIU NZ) — SkyCity chip-walking": {
+        "customer_name": "Mr Robert Tan",
+        "customer_id": "DIA-CASINO-NZ-2026-CUST-7041",
+        "customer_kyc": (
+            "Singaporean citizen, Auckland-visiting customer of SkyCity "
+            "Auckland (DIA-supervised under AML/CFT Act). High-roller tier. "
+            "Declared occupation: 'investment manager'. CDD on file from "
+            "2024 visit; EDD triggered at the high-value-cash-buy-in level."
+        ),
+        "transactions": (
+            "2026-04-08 | cash buy-in NZD 250,000 | over-counter at SkyCity Auckland cage\n"
+            "2026-04-08 | minimal table play (~12%) | departed with NZD 220,000 chips\n"
+            "2026-04-09 | redeemed NZD 100,000 chips for cash; NZD 120,000 redeemed for SkyCity cashier's cheque\n"
+            "2026-04-10 | flew to Queenstown; visited SkyCity Queenstown casino\n"
+            "2026-04-10 | second cycle: NZD 200,000 buy-in, minimal play, NZD 175,000 redemption (cash + cheque mix)"
+        ),
+        "alert_reason": (
+            "Cross-property chip-walking: large cash buy-in, minimal play, "
+            "redemption mix of cash + cashier's cheque, repeated across "
+            "multiple SkyCity properties. Foreign-resident high-roller "
+            "indicia. Pattern matches FIU NZ Q1 2026 Auckland-Queenstown "
+            "high-value-property typology variant."
+        ),
+        "red_flags": (
+            "Buy-in-to-play ratio ~12% is the signature chip-walking pattern. "
+            "Cross-property redemption (Auckland chips → Queenstown buy-in) "
+            "is a layering technique. Cashier's-cheque redemption is the "
+            "laundering objective: an instrument with no source-of-funds "
+            "question. Foreign UBO (Singapore) raises the cross-border-"
+            "layering profile. Casino's own EDD attempted source-of-wealth "
+            "documentation but customer declined ('investment manager — "
+            "professional discretion'). Pattern matches FIU NZ Q1 2026 "
+            "thematic finding on SkyCity-Queenstown corridor abuse — "
+            "mirror of the established Macau / NSW casino layering "
+            "typologies but using NZ as the layering jurisdiction."
+        ),
+        "analyst_notes": (
+            "SkyCity's TM fired on the second-property buy-in. Cross-property "
+            "intelligence shared via DIA-supervised casino-industry channel. "
+            "EDD documentation declined. Tipping-off under s.46 maintained. "
+            "Recommend coordinated SAR to FIU NZ via goAML + PTR for any "
+            "cash redemption ≥ NZD 10,000 + cross-property freeze on player "
+            "account + FIU-to-FIU information sharing with MAS / STRO "
+            "(Singapore beneficiary jurisdiction) + DIA notification of "
+            "the typological finding for sectoral intelligence. AML/CFT Act "
+            "s.40 SAR obligation applies. s.45 safe-harbour invoked. "
+            "DIA Casino-Sector AML/CFT Guidelines specifically address this "
+            "pattern; align operational response."
+        ),
+    },
+
+    "New Zealand (FIU NZ) — Lawyer trust account": {
+        "customer_name": "Pacific Edge Legal Trust Account (Wallace & Co Solicitors)",
+        "customer_id": "DIA-LAW-NZ-2026-CUST-2901",
+        "customer_kyc": (
+            "Auckland-based law firm trust account, DIA-supervised reporting "
+            "entity under the AML/CFT Act 2009. The 'customer' for AML "
+            "purposes is the underlying client of the firm — Mr Aleksey K., "
+            "Russian national, NZ residency since 2024. Firm conducting "
+            "'commercial property and corporate-structuring' work for Mr "
+            "Aleksey K. since January 2026. Standard CDD performed at "
+            "engagement; EDD triggered at the cross-border-funds + Russian-"
+            "national + corporate-structuring profile."
+        ),
+        "transactions": (
+            "2026-04-08 | inbound NZD 1,200,000 | wire from Cyprus 'family office' to firm trust account, designated for 'commercial property purchase'\n"
+            "2026-04-09 | outbound NZD 350,000 | from trust account to a NZ-incorporated shell (NZ Co A) controlled by Mr Aleksey K.\n"
+            "2026-04-10 | outbound NZD 280,000 | to NZ-incorporated shell (NZ Co B) — newly incorporated 6 weeks earlier\n"
+            "2026-04-12 | outbound NZD 400,000 | to a third NZ shell (NZ Co C) | reference 'capital injection'\n"
+            "2026-04-15 | balance NZD 170,000 | client requested return to Cyprus 'family office' with no associated property purchase"
+        ),
+        "alert_reason": (
+            "Trust-account pass-through with no clear commercial purpose: "
+            "funds split across three newly-incorporated NZ shell companies, "
+            "with residual returned to source. Pattern matches FATF DNFBP "
+            "indicators for legal/professional involvement in layering."
+        ),
+        "red_flags": (
+            "Classic 'lawyer-trust-account-as-layering-vehicle' typology. "
+            "FATF Recommendation 22 contemplates exactly this risk; AML/CFT "
+            "Act 2009 captures lawyers and conveyancers under DIA supervision "
+            "to address it. Funds routed via Cyprus 'family office' (well-"
+            "documented sanctions / opacity-jurisdiction concern), split "
+            "across three NZ shell entities (NZ Co A/B/C) all newly "
+            "incorporated and all controlled by the same UBO, then balance "
+            "returned to source — no economic substance whatsoever. Mr "
+            "Aleksey K.'s Russian-national profile + 2024 NZ-residency "
+            "transition + Cyprus funds-source warrants enhanced sanctions "
+            "screening. Originator account flagged 'partial match' against "
+            "EU 11th-package sanctioned individual."
+        ),
+        "analyst_notes": (
+            "Firm's AML/CFT Compliance Officer (s.56 nominee) escalated on "
+            "the third outbound. EDD requested 2026-04-12; client counsel "
+            "asserted 'commercial confidentiality and legal-professional "
+            "privilege'. Firm's legal-ethics review concluded that AML/CFT "
+            "Act s.40 SAR obligation overrides claimed privilege for the "
+            "transactional facts (privilege does not extend to facts of "
+            "transactions). Tipping-off under s.46 maintained. Recommend "
+            "SAR to FIU NZ + immediate cessation of further trust-account "
+            "transactions for this client + coordinated SAR with the "
+            "Auckland branch of the firm's correspondent bank (BNZ) on the "
+            "Cyprus originator account + EU sanctions desk parallel "
+            "notification under the Russia Sanctions Regulations 2022. "
+            "DIA Lawyer-Sector AML/CFT Guidelines specifically address "
+            "trust-account-pass-through layering. NZ Law Society professional-"
+            "conduct review will be triggered if the SAR is filed; firm "
+            "partners briefed accordingly. Crimes Act ss.243-245 money-"
+            "laundering offence and Tax Administration Act tax-evasion "
+            "offence are the most likely predicate-offence anchors."
         ),
     },
 }
