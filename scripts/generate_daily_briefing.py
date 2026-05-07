@@ -42,6 +42,7 @@ except Exception:
     pass
 
 from lib.digest import build_digest  # noqa: E402
+from lib.podcast_feed import build_feed, feed_summary  # noqa: E402
 from lib.horizon import all_items_for_jurisdiction  # noqa: E402
 from lib.news import items_for as news_items_for  # noqa: E402
 from lib.obligations import load_obligations  # noqa: E402
@@ -160,6 +161,20 @@ def main() -> int:
             f"~{video.duration_seconds}s, "
             f"stub={video.stub})"
         )
+
+    # ----------------------------------------------------------------
+    # Rebuild the podcast RSS feed (data/podcasts/feed.xml). The cron
+    # commits this alongside the new MP3 so trustsphere.ai's Wix
+    # Podcast Player widget picks up the new episode automatically.
+    # Stub episodes are excluded from the published feed.
+    # ----------------------------------------------------------------
+    feed_path = build_feed()
+    summary = feed_summary()
+    print(
+        f"  ✓ RSS:     {feed_path.name} "
+        f"({summary['items']} episodes, latest {summary['latest']}, "
+        f"feed: {summary['url']})"
+    )
 
     return 0
 

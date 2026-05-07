@@ -67,6 +67,7 @@ from lib.podcast import (
     latest_podcast as latest_podcast_meta,
     recent_podcasts as recent_podcasts_meta,
 )
+from lib.podcast_feed import feed_summary as podcast_feed_summary
 from lib.video import (
     latest_video as latest_video_meta,
     recent_videos as recent_videos_meta,
@@ -5141,6 +5142,34 @@ with tab_news:
                         st.markdown(meta.get("script", "_(no script available)_"))
                     except Exception:
                         st.markdown("_(transcript unavailable)_")
+
+            # ----------------------------------------------------------
+            # Subscribe panel — RSS feed URL for podcast aggregators
+            # (Apple Podcasts, Spotify, Wix Podcast Player, etc.) plus
+            # one-click copy. The cron rebuilds feed.xml each morning.
+            # ----------------------------------------------------------
+            try:
+                feed = podcast_feed_summary()
+                if feed.get("url") and feed.get("items"):
+                    st.markdown(
+                        "<div class='output-label' style='margin-top:1.5rem;'>"
+                        "Subscribe to the daily podcast</div>",
+                        unsafe_allow_html=True,
+                    )
+                    st.caption(
+                        f"Apple Podcasts · Spotify · Pocket Casts · Overcast · "
+                        f"Wix Podcast Player. {feed['items']} episodes, latest {feed['latest']}."
+                    )
+                    st.code(feed["url"], language=None)
+                    st.caption(
+                        "Paste this RSS feed URL into your podcast app's "
+                        "'Add by URL' option. For trustsphere.ai's Podcast "
+                        "tab, add a Wix RSS Podcast widget and point it at "
+                        "this URL — new episodes appear automatically each "
+                        "morning."
+                    )
+            except Exception:
+                pass
 
             # ----------------------------------------------------------
             # Previous briefings — last 3 days under today's, so listeners
