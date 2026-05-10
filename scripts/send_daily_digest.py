@@ -85,6 +85,11 @@ def _send_via_resend(
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            # Cloudflare sits in front of api.resend.com and blocks the
+            # default urllib User-Agent (`Python-urllib/3.x`) with error
+            # code 1010. A realistic UA + Accept pair gets through.
+            "Accept": "application/json",
+            "User-Agent": "AML-Agents-Daily/1.0 (+https://trustsphere.ai)",
         },
     )
     try:
