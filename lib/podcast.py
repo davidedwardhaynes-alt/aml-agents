@@ -476,9 +476,24 @@ def _build_script(
             messages=[{"role": "user", "content": user_prompt}],
         )
     except Exception as e:
-        return (f"[Script generation failed: {e}]", {"input_tokens": 0, "output_tokens": 0})
+        # Re-raise so the workflow fails loudly. Previously this swallowed
+        # the error and returned a tiny error-as-script string, which
+        # edge-tts then narrated as a ~60-second audio file — and the cron
+        # committed that to main, silently degrading the daily podcast for
+        # days. See the 2026-05-12 / 2026-05-13 outage when Anthropic
+        # credits depleted: both runs went "green" in GHA but shipped a
+        # 138 KB MP3 of someone reading the API error message aloud.
+        raise RuntimeError(f"Script generation failed: {e}") from e
 
     text = resp.content[0].text.strip() if resp.content else ""
+    if len(text) < 1500:
+        # Guardrail for the other failure mode: Anthropic returns OK but
+        # gives back a truncated or empty response. A real 600–900-word
+        # script lands well above 1500 chars; anything under is suspect.
+        raise RuntimeError(
+            f"Script too short ({len(text)} chars; expected ≥1500). "
+            "Refusing to ship a degraded podcast — investigate upstream."
+        )
     return text, {
         "input_tokens": resp.usage.input_tokens,
         "output_tokens": resp.usage.output_tokens,
