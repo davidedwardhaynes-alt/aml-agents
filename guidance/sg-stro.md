@@ -3,7 +3,7 @@
 ### Legal basis
 - **CDSA** (Corruption, Drug Trafficking and other Serious Crimes (Confiscation of Benefits) Act, Cap. 65A)
 - **TSOFA** (Terrorism (Suppression of Financing) Act, Cap. 325)
-- Sector notices: **MAS Notice 626** (banks), **MAS Notice 1014** (digital payment tokens), **MAS Notice 824** (insurers), **MAS Notice 314** (capital markets)
+- Sector notices: **MAS Notice 626** (banks), **MAS Notice 1014** (merchant banks), **MAS Notice 824** (finance companies), **MAS Notice 314** (life insurers), **MAS Notice PSN02** (digital payment token service providers), plus the AML notices for capital-markets-services licensees and money-changing / remittance businesses
 
 ### Who must file
 - Banks, finance companies, merchant banks (MAS-licensed)
@@ -74,9 +74,10 @@ The customer may be told that an account is restricted or closed for "compliance
 **Regulator (MAS)**
 - [MAS notices index](https://www.mas.gov.sg/regulation/notices)
 - [MAS Notice 626 — banks](https://www.mas.gov.sg/regulation/notices/notice-626)
-- [MAS Notice 1014 — DPT service providers](https://www.mas.gov.sg/regulation/notices/notice-psn02)
-- [MAS Notice 824 — insurers](https://www.mas.gov.sg/regulation/notices/notice-824)
-- [MAS Notice 314 — capital markets](https://www.mas.gov.sg/regulation/notices/notice-cmg-n01)
+- [MAS Notice 1014 — merchant banks](https://www.mas.gov.sg/regulation/notices/notice-1014)
+- [MAS Notice 824 — finance companies](https://www.mas.gov.sg/regulation/notices/notice-824)
+- [MAS Notice 314 — life insurers](https://www.mas.gov.sg/regulation/notices/notice-314)
+- [MAS AML notices index — full sectoral list incl. PSN02 (DPT), CMS, MSB](https://www.mas.gov.sg/regulation/notices)
 - [MAS AML/CFT enforcement actions](https://www.mas.gov.sg/news/enforcement-actions)
 
 **Statutes (Singapore Statutes Online — AGC)**

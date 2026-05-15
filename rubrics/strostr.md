@@ -29,10 +29,12 @@ Date of Filing: {value}
 
 When the entity category is provided, tailor sectoral-notice references in the narrative accordingly:
 - **Bank** → reference MAS Notice 626
-- **Payment institution / E-money issuer** → reference MAS Notice PSN02
+- **Merchant bank** → reference MAS Notice 1014
+- **Finance company** → reference MAS Notice 824
+- **Payment service provider (account-issuance / cross-border money transfer / merchant acquisition / e-money issuance / money-changing)** → reference the applicable PSA AML notice (PSN01 or its successor at filing date)
 - **Digital payment token (DPT) service provider** → reference MAS Notice PSN02 (PSA Part VIII obligations)
-- **Insurer** → reference MAS Notice 824
-- **Capital markets services licensee / Fund manager** → reference MAS Notice CMG-N01 (formerly Notice 314)
+- **Life insurer / direct life insurance product provider** → reference MAS Notice 314
+- **Capital markets services licensee / Fund manager** → reference the CMS AML notice in force at filing date (MAS Notice SFA04-N02, or its successor)
 - **DNFBP** (lawyer, accountant, CSP, real estate, PSMD) → reference the applicable sectoral guidelines from the relevant supervisor (e.g., LSRA for legal practitioners, ACRA for CSPs, Council for Estate Agencies for real estate)
 
 If category is `[not provided]`, do not invent a sectoral reference.

@@ -265,14 +265,17 @@ def _seed_obligations() -> list[Obligation]:
             ),
             source_url="https://www.mas.gov.sg/regulation/notices/notice-626",
             entities_impacted=(
-                "All MAS-licensed banks (full banks, wholesale banks, "
-                "merchant banks, finance companies). Also captures Digital "
-                "Full Banks and Digital Wholesale Banks. Sister §13-"
-                "equivalents in MAS Notice 1014 (DPT service providers), "
-                "MAS Notice 824 (insurers), MAS Notice 314 (CMS licensees) "
-                "carry the same expectation. Foreign-bank branches are "
-                "captured by the §13 obligation in addition to the parent's "
-                "global audit."
+                "All MAS-licensed banks under Notice 626 (full banks, "
+                "wholesale banks, foreign-bank branches). Also captures "
+                "Digital Full Banks and Digital Wholesale Banks. Sister "
+                "§13-equivalents in the MAS sectoral AML notices carry "
+                "the same expectation — Notice 1014 (merchant banks), "
+                "Notice 824 (finance companies), Notice 314 (life "
+                "insurers), Notice PSN02 (DPT service providers), and "
+                "the AML notices for capital-markets-services licensees "
+                "and money-changers / remittance operators. Foreign-bank "
+                "branches are captured by the §13 obligation in addition "
+                "to the parent's global audit."
             ),
             penalties=(
                 "Administrative fines up to S$1 million per breach under "
@@ -2643,6 +2646,446 @@ def _seed_obligations() -> list[Obligation]:
                 "file."
             ),
             source_url="https://www.legislation.govt.nz/act/public/2009/0035/latest/whole.html",
+        ),
+        # ===================================================================
+        # Thailand (AMLO) — 4 obligations anchored in statute
+        # ===================================================================
+        Obligation(
+            title="AMLA §13 — STR continuous filing (7 working days)",
+            description=(
+                "Continuous obligation to file a Suspicious Transaction "
+                "Report with AMLO within 7 working days of forming "
+                "reasonable grounds to believe the transaction relates to "
+                "a predicate offence or terrorism / proliferation "
+                "financing. Filed via the AMLO E-Reporting System (ERS)."
+            ),
+            jurisdiction="Thailand (AMLO)",
+            statute_or_notice=(
+                "Anti-Money Laundering Act B.E. 2542 (1999) §13 + "
+                "Ministerial Regulations under AMLA + CTPF Act B.E. 2559 "
+                "(2016)"
+            ),
+            due_date="2026-12-31",
+            status="Open",
+            owner="MLRO + Financial-Crime Operations",
+            notes=(
+                "Ongoing. AMLO's 2023–2024 typology bulletins repeatedly "
+                "cite weak Thailand-CLMV cross-border counterparty data "
+                "as a recurring STR-quality finding."
+            ),
+            priority="Critical",
+            full_text=(
+                "Section 13 of the Anti-Money Laundering Act B.E. 2542 "
+                "(1999) requires every reporting institution (defined in "
+                "AMLA §16 and extended by Ministerial Regulation No. 11 "
+                "B.E. 2562 / 2019 to cover DNFBPs) to file a Suspicious "
+                "Transaction Report with the Anti-Money Laundering Office "
+                "when it has reasonable grounds to believe a transaction "
+                "is connected to a predicate offence listed in §3 — "
+                "narcotics, corruption, human trafficking, smuggling, "
+                "tax fraud, gambling under the Gambling Act, and the "
+                "other categories progressively added since 1999.\n\n"
+                "STRs must be filed via the AMLO E-Reporting System "
+                "(https://ers.amlo.go.th) within 7 working days of "
+                "suspicion arising. Where the customer or counterparty "
+                "appears on AMLO's domestic CTPF designated-persons list "
+                "issued under the CTPF Act B.E. 2559 (2016), the "
+                "reporting entity must also freeze the relevant assets "
+                "immediately on designation, separate from and in "
+                "addition to the STR.\n\n"
+                "Section 25 prohibits tipping-off — the customer or any "
+                "third party must not be informed that an STR has been "
+                "filed or that an AMLO investigation has commenced. "
+                "Customers may be told only that an account is "
+                "restricted or closed for 'regulatory compliance "
+                "reasons' without specifics."
+            ),
+            deadline_explanation=(
+                "Continuous obligation — the 7-working-day clock starts "
+                "the moment the MLRO (or designated officer) forms "
+                "reasonable grounds to suspect. The 31 December date is "
+                "a calendar-year anchor used to render the obligation "
+                "in the register; in practice the filing duty is "
+                "perpetual."
+            ),
+            evidence=(
+                "STR submission confirmations from the ERS portal; "
+                "internal escalation memos with MLRO sign-off; alert "
+                "investigation workpapers; CTPF designation freeze "
+                "evidence; tipping-off prohibition training attestations; "
+                "AMLO acknowledgement receipts; reconciliation between "
+                "alerts opened, alerts escalated, and STRs filed."
+            ),
+            source_url="https://www.amlo.go.th/index.php/en/",
+            entities_impacted=(
+                "All AMLA §16 reporting institutions: commercial banks "
+                "(BOT-supervised), finance companies, SFIs (GSB, BAAC, "
+                "EXIM, ICBC Thai etc.), securities companies, derivatives "
+                "intermediaries, mutual fund managers, custodians "
+                "(SEC-supervised), digital asset operators (SEC-"
+                "registered exchanges, brokers, dealers, fund managers, "
+                "custodians), life and non-life insurers (OIC-"
+                "supervised), money changers, e-payment and remittance "
+                "operators. Plus DNFBPs designated under Ministerial "
+                "Regulation No. 11: lawyers and notarial-services "
+                "practitioners, accountants, real estate agents and "
+                "developers, dealers in precious metals / stones / "
+                "jewellery, antique dealers, pawnbrokers and personal-"
+                "loan operators above threshold."
+            ),
+            penalties=(
+                "AMLA §62 — fine up to THB 500,000 plus continuing "
+                "penalty THB 5,000 per day of default. Officer-level "
+                "criminal liability where the institution's failure is "
+                "attributable to the director's or officer's "
+                "acquiescence (§62 final paragraph). Tipping-off under "
+                "§65 — imprisonment up to 3 years and/or fine up to "
+                "THB 300,000. Supervisory consequences from BOT / SEC / "
+                "OIC are separate and may include licence conditions, "
+                "public reprimands, and exclusion from particular "
+                "business activities."
+            ),
+            common_mistakes=(
+                "1. Treating §13 as a transaction-monitoring system "
+                "output rather than a human-judgement obligation — "
+                "alerts auto-closing without MLRO review will not "
+                "discharge the statutory duty.\n\n"
+                "2. 7-working-day clock interpreted as 7 days from STR "
+                "drafting completion, not from when suspicion arose at "
+                "the analyst level — AMLO inspections measure end-to-"
+                "end timeliness.\n\n"
+                "3. Cross-border counterparty data gaps for Thailand-"
+                "Cambodia, Thailand-Laos, Thailand-Myanmar flows where "
+                "the foreign correspondent's UBO information is thin or "
+                "absent — AMLO has repeatedly flagged this as the "
+                "single most common STR-quality deficiency in the "
+                "CLMV-corridor typology bulletins.\n\n"
+                "4. Failing to freeze assets immediately on CTPF "
+                "designation publication — institutions wait for "
+                "internal sanctions-list propagation rather than acting "
+                "on the AMLO designation directly.\n\n"
+                "5. Tipping-off through customer relationship managers "
+                "who 'soften' account-restriction conversations with "
+                "hints about regulator activity — §25 has no exemption "
+                "for client-relations comfort."
+            ),
+        ),
+        Obligation(
+            title="AMLA §16 + Ministerial Regulation — CTR continuous filing (THB 2M cash / 5M property / USD 20K cross-border)",
+            description=(
+                "Continuous obligation to file Cash Transaction Reports "
+                "and high-value-property transaction reports with AMLO "
+                "via the E-Reporting System, regardless of suspicion, "
+                "above the threshold values fixed by Ministerial "
+                "Regulation."
+            ),
+            jurisdiction="Thailand (AMLO)",
+            statute_or_notice=(
+                "AMLA §16 + Ministerial Regulation on threshold reporting "
+                "(B.E. 2554, as amended)"
+            ),
+            due_date="2026-12-31",
+            status="Open",
+            owner="Operations Reporting Officer + MLRO",
+            notes=(
+                "Continuous. Same-day aggregation across branches is the "
+                "most common compliance failure. AMLO's 2024 thematic "
+                "review on cash-handling reporting tightened expectations "
+                "on the integrity of branch-level rollup."
+            ),
+            priority="High",
+            full_text=(
+                "Section 16 of the AMLA, together with Ministerial "
+                "Regulations made under it, requires reporting "
+                "institutions to file three threshold-based reports "
+                "irrespective of any suspicion:\n\n"
+                "  • Cash Transaction Report — single cash transaction "
+                "≥ THB 2,000,000 (or a single customer's same-day "
+                "aggregate ≥ THB 2,000,000 across branches).\n\n"
+                "  • High-Value Property Transaction Report — single "
+                "transaction in immovable property (real estate, land) "
+                "≥ THB 5,000,000.\n\n"
+                "  • Cross-Border Currency Movement Report — physical "
+                "movement of cash or bearer-negotiable instruments "
+                "across the border ≥ USD 20,000 equivalent, declared to "
+                "Thai Customs and onward-notified to AMLO.\n\n"
+                "All three are filed via the AMLO E-Reporting System "
+                "within 7 working days of the transaction. The CTR "
+                "obligation is institution-level — a single transaction "
+                "structured across two branches still triggers if "
+                "same-customer same-day aggregation crosses THB 2M."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. Each in-scope transaction starts "
+                "its own 7-working-day filing clock. The 31 December "
+                "anchor reflects the calendar-year register cycle, not "
+                "a one-shot deadline."
+            ),
+            evidence=(
+                "Daily CTR-eligibility extraction logs from the core "
+                "banking platform; branch-level aggregation reports; "
+                "ERS submission confirmations; reconciliation between "
+                "extracted candidates, submitted reports, and AMLO "
+                "acknowledgements; sample-testing evidence of same-day "
+                "aggregation rule operation; FX translation timing for "
+                "near-threshold transactions."
+            ),
+            source_url="https://www.amlo.go.th/index.php/en/reporting-forms",
+            entities_impacted=(
+                "All AMLA §16 reporting institutions — banks, finance "
+                "companies, securities companies, insurers, money "
+                "changers, remittance operators, e-payment providers. "
+                "DNFBPs designated under Ministerial Regulation No. 11 "
+                "are also captured for the high-value-property report "
+                "(real estate agents, developers, dealers in precious "
+                "metals / stones / jewellery, antique dealers) where "
+                "their transactions cross the THB 5M property threshold."
+            ),
+            penalties=(
+                "AMLA §62 — fine up to THB 300,000 for late or missing "
+                "CTRs, plus continuing penalty THB 5,000 per day of "
+                "default. Repeat offences trigger escalation to "
+                "criminal liability for directors and officers under "
+                "§62's acquiescence clause."
+            ),
+            common_mistakes=(
+                "1. Same-day branch aggregation logic broken — each "
+                "branch reports independently and the customer "
+                "structures two THB 1.5M deposits across two branches.\n\n"
+                "2. FX translation timing — the THB equivalent is "
+                "calculated at booking date, not value date, and "
+                "near-threshold FX transactions slip below.\n\n"
+                "3. Cross-border CMR not synchronised with Customs "
+                "declarations — institutions assume Customs notifies "
+                "AMLO and don't file themselves, but the statute "
+                "imposes parallel duties.\n\n"
+                "4. DNFBP property dealers underestimate scope — "
+                "treating the THB 5M threshold as 'sale price' when "
+                "valuation rules in the Ministerial Regulation can "
+                "deem aggregate consideration (price + deposits + "
+                "bridging payments) into a single reportable "
+                "transaction.\n\n"
+                "5. ERS submission confirmations not retained — AMLO "
+                "examiners ask for the per-report acknowledgement, "
+                "not just the institution's own batch logs."
+            ),
+        ),
+        Obligation(
+            title="CTPF Act §6 + §15 — designated-persons list refresh and asset-freezing mechanism",
+            description=(
+                "Continuous obligation to monitor AMLO's domestic "
+                "designated-persons list under the CTPF Act and freeze "
+                "assets of designated persons immediately upon "
+                "designation. Annual freezing-mechanism test "
+                "recommended as supervisory good practice."
+            ),
+            jurisdiction="Thailand (AMLO)",
+            statute_or_notice=(
+                "Counter-Terrorism and Proliferation of Weapons of Mass "
+                "Destruction Financing Financing Act B.E. 2559 (2016) §6, §15"
+            ),
+            due_date="2026-12-31",
+            status="Open",
+            owner="Sanctions Officer + Head of Compliance",
+            notes=(
+                "Continuous. Annual end-to-end freezing-mechanism test "
+                "(simulated designation → screening match → asset hold) "
+                "is supervisory good practice though not statutory."
+            ),
+            priority="Critical",
+            full_text=(
+                "Sections 6 and 15 of the CTPF Act B.E. 2559 (2016) "
+                "operate in tandem: §6 empowers AMLO (acting on the "
+                "Cabinet's resolution) to designate persons whose "
+                "assets must be frozen on terrorism-financing or "
+                "proliferation-financing grounds, and to maintain a "
+                "domestic designated-persons list separate from the UN "
+                "1267 and 1988 consolidated lists. §15 obliges every "
+                "person — explicitly including reporting institutions "
+                "under the AMLA — to freeze without delay any funds, "
+                "financial assets, or economic resources owned or "
+                "controlled by a designated person.\n\n"
+                "The freeze obligation is immediate on publication of "
+                "the designation in the Royal Gazette — institutions "
+                "cannot wait for the designation to flow through "
+                "third-party sanctions-list vendors. AMLO must be "
+                "notified of any freeze action within the timeframe "
+                "fixed by subordinate regulation, typically reported "
+                "via the ERS portal alongside any related STR.\n\n"
+                "The Thai designated-persons list is in addition to "
+                "FATF Recommendation 6 implementation of UN Security "
+                "Council sanctions, which Thailand discharges through "
+                "separate ministerial channels. Compliance functions "
+                "must screen against both lists."
+            ),
+            deadline_explanation=(
+                "Continuous freeze obligation triggered by each "
+                "designation. Annual mechanism test (simulated "
+                "designation → screening hit → operational hold) is a "
+                "supervisory expectation though not codified — "
+                "scheduling the test for Q4 each year aligns with the "
+                "calendar-year supervisory cycle."
+            ),
+            evidence=(
+                "Sanctions-screening configuration showing AMLO "
+                "designated-persons list as a screened source; "
+                "match-review workflow logs; freeze-action records "
+                "with timestamps relative to designation publication; "
+                "AMLO notification submissions; annual mechanism-test "
+                "report; reconciliation between designations published "
+                "in the Royal Gazette and the institution's screening "
+                "ingestion log."
+            ),
+            source_url="https://www.amlo.go.th/index.php/en/designated-persons-list",
+            entities_impacted=(
+                "All AMLA §16 reporting institutions plus every person "
+                "in Thailand within the territorial scope of the CTPF "
+                "Act (the §15 freeze duty applies generally, not only "
+                "to financial institutions). Operationally, banks "
+                "(BOT-supervised), securities firms (SEC-supervised), "
+                "insurers (OIC-supervised), money services, digital "
+                "asset operators, and DNFBPs all carry it. Non-"
+                "financial holders of designated-person assets (e.g. "
+                "real-estate registries, securities depositories) are "
+                "also bound."
+            ),
+            penalties=(
+                "CTPF Act §17 — imprisonment up to 3 years and/or fine "
+                "up to THB 300,000 for failure to freeze, with separate "
+                "officer-level liability. AMLA cross-references apply "
+                "where the failure is also a §13 STR breach. "
+                "Supervisory consequences from BOT / SEC / OIC are "
+                "separate. Practical consequences: correspondent-bank "
+                "de-risking by US/EU correspondents, exclusion from "
+                "USD clearing, and reputational damage where freezes "
+                "are missed on Royal Gazette-published designations."
+            ),
+            common_mistakes=(
+                "1. Relying on commercial sanctions-list vendors "
+                "(World-Check, Dow Jones, Refinitiv) to surface AMLO "
+                "domestic designations — vendor ingestion can lag "
+                "Royal Gazette publication by hours or days.\n\n"
+                "2. Treating AMLO designations as equivalent to UN "
+                "1267 consolidated-list entries — the legal basis, "
+                "scope, and notification mechanics differ.\n\n"
+                "3. Freezing accounts but not the underlying economic "
+                "resources held in custody (safe-deposit contents, "
+                "physical securities, gold bars) — §15 scope is "
+                "broader than 'funds'.\n\n"
+                "4. Notifying AMLO only after operational freeze is "
+                "complete rather than immediately on designation match "
+                "— the notification timeframe runs from the "
+                "designation event, not from internal completion.\n\n"
+                "5. No documented annual freezing-mechanism test — "
+                "examiners increasingly expect evidence that the "
+                "end-to-end pipeline (designation publication → "
+                "screening hit → MLRO escalation → operational hold → "
+                "AMLO notification) actually works under pressure."
+            ),
+        ),
+        Obligation(
+            title="AMLA §22 — customer-record retention (5 years from termination)",
+            description=(
+                "Continuous obligation to retain customer-identification "
+                "records, account-opening documents, transaction "
+                "records, and STR / CTR working files for a minimum of "
+                "5 years from the date the customer relationship ends "
+                "or the transaction is concluded — whichever is later."
+            ),
+            jurisdiction="Thailand (AMLO)",
+            statute_or_notice="AMLA B.E. 2542 (1999) §22 + AMLO retention guidance",
+            due_date="2026-12-31",
+            status="Open",
+            owner="Records Management Officer + MLRO",
+            notes=(
+                "Continuous. The 5-year clock runs from termination, "
+                "not from creation — long-dormant relationships and "
+                "closed-account follow-ups commonly trip this."
+            ),
+            priority="High",
+            full_text=(
+                "Section 22 of the AMLA requires every reporting "
+                "institution to maintain records sufficient to "
+                "reconstruct customer identification, account "
+                "relationships, and transactions for at least 5 years "
+                "from the date the customer relationship terminates or "
+                "the transaction is concluded — whichever is later. "
+                "Records include CDD and EDD evidence, beneficial-"
+                "owner verification, customer correspondence, "
+                "transaction logs, alert investigations, STR / CTR "
+                "files and their supporting workpapers, and the "
+                "MLRO's decision rationale.\n\n"
+                "Where AMLO opens an investigation or requests "
+                "documents in connection with an STR or designated-"
+                "person matter, the institution must retain the "
+                "relevant records until AMLO confirms the matter is "
+                "closed — which may extend retention well beyond the "
+                "default 5 years. Records must be produced to AMLO "
+                "(or competent authorities under a court order) "
+                "without delay; failure to produce is itself an AMLA "
+                "breach.\n\n"
+                "Section 22 applies regardless of the storage medium. "
+                "Cloud, off-site archive, and microfilm are all "
+                "acceptable provided the records remain readable, "
+                "intact, and producible within a reasonable time."
+            ),
+            deadline_explanation=(
+                "Continuous obligation. Each customer relationship and "
+                "transaction starts its own 5-year retention clock on "
+                "termination / completion. The 31 December anchor is "
+                "the register-level renewal — in practice the duty is "
+                "perpetual until the last in-scope record ages out."
+            ),
+            evidence=(
+                "Records retention schedule mapped to AMLA §22; "
+                "destruction-log evidence (with auditor sign-off); "
+                "secure-archive integrity reports; sample retrieval "
+                "tests with elapsed-time metrics; cloud-storage "
+                "encryption and access-control configuration; AMLO "
+                "production-request response files."
+            ),
+            source_url="http://web.krisdika.go.th/data/law/law2/%CA20/%CA20-20-9999-update.pdf",
+            entities_impacted=(
+                "All AMLA §16 reporting institutions plus DNFBPs under "
+                "Ministerial Regulation No. 11. Foreign-bank branches "
+                "must retain Thai-customer records in Thailand or in "
+                "a location accessible to AMLO within a reasonable "
+                "time on request — extraterritorial archive of Thai-"
+                "customer records is permitted but the burden of "
+                "production remains with the Thai entity."
+            ),
+            penalties=(
+                "AMLA §62 — fine up to THB 500,000 for record-keeping "
+                "breaches plus continuing penalty THB 5,000 per day of "
+                "default. Premature destruction of records relevant to "
+                "an ongoing AMLO matter can additionally constitute "
+                "obstruction of justice under separate criminal "
+                "provisions. Supervisory consequences from BOT (under "
+                "the Financial Institutions Business Act), SEC (under "
+                "the Securities and Exchange Act), and OIC (under the "
+                "Life Insurance Act and Non-Life Insurance Act) apply "
+                "independently of AMLA penalties."
+            ),
+            common_mistakes=(
+                "1. Retention clock measured from account-opening "
+                "date, not termination — closing a 20-year customer "
+                "relationship and destroying records 5 years later "
+                "(measured wrongly) creates a §22 breach.\n\n"
+                "2. STR working files retained for 5 years from STR "
+                "filing rather than from final closure of the matter "
+                "— if AMLO is still investigating, retention extends.\n\n"
+                "3. Beneficial-owner documents for legal-entity "
+                "customers stored only in the relationship manager's "
+                "personal drive — fails the 'reasonable producibility' "
+                "standard.\n\n"
+                "4. Cloud-storage encryption keys lost when a vendor "
+                "relationship ends — the records exist but are not "
+                "readable, which is treated as non-retention.\n\n"
+                "5. Foreign-bank branch sends Thai-customer records to "
+                "a regional hub (Singapore, Hong Kong) without "
+                "ensuring the Thai entity can produce them to AMLO "
+                "within the timeframe set by the production request."
+            ),
         ),
     ]
     save_obligations(seeds)
