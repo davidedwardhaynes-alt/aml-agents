@@ -28,21 +28,40 @@ from lib.subscriptions import Subscription
 
 
 # --- Style tokens -----------------------------------------------------------
-# Apple-style palette + typography, inlined for email clients that strip
-# external CSS. Outlook 365 honours inline styles only.
+# Fireside palette — warm amber/ember/cream. Inline only (email clients
+# strip <style>). Body font sans for compatibility; serif accent on the
+# masthead and pull-quotes for a "briefing memo" feel.
 STYLE = {
     "font_stack": (
         "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', "
         "Arial, sans-serif"
     ),
-    "canvas": "#F5F5F7",
-    "surface": "#FFFFFF",
-    "hairline": "#E5E5EA",
-    "text": "#1D1D1F",
-    "secondary": "#6E6E73",
-    "tertiary": "#86868B",
-    "accent": "#0071E3",
-    "accent_soft": "rgba(0,113,227,0.10)",
+    "serif_stack": (
+        "'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif"
+    ),
+    # Surfaces
+    "canvas": "#1A0F0A",          # the dark "outside" — only visible at the page margin
+    "surface": "#FBF5EC",          # warm cream — main card body
+    "footer_surface": "#F4ECE0",  # slightly darker cream — footer band
+    # Brand
+    "accent": "#8C3B1F",           # ember red — links + section accents
+    "accent_warm": "#D26E3A",      # amber — gradient stops
+    "accent_soft": "rgba(140,59,31,0.10)",
+    "ember_glow": "#FF8A3D",       # bright orange — gradient highlight
+    "night": "#1A0A05",            # near-black — armchair silhouettes
+    # Type
+    "text": "#1F1A14",             # warm near-black body text
+    "secondary": "#6E5A48",        # warm grey — captions
+    "tertiary": "#9B8770",         # muted warm grey — disclaimers
+    "hairline": "#E8DFD0",         # soft cream divider
+    "hairline_warm": "#F0E7D6",   # softer divider inside sections
+    # Risk badges (warmer take, still legible)
+    "risk_critical_bg": "#F8D9CC",
+    "risk_critical_fg": "#9C2018",
+    "risk_warning_bg": "#FFEEDA",
+    "risk_warning_fg": "#9A4F00",
+    "risk_info_bg": "#FFF1E6",
+    "risk_info_fg": "#8C3B1F",
 }
 
 
@@ -107,32 +126,31 @@ def _news_block(sub: Subscription, today: dt.date) -> tuple[str, int]:
         rows.append(
             f'''
 <tr>
-  <td style="padding: 12px 0; border-bottom: 1px solid {STYLE['hairline']};">
-    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {STYLE['accent']}; margin-bottom: 4px;">
-      {_esc(it.date)} · {_esc(it.jurisdiction)} · {_esc(topic_label)}
-    </div>
-    <div style="font-size: 15px; font-weight: 600; color: {STYLE['text']}; line-height: 1.35; margin-bottom: 6px;">
+  <td style="padding: 14px 0; border-bottom: 1px solid {STYLE['hairline_warm']};">
+    <span style="display: inline-block; background: {STYLE['risk_info_bg']}; color: {STYLE['risk_info_fg']}; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px;">{_esc(it.jurisdiction)} · {_esc(topic_label)}</span>
+    <div style="font-size: 16px; font-weight: 600; color: {STYLE['text']}; line-height: 1.35; margin-top: 8px;">
       {_esc(it.title)}
     </div>
-    <div style="font-size: 13px; color: {STYLE['secondary']}; line-height: 1.5; margin-bottom: 6px;">
+    <div style="font-size: 14px; color: {STYLE['secondary']}; line-height: 1.55; margin-top: 4px;">
       {_esc((it.summary or '')[:280])}{'…' if it.summary and len(it.summary) > 280 else ''}
     </div>
-    <div style="font-size: 12px;">
-      <a href="{_esc(it.url)}" style="color: {STYLE['accent']}; text-decoration: none;">Read more →</a>
-      <span style="color: {STYLE['tertiary']}; margin-left: 8px;">{_esc(it.source)}</span>
+    <div style="font-size: 12px; margin-top: 8px;">
+      <a href="{_esc(it.url)}" style="color: {STYLE['accent']}; text-decoration: none; font-weight: 600;">Read more →</a>
+      <span style="color: {STYLE['tertiary']}; margin-left: 10px;">{_esc(it.date)} · {_esc(it.source)}</span>
     </div>
   </td>
 </tr>'''
         )
 
     block = (
-        f'<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 24px;">'
-        f'<tr><td style="padding-bottom: 8px; border-bottom: 2px solid {STYLE["text"]};">'
-        f'<div style="font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: {STYLE["text"]};">'
-        f'Jurisdictional news · {len(selected)}</div>'
-        f'</td></tr>'
+        f'<tr><td style="padding: 24px 36px 8px 36px;">'
+        f'<div style="font-family: {STYLE["serif_stack"]}; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: {STYLE["accent"]}; border-top: 1px solid {STYLE["hairline"]}; padding-top: 24px;">'
+        f"If you'd rather read &nbsp;&middot;&nbsp; {len(selected)} stor{'y' if len(selected) == 1 else 'ies'}"
+        f'</div>'
+        f'<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 8px;">'
         + "".join(rows)
         + '</table>'
+        f'</td></tr>'
     )
     return block, len(selected)
 
@@ -164,52 +182,57 @@ def _obligations_block(sub: Subscription, today: dt.date) -> tuple[str, int]:
             due = dt.date.fromisoformat(o.due_date)
             days_left = (due - today).days
             if days_left < 0:
-                deadline_chip = (
-                    f'<span style="background: #FFE5E5; color: #C92A2A; padding: 2px 8px; '
-                    f'border-radius: 980px; font-size: 11px; font-weight: 600;">'
-                    f'Overdue {-days_left}d</span>'
-                )
+                chip_bg, chip_fg, chip_text = STYLE["risk_critical_bg"], STYLE["risk_critical_fg"], f"Overdue {-days_left}d"
             elif days_left <= 14:
-                deadline_chip = (
-                    f'<span style="background: #FFF4E5; color: #B45309; padding: 2px 8px; '
-                    f'border-radius: 980px; font-size: 11px; font-weight: 600;">'
-                    f'Due in {days_left}d</span>'
-                )
+                chip_bg, chip_fg, chip_text = STYLE["risk_warning_bg"], STYLE["risk_warning_fg"], f"Due in {days_left}d"
             else:
-                deadline_chip = (
-                    f'<span style="background: {STYLE["accent_soft"]}; color: {STYLE["accent"]}; '
-                    f'padding: 2px 8px; border-radius: 980px; font-size: 11px; font-weight: 600;">'
-                    f'Due in {days_left}d</span>'
-                )
+                chip_bg, chip_fg, chip_text = STYLE["risk_info_bg"], STYLE["risk_info_fg"], f"Due in {days_left}d"
+            deadline_chip = (
+                f'<span style="background: {chip_bg}; color: {chip_fg}; padding: 2px 8px; '
+                f'border-radius: 10px; font-size: 11px; font-weight: 700;">{chip_text}</span>'
+            )
+            due_display = due.strftime("%-d %b")
         except ValueError:
             deadline_chip = ""
+            due_display = o.due_date
+
+        priority_pill = ""
+        if o.priority in ("Critical", "High"):
+            priority_pill = (
+                f'<span style="display: inline-block; background: {STYLE["risk_critical_bg"] if o.priority == "Critical" else STYLE["risk_warning_bg"]}; '
+                f'color: {STYLE["risk_critical_fg"] if o.priority == "Critical" else STYLE["risk_warning_fg"]}; '
+                f'font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; '
+                f'padding: 2px 7px; border-radius: 4px; margin-right: 6px;">{_esc(o.priority)}</span>'
+            )
 
         rows.append(
             f'''
 <tr>
-  <td style="padding: 12px 0; border-bottom: 1px solid {STYLE['hairline']};">
-    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {STYLE['secondary']}; margin-bottom: 4px;">
-      {_esc(o.jurisdiction)} · Due {_esc(o.due_date)} {deadline_chip}
+  <td style="padding: 12px 0; border-top: 1px solid {STYLE['hairline_warm']}; width: 70px; vertical-align: top; color: {STYLE['accent']}; font-weight: 700; letter-spacing: 0.08em; font-size: 12px;">
+    {_esc(o.jurisdiction.split(' (')[0])}
+  </td>
+  <td style="padding: 12px 0; border-top: 1px solid {STYLE['hairline_warm']}; color: {STYLE['text']};">
+    <div style="font-weight: 600; font-size: 14px; line-height: 1.4;">
+      {priority_pill}{_esc(o.title)}
     </div>
-    <div style="font-size: 15px; font-weight: 600; color: {STYLE['text']}; line-height: 1.35; margin-bottom: 6px;">
-      {_esc(o.title)}
-    </div>
-    <div style="font-size: 13px; color: {STYLE['secondary']}; line-height: 1.5;">
-      {_esc(o.description or '')}
-    </div>
-    {f'<div style="font-size: 12px; color: {STYLE["tertiary"]}; margin-top: 6px;">Reference: {_esc(o.statute_or_notice)}</div>' if o.statute_or_notice else ''}
+    {f'<div style="color: {STYLE["secondary"]}; font-size: 12px; margin-top: 3px;">{_esc(o.statute_or_notice)}</div>' if o.statute_or_notice else ''}
+  </td>
+  <td style="padding: 12px 0; border-top: 1px solid {STYLE['hairline_warm']}; text-align: right; white-space: nowrap; color: {STYLE['text']}; font-weight: 600; font-size: 13px;">
+    {_esc(due_display)}<br>
+    <span style="color: {STYLE['secondary']}; font-weight: 400; font-size: 11px;">{deadline_chip}</span>
   </td>
 </tr>'''
         )
 
     block = (
-        f'<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 32px;">'
-        f'<tr><td style="padding-bottom: 8px; border-bottom: 2px solid {STYLE["text"]};">'
-        f'<div style="font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: {STYLE["text"]};">'
-        f'Obligations due · next 60 days · {len(selected)}</div>'
-        f'</td></tr>'
+        f'<tr><td style="padding: 24px 36px 8px 36px;">'
+        f'<div style="font-family: {STYLE["serif_stack"]}; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: {STYLE["accent"]}; border-top: 1px solid {STYLE["hairline"]}; padding-top: 24px;">'
+        f"On your calendar &nbsp;&middot;&nbsp; {len(selected)} filing{'' if len(selected) == 1 else 's'} due in 60 days"
+        f'</div>'
+        f'<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 14px; font-size: 13px; border-collapse: collapse;">'
         + "".join(rows)
         + '</table>'
+        f'</td></tr>'
     )
     return block, len(selected)
 
@@ -236,28 +259,24 @@ def _horizon_block(sub: Subscription, today: dt.date) -> tuple[str, int]:
         rows.append(
             f'''
 <tr>
-  <td style="padding: 12px 0; border-bottom: 1px solid {STYLE['hairline']};">
-    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {STYLE['secondary']}; margin-bottom: 4px;">
-      {_esc(it.date)} · {_esc(it.jurisdiction)} · Impact: {_esc(it.impact or 'Standard')}
-    </div>
-    <div style="font-size: 15px; font-weight: 600; color: {STYLE['text']}; line-height: 1.35; margin-bottom: 6px;">
-      {_esc(it.title)}
-    </div>
-    <div style="font-size: 13px; color: {STYLE['secondary']}; line-height: 1.5;">
-      {_esc((it.summary or '')[:240])}{'…' if it.summary and len(it.summary) > 240 else ''}
-    </div>
+  <td style="padding: 8px 0; font-size: 14px; line-height: 1.6; color: {STYLE['text']};">
+    <strong style="color: {STYLE['accent']};">{_esc(it.jurisdiction)}</strong>
+    <span style="color: {STYLE['tertiary']};"> &middot; {_esc(it.date)} &middot; impact {_esc(it.impact or 'Standard')}</span><br>
+    <span style="color: {STYLE['text']};">{_esc(it.title)}</span>
+    <span style="color: {STYLE['secondary']}; font-size: 13px;"> — {_esc((it.summary or '')[:200])}{'…' if it.summary and len(it.summary) > 200 else ''}</span>
   </td>
 </tr>'''
         )
 
     block = (
-        f'<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 32px;">'
-        f'<tr><td style="padding-bottom: 8px; border-bottom: 2px solid {STYLE["text"]};">'
-        f'<div style="font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: {STYLE["text"]};">'
-        f'Horizon scanning · {len(selected)}</div>'
-        f'</td></tr>'
+        f'<tr><td style="padding: 24px 36px 8px 36px;">'
+        f'<div style="font-family: {STYLE["serif_stack"]}; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: {STYLE["accent"]}; border-top: 1px solid {STYLE["hairline"]}; padding-top: 24px;">'
+        f"Looking ahead &nbsp;&middot;&nbsp; next 6 months"
+        f'</div>'
+        f'<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 12px;">'
         + "".join(rows)
         + '</table>'
+        f'</td></tr>'
     )
     return block, len(selected)
 
@@ -270,9 +289,14 @@ def build_digest(
     *,
     today: dt.date | None = None,
     base_url: str = "https://amlagents.streamlit.app",
+    podcast_base: str = "https://raw.githubusercontent.com/davidedwardhaynes-alt/aml-agents/main/data/podcasts",
 ) -> DigestPayload:
     """Render the digest payload for one subscriber. Returns the subject,
-    plain-text fallback, and the HTML body."""
+    plain-text fallback, and the HTML body — in the fireside design.
+
+    The hero block is a CSS-rendered fireside scene linking to the day's
+    podcast MP3. The body is split into three section blocks (news,
+    obligations, horizon) styled to match the fireside palette."""
     today = today or dt.date.today()
 
     sections = {"news": 0, "obligations": 0, "horizon": 0}
@@ -301,88 +325,125 @@ def build_digest(
         f"horizon ({sections['horizon']})" if sections["horizon"] else "",
     ]
     summary = " · ".join(p for p in parts if p) or "no items today"
-    subject = f"AML Agents daily — {today.isoformat()} — {summary}"
+    subject = f"TrustSphere · {today.strftime('%A %-d %B')} — {summary}"
+
+    podcast_url = f"{podcast_base}/{today.isoformat()}.mp3"
 
     if total == 0:
         body_html = (
-            f'<div style="padding: 32px; text-align: center; color: {STYLE["secondary"]}; '
+            f'<tr><td style="padding: 36px; text-align: center; color: {STYLE["secondary"]}; '
             f'font-family: {STYLE["font_stack"]};">'
-            f'<p style="margin: 0; font-size: 15px;">No new items match your filters today.</p>'
+            f'<p style="margin: 0; font-size: 15px;">Quiet morning — no new items match your filters today.</p>'
             f'<p style="margin: 8px 0 0 0; font-size: 13px;">'
             f'Adjust your subscription preferences anytime — see footer.</p>'
-            f'</div>'
+            f'</td></tr>'
         )
     else:
         body_html = "".join(blocks)
 
     unsub_url = f"{base_url}/?unsubscribe={sub.unsubscribe_token}"
 
+    jurisdiction_label = ", ".join(sub.jurisdictions) if sub.jurisdictions else "All APAC jurisdictions"
+
+    # --- Hero block — fireside video poster -----------------------------
+    # Big circular play overlay + episode metadata. Click goes to today's
+    # MP3 on raw.githubusercontent. If the MP3 doesn't exist yet (cron
+    # race condition), the link 404s gracefully; we don't pre-check.
+    hero_html = f'''
+<tr><td style="padding: 32px 36px 16px 36px;">
+<a href="{_esc(podcast_url)}" style="text-decoration: none; color: inherit;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-radius: 16px; overflow: hidden; background: radial-gradient(ellipse at 50% 78%, {STYLE['ember_glow']} 0%, {STYLE['accent_warm']} 22%, {STYLE['accent']} 48%, #3A1810 80%, {STYLE['night']} 100%);">
+<tr><td style="padding: 0; height: 320px;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" height="320" style="height: 320px;">
+<tr>
+<td width="18%" style="vertical-align: bottom; padding: 0 0 0 36px;">
+<div style="background: {STYLE['night']}; width: 70px; height: 110px; border-radius: 35px 35px 12px 12px; opacity: 0.85;"></div>
+</td>
+<td width="64%" style="vertical-align: middle; text-align: center; padding: 0 8px;">
+<div style="font-family: {STYLE['serif_stack']}; font-size: 10px; font-weight: 700; letter-spacing: 0.30em; text-transform: uppercase; color: #FFE3C2; text-shadow: 0 1px 6px rgba(0,0,0,0.45);">TrustSphere · Fireside</div>
+<div style="margin-top: 14px;">
+<div style="display: inline-block; width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.95); color: {STYLE['accent']}; font-size: 30px; text-align: center; line-height: 74px; box-shadow: 0 10px 28px rgba(0,0,0,0.45);">▶</div>
+</div>
+<div style="margin-top: 16px; font-family: {STYLE['serif_stack']}; font-style: italic; font-size: 17px; line-height: 1.32; color: #FFFFFF; text-shadow: 0 1px 8px rgba(0,0,0,0.55); max-width: 420px; display: inline-block;">
+Today's briefing — {_esc(today.strftime('%A %-d %B'))}
+</div>
+<div style="margin-top: 8px; font-size: 12px; color: #FFE3C2; letter-spacing: 0.06em;">Alex &amp; Jordan &nbsp;·&nbsp; 5 min</div>
+</td>
+<td width="18%" style="vertical-align: bottom; padding: 0 36px 0 0; text-align: right;">
+<div style="display: inline-block; background: {STYLE['night']}; width: 70px; height: 110px; border-radius: 35px 35px 12px 12px; opacity: 0.85;"></div>
+</td>
+</tr>
+</table>
+</td></tr>
+</table>
+</a>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 14px;">
+<tr>
+<td style="vertical-align: middle;">
+<div style="font-family: {STYLE['serif_stack']}; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: {STYLE['accent']};">Today's fireside</div>
+<div style="font-size: 13px; color: {STYLE['secondary']}; margin-top: 4px;">{_esc(summary)}</div>
+</td>
+<td style="vertical-align: middle; text-align: right; font-size: 11px; color: {STYLE['tertiary']};">
+<a href="{_esc(podcast_url)}" style="color: {STYLE['accent']}; text-decoration: none; font-weight: 600;">▶ Audio</a> &nbsp;·&nbsp;
+<a href="{base_url}" style="color: {STYLE['tertiary']}; text-decoration: underline;">Open dashboard</a>
+</td>
+</tr>
+</table>
+</td></tr>
+'''
+
     full_html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
 <title>{_esc(subject)}</title>
 </head>
-<body style="margin: 0; padding: 0; background: {STYLE['canvas']}; font-family: {STYLE['font_stack']};">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: {STYLE['canvas']};">
-<tr>
-<td align="center" style="padding: 24px 12px;">
-<table cellpadding="0" cellspacing="0" border="0" width="640" style="max-width: 640px; background: {STYLE['surface']}; border: 1px solid {STYLE['hairline']}; border-radius: 16px;">
-<tr>
-<td style="padding: 32px 32px 0 32px;">
+<body style="margin: 0; padding: 0; background: {STYLE['canvas']}; font-family: {STYLE['font_stack']}; color: {STYLE['text']};">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background: {STYLE['canvas']};">
+<tr><td align="center" style="padding: 32px 12px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="max-width: 640px; background: {STYLE['surface']}; border-radius: 20px; overflow: hidden;">
 
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-<tr>
-<td>
-<div style="font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: {STYLE['accent']};">
-AML Agents · Daily digest
-</div>
-<h1 style="margin: 6px 0 4px 0; font-size: 26px; line-height: 1.2; letter-spacing: -0.026em; font-weight: 700; color: {STYLE['text']};">
-{_esc(today.strftime('%A, %d %B %Y'))}
-</h1>
-<div style="font-size: 13px; color: {STYLE['secondary']};">
-{_esc(sub.label_timezone())} · {_esc(', '.join(sub.jurisdictions) if sub.jurisdictions else 'All 6 jurisdictions')}
-</div>
-</td>
-</tr>
-</table>
+<!-- Masthead -->
+<tr><td style="background: linear-gradient(135deg, {STYLE['accent_warm']} 0%, {STYLE['accent']} 50%, #5A2410 100%); padding: 36px 36px 28px 36px; text-align: center; color: #FFFFFF;">
+<div style="font-family: {STYLE['serif_stack']}; font-size: 11px; font-weight: 700; letter-spacing: 0.30em; text-transform: uppercase; color: #FFE9D4;">TrustSphere · Daily Briefing</div>
+<h1 style="margin: 12px 0 6px 0; font-family: {STYLE['serif_stack']}; font-size: 34px; line-height: 1.06; letter-spacing: -0.018em; font-weight: 700; color: #FFFFFF; font-style: italic;">{_esc(today.strftime('%A, %-d %B %Y'))}</h1>
+<div style="font-size: 13px; color: #FFE9D4; letter-spacing: 0.04em;">{_esc(sub.label_timezone())} &nbsp;·&nbsp; {_esc(jurisdiction_label)}</div>
+</td></tr>
+
+{hero_html}
 
 {body_html}
 
-</td>
-</tr>
-<tr>
-<td style="padding: 24px 32px 32px 32px; border-top: 1px solid {STYLE['hairline']}; margin-top: 24px;">
-<div style="font-size: 12px; color: {STYLE['tertiary']}; line-height: 1.55;">
-Sent to <strong>{_esc(sub.email)}</strong> at 07:00 {_esc(sub.label_timezone())} by AML Agents.<br>
-<a href="{base_url}" style="color: {STYLE['accent']}; text-decoration: none;">Open AML Agents →</a>
-&nbsp;·&nbsp;
-<a href="{_esc(unsub_url)}" style="color: {STYLE['tertiary']}; text-decoration: underline;">Unsubscribe</a>
-&nbsp;·&nbsp;
+<!-- Footer -->
+<tr><td style="padding: 28px 36px 36px 36px; background: {STYLE['footer_surface']}; border-top: 1px solid {STYLE['hairline']};">
+<div style="font-size: 12px; color: {STYLE['secondary']}; line-height: 1.7;">
+Pulled up a chair for <strong style="color: {STYLE['text']};">{_esc(sub.email)}</strong> at 07:00 {_esc(sub.label_timezone())}.<br>
+<a href="{base_url}" style="color: {STYLE['accent']}; text-decoration: none; font-weight: 600;">Open dashboard</a> &nbsp;·&nbsp;
+<a href="{_esc(unsub_url)}" style="color: {STYLE['tertiary']}; text-decoration: underline;">Unsubscribe</a> &nbsp;·&nbsp;
 <a href="{base_url}" style="color: {STYLE['tertiary']}; text-decoration: underline;">Manage preferences</a>
 </div>
-<div style="font-size: 11px; color: {STYLE['tertiary']}; margin-top: 12px;">
-This digest aggregates publicly-available regulator notices, curated news, and the obligations register
-configured for your account. It is informational only — confirm filing deadlines against the regulator's
-authoritative source before acting.
+<div style="font-size: 11px; color: {STYLE['tertiary']}; margin-top: 14px; line-height: 1.55; font-style: italic;">
+Informational only — confirm filing dates against the regulator's authoritative source before acting. The fireside conversation is generated from publicly-available regulator notices and curated industry news.
 </div>
-</td>
-</tr>
+</td></tr>
+
 </table>
-</td>
-</tr>
+<div style="font-family: {STYLE['serif_stack']}; font-size: 11px; color: {STYLE['tertiary']}; margin-top: 18px; letter-spacing: 0.06em; font-style: italic;">TrustSphere Partners · trustsphere.ai</div>
+</td></tr>
 </table>
 </body>
 </html>'''
 
     text_lines = [
-        f"AML Agents — Daily digest — {today.isoformat()}",
+        f"TrustSphere — Daily Briefing — {today.strftime('%A, %-d %B %Y')}",
         f"For {sub.email} at 07:00 {sub.label_timezone()}",
         "",
-        f"Today's items: {summary}",
+        f"Today's fireside: {summary}",
         "",
-        f"Open AML Agents: {base_url}",
+        f"Audio: {podcast_url}",
+        f"Open dashboard: {base_url}",
         f"Unsubscribe: {unsub_url}",
     ]
     text = "\n".join(text_lines)
