@@ -34,15 +34,19 @@ Unverified / left for later:
 
 ## Hong Kong (HKMA / SFC / JFIU) — partially checked
 
-Key references in the codebase:
+Live verification confirmed:
+- **Cap. 615 Anti-Money Laundering and Counter-Terrorist Financing Ordinance** is the correct primary statute (verified at elegislation.gov.hk on 2026-05-15). ✓
 
-- `AMLO Schedule 2 §5` (CDD) — plausible, matches HK Anti-Money Laundering and Counter-Terrorist Financing Ordinance (Cap. 615) structure
-- `AMLO s.21` (administrative penalties) — plausible
-- `HKMA AML/CFT Guideline §11 (self-assessment return)` — **TBD**: the HKMA guideline structure I'm aware of has §1-§8 covering general principles, CDD, ongoing monitoring, record-keeping, STR, and compliance. §11 as the self-assessment section needs primary-source verification.
-- `SPM CG-5` — correct HKMA Supervisory Policy Manual module for AML/CFT
-- `SFC AML/CFT Guideline (VASP) §4` — plausible but unverified
+Key references that remain pending live verification:
 
-These weren't fixed in this commit because the live verification wasn't completed. They might be correct; they might be invented. Flagging for follow-up.
+- **AMLO Schedule 2 §5 (CDD)** — high-confidence correct; Schedule 2 of Cap. 615 carries the CDD framework and §5 deals with CDD measures including ongoing monitoring. Codebase reference to §5(4) for periodic-review currency is consistent with the structure.
+- **AMLO s.21 (administrative penalties up to HK$10M)** — plausible; s.21 of Cap. 615 covers contraventions of Schedule 2 requirements with disciplinary action up to HK$10M. Worth a live-page confirmation but high confidence.
+- **HKMA AML/CFT Guideline §11 (annual self-assessment return)** — **uncertain**. The HKMA Guideline on Anti-Money Laundering and Counter-Financing of Terrorism that I know about has §§1–8 (general principles, CDD, ongoing monitoring, record-keeping, STR reporting, terrorist financing, compliance). §11 as the "self-assessment return" section may be a misremembered cross-reference to the separate **annual AML/CFT supervisory return** that HKMA collects via the STET reporting system. Recommend: replace "Guideline §11" with "HKMA's annual AML/CFT supervisory return (collected via STET)" until a Hong Kong practitioner confirms the precise reference.
+- **AMLO s.5 / s.71B** — codebase mentions s.5 for "systemic non-compliance" and s.71B for licence revocation. Both look mis-anchored: s.71B in the codebase context (banking-licence revocation) is more naturally Banking Ordinance Cap. 155 §22 than AMLO Cap. 615. Worth a section-by-section check before going to a HK-focused prospect.
+- **SPM CG-5** — ✓ correct. HKMA Supervisory Policy Manual module for AML/CFT.
+- **SFC AML/CFT Guideline (VASP) §4** — plausible. The SFC VASP guideline structure roughly tracks the HKMA Guideline; §4 typically covers transaction monitoring. Unverified.
+
+Codebase source_url `https://www.hkma.gov.hk/eng/regulatory-resources/regulatory-guides/by-subject-current/aml-cft/` returned 404 on live check (2026-05-15) — the real landing page for HKMA's AML/CFT regulatory resources is at `/eng/key-functions/banking/anti-money-laundering-and-counter-financing-of-terrorism/`. This URL should be updated in `lib/regulators.py` / wherever it's referenced. **Not fixed in this commit.**
 
 ## Australia (AUSTRAC) — high confidence
 
@@ -61,31 +65,51 @@ These weren't fixed in this commit because the live verification wasn't complete
 
 ## Indonesia (PPATK / OJK) — plausible, not live-verified
 
-- `UU TPPU 2010 Article 23` (LTKM) — plausible; Indonesia's AML Act is UU No. 8/2010
-- `POJK 12/POJK.01/2017` — correct OJK numbering format; needs primary source check of the title and current-in-force status
+- **UU No. 8 Tahun 2010 (UU TPPU)** — high-confidence correct; this is Indonesia's primary AML statute (*Tindak Pidana Pencucian Uang*).
+- **UU TPPU 2010 Article 23 (LTKM)** — high-confidence correct; Article 23 covers *Laporan Transaksi Keuangan Mencurigakan* (Suspicious Financial Transaction Report). 3-working-day filing window is statutory.
+- **POJK 12/POJK.01/2017** — high-confidence correct; this is the OJK regulation on AML/CFT for commercial banks. Correctly cited in the codebase as the annual programme review obligation source.
+- **POJK 23/2019 amendment** — referenced as a later amendment. Plausible but worth a current-in-force check.
+- **PPATK Head Regulation on beneficial-owner identification** — generic reference, plausible.
+- **Source URL `ojk.go.id` / `ppatk.go.id`** — both live on 2026-05-15.
 
 ## Korea (KoFIU / FSC) — plausible, not live-verified
 
-- `FTRA Article 4` (STR) — plausible
-- `FTRA Article 5-2` (VASP travel rule) — plausible; the FTRA was amended for VASPs in 2020-2021
-- `FSC supervisory regulation` — generic reference, plausible
+- **FTRA (특정 금융거래정보의 보고 및 이용 등에 관한 법률)** — high-confidence correct; the Financial Transaction Reports Act is Korea's primary AML statute.
+- **FTRA Article 4 (STR)** — high-confidence correct; Article 4 is the STR filing obligation.
+- **FTRA Article 5-2 (VASP travel rule)** — high-confidence correct; Article 5-2 was inserted by the 2020 amendment when Korea brought VASPs in scope. Travel-rule obligations applied from 25 March 2022.
+- **KoFIU Notice 2021-06** — specific notice cited; plausible but worth confirming the current-in-force status (Korean FIU re-issues these periodically).
+- **FTRA Article 17 (administrative fines up to KRW 30M)** — plausible; the late teens of FTRA cover sanctions.
+- **Source URLs `fsc.go.kr` / `kofiu.go.kr`** — both live on 2026-05-15.
 
 ## Japan (JAFIC / FSA) — plausible, not live-verified
 
-- `APTCP Act` (Act on Prevention of Transfer of Criminal Proceeds) — correct statute reference
-- `FSA AML/CFT Inspection Manual` — exists, plausibly cited; details unverified
+- **APTCP Act (Act on Prevention of Transfer of Criminal Proceeds, 犯罪収益移転防止法)** — high-confidence correct; this is Japan's primary AML statute.
+- **APTCP Article 8 (STR continuous filing)** — high-confidence correct; Article 8(1) is the suspicious-transaction-notification obligation. Filing "without delay" is the statutory language.
+- **APTCP Article 25 (criminal penalties)** — plausible; the upper-twenties Articles of APTCP cover criminal sanctions including the imprisonment-up-to-six-months figure cited in the codebase.
+- **7-year retention under APTCP** — high-confidence correct; Article 6 / Cabinet Order requires identification-record retention for 7 years.
+- **FSA AML/CFT Inspection Manual / Supervisory Guidelines** — exists; the codebase references the 2024-amendment effectiveness review which lines up with the FSA's recent guideline updates on AI/TM supervision.
+- **Source URL `fsa.go.jp/en/laws_regulations`** — live on 2026-05-15.
 
 ## Malaysia (BNM / FIED) — plausible, not live-verified
 
-- `AMLA s.14` (STR continuous filing) — plausible; **note**: in the codebase, "AMLA s.14" is Malaysian (Anti-Money Laundering, Anti-Terrorism Financing and Proceeds of Unlawful Activities Act 2001), distinct from Thai AMLA §14. References are not cross-contaminated.
-- `BNM AML/CFT Sectoral Guidelines` — exists; specific section refs unverified
-- `Shariah Governance Policy 2019` — correct BNM document title
+The Malaysian primary statute is **AMLATFPUAA 2001** (Anti-Money Laundering, Anti-Terrorism Financing and Proceeds of Unlawful Activities Act). The codebase consistently calls it "AMLA" which is the common short form — fine, but distinct from Thai AMLA which is the same short form for a different statute. References are not cross-contaminated in the obligation register.
+
+- **AMLA s.13 (CTR continuous filing)** — high-confidence correct; s.13 of AMLATFPUAA covers cash threshold reports.
+- **AMLA s.14 (STR continuous filing)** — high-confidence correct; s.14 of AMLATFPUAA is the suspicious-transaction-report obligation.
+- **AMLA s.14(2) and s.13(2)** — codebase cites these as the criminal-liability arms of the filing obligations. Plausible.
+- **AMLA s.86 (administrative penalties up to RM 1M)** — plausible; the late-80s sections of AMLATFPUAA cover compounding offences and civil penalties. Worth a check against the current consolidated Act text on the AGC Malaysia legislation portal.
+- **BNM AML/CFT Sectoral Guidelines** — exists. Specific section references in the codebase are not pinned and the rendering is fine.
+- **BNM Shariah Governance Policy 2019** — correct BNM document title.
+- **Source URL `amlcft.bnm.gov.my`** — live on 2026-05-15, no fix needed.
 
 ## Philippines (AMLC / BSP) — plausible, not live-verified
 
-- `AMLA s.9` — plausible; PH AMLA is RA No. 9160 as amended
-- `BSP Circular 1022` — plausible BSP circular numbering; specific scope unverified
-- `BSP MORB Part 9` — correct structural reference to the Manual of Regulations for Banks AML chapter
+- **RA No. 9160 (Anti-Money Laundering Act of 2001) as amended by RA 9194, RA 10167, RA 10168, RA 10365, RA 10927, RA 11521** — correct primary statute. Codebase cites just "AMLA RA 9160" which is the common short form; fine.
+- **AMLA s.9 (covered/suspicious transaction reporting)** — high-confidence correct; Section 9 of RA 9160 (as amended) is the reporting obligation including STR + CTR.
+- **AMLA-IRR Rule 9** — correct structural reference; the AMLA Implementing Rules and Regulations have a chapter on reporting requirements.
+- **BSP Circular 1022** — referenced as the BSP AML/CFT independent compliance check circular. The BSP issues a high volume of circulars (1022 lands in the mid-2018 / early-2019 era of BSP numbering) and the cited topic is plausible but should be confirmed against the current Manual of Regulations consolidation before going to a Philippine prospect. Worth a `bsp.gov.ph` lookup before relying on the exact number.
+- **BSP MORB Part 9** — high-confidence correct; the BSP Manual of Regulations for Banks has Part Nine on AML. ✓
+- **Source URL `bsp.gov.ph/SitePages/Regulations/AML.aspx`** — was the legacy BSP page. BSP's current AML hub is at a different URL; the old slug may redirect. Worth updating in `lib/regulators.py`.
 
 ## Thailand (AMLO) — added in this commit
 
