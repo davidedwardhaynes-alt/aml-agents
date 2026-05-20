@@ -165,6 +165,37 @@ def save_generated(items: list[GeneratedArticle]) -> None:
         yaml.dump([asdict(a) for a in items], f, default_flow_style=False, sort_keys=False)
 
 
+# How many days of generated articles to keep in the YAML. The Streamlit
+# app's news pipeline loads this file on every script rerun; without a
+# cap it grows unbounded (~50KB/day) and eventually slows first-paint
+# even with the in-process mtime cache in lib/news.py. 30 days is well
+# past the digest window (last 14 days) and gives the dashboard's
+# "recent stories" view a healthy back-buffer.
+RETENTION_DAYS = 30
+
+
+def trim_old(items: list[GeneratedArticle], *, max_days: int = RETENTION_DAYS) -> tuple[list[GeneratedArticle], int]:
+    """Drop entries older than max_days based on generated_at (falling back
+    to source_date). Returns (kept_items, dropped_count). Invalid /
+    missing timestamps are kept defensively — we'd rather keep an
+    article than lose one to a malformed date string."""
+    cutoff = dt.date.today() - dt.timedelta(days=max_days)
+    kept: list[GeneratedArticle] = []
+    dropped = 0
+    for a in items:
+        raw = (a.generated_at or "")[:10] or a.source_date or ""
+        try:
+            ts = dt.date.fromisoformat(raw)
+        except (ValueError, TypeError):
+            kept.append(a)  # keep on parse failure
+            continue
+        if ts >= cutoff:
+            kept.append(a)
+        else:
+            dropped += 1
+    return kept, dropped
+
+
 def url_hash(url: str) -> str:
     """Stable identifier for an RSS item URL — used to dedupe across runs."""
     return hashlib.sha256(url.encode()).hexdigest()[:16]
@@ -432,10 +463,14 @@ def main() -> int:
             continue
 
     if new_articles:
-        save_generated(existing + new_articles)
+        combined = existing + new_articles
+        trimmed, dropped = trim_old(combined)
+        save_generated(trimmed)
         cost_estimate = (total_in / 1_000_000) * 3 + (total_out / 1_000_000) * 15  # Sonnet pricing
-        print(f"\nSaved {len(new_articles)} new article(s). "
-              f"Tokens this run: {total_in:,} in / {total_out:,} out (~${cost_estimate:.3f}).")
+        print(f"\nSaved {len(new_articles)} new article(s); "
+              f"trimmed {dropped} entries older than {RETENTION_DAYS} days. "
+              f"YAML now holds {len(trimmed)} articles.")
+        print(f"Tokens this run: {total_in:,} in / {total_out:,} out (~${cost_estimate:.3f}).")
         print(f"Today's total: {today_count + len(new_articles)}/{MAX_PER_DAY}.")
 
     return 0
