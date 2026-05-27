@@ -288,7 +288,8 @@ def check_rss_sample() -> bool:
     n_ok = 0
     for label, url in sample_feeds:
         try:
-            parsed = feedparser.parse(url, request_headers={"User-Agent": "AML-Agents/0.1"})
+            from lib.news import FEED_USER_AGENT
+            parsed = feedparser.parse(url, request_headers={"User-Agent": FEED_USER_AGENT})
             if parsed.bozo:
                 warn(f"{label}: bozo error ({type(parsed.bozo_exception).__name__})")
             elif len(parsed.entries) > 0:

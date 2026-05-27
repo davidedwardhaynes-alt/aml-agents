@@ -614,7 +614,33 @@ NEWS_RSS_FEEDS: list[tuple[str, str, str]] = [
     ("Fintech News Hong Kong", "https://fintechnews.hk/feed/", "Fintech / Digital banking"),
     ("Fintech News Malaysia", "https://fintechnews.my/feed/", "Fintech / Digital banking"),
     ("Fintech News Australia", "https://fintechnews.com.au/feed/", "Fintech / Digital banking"),
+
+    # ---- APAC mainstream business / general-news feeds, added 2026-05 for
+    # regional variety in the daily audio briefing. The keyword-classifier
+    # in scripts/generate_articles.py filters for AML/compliance relevance,
+    # so off-topic items don't reach the podcast script — these feeds boost
+    # the candidate pool so the per-day pick has real choice instead of
+    # cycling the same 4-5 specialist sources.
+    #
+    # NOTE on Regulation Asia: regulationasia.com would be the ideal
+    # source for this product but blocks all bot User-Agents with HTTP
+    # 403 (Cloudflare anti-scraping). Their RSS is paywalled / requires
+    # subscription API access. Not ingested. If a subscription is added
+    # later, swap a real source-URL in here.
+    # ---- ----
+    ("SCMP business (Hong Kong)", "https://www.scmp.com/rss/2/feed", "Industry M&A"),
+    ("Channel News Asia business (Singapore)", "https://www.channelnewsasia.com/rssfeeds/8395986", "Industry M&A"),
+    ("Bangkok Post business (Thailand)", "https://www.bangkokpost.com/rss/data/business.xml", "AML enforcement"),
 ]
+
+
+# Shared User-Agent for all feed-fetching code (lib/news, lib/horizon,
+# scripts/generate_articles, scripts/preflight). A polite "AML-Agents/0.1"
+# string was rejected by several APAC feeds (e.g. Bangkok Post returns
+# 307 to a JS challenge), so we use a minimal Safari-style UA that the
+# anti-bot front-ends accept. Centralised so future UA changes touch one
+# place, not five.
+FEED_USER_AGENT = "Mozilla/5.0 AppleWebKit/605.1.15 (KHTML, like Gecko)"
 
 
 _NEWS_FEED_CACHE: dict[str, tuple[float, list[NewsItem]]] = {}
@@ -638,7 +664,12 @@ def fetch_news_feeds(force_refresh: bool = False) -> tuple[list[NewsItem], dict[
 
     for label, url, default_topic in NEWS_RSS_FEEDS:
         try:
-            parsed = feedparser.parse(url, request_headers={"User-Agent": "AML-Agents/0.1"})
+            # Use a Safari-like UA so anti-bot redirects (e.g. Bangkok Post,
+            # Cloudflare-fronted feeds) don't swallow our requests with a
+            # 307 to a JS challenge. Tested 2026-05: "AML-Agents/0.1" was
+            # rejected by several APAC feeds; this minimal Mozilla string
+            # is accepted everywhere we ingest.
+            parsed = feedparser.parse(url, request_headers={"User-Agent": FEED_USER_AGENT})
             if parsed.bozo and parsed.bozo_exception:
                 statuses[label] = f"error: {type(parsed.bozo_exception).__name__}"
                 continue

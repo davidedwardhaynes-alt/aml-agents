@@ -55,7 +55,7 @@ except ImportError:
     sys.exit(1)
 
 from lib.horizon import RSS_FEEDS as HORIZON_FEEDS
-from lib.news import NEWS_RSS_FEEDS, TOPICS
+from lib.news import FEED_USER_AGENT, NEWS_RSS_FEEDS, TOPICS
 from lib.press_releases import fetch_all_press_releases
 
 GENERATED_PATH = ROOT / "data" / "generated_articles.yaml"
@@ -262,7 +262,7 @@ def collect_candidate_items(verbose: bool = True) -> list[dict[str, Any]]:
         if verbose and idx % 10 == 0:
             print(f"  ... {idx}/{n_feeds} feeds checked ({n_ok} ok, {n_err} err)", flush=True)
         try:
-            parsed = feedparser.parse(url, request_headers={"User-Agent": "AML-Agents/0.1"})
+            parsed = feedparser.parse(url, request_headers={"User-Agent": FEED_USER_AGENT})
             if parsed.bozo:
                 n_err += 1
                 continue

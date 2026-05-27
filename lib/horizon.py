@@ -635,9 +635,10 @@ def fetch_live_items(
     all_items: list[HorizonItem] = []
     statuses: dict[str, str] = {}
 
+    from lib.news import FEED_USER_AGENT
     for label, url, category in feeds:
         try:
-            parsed = feedparser.parse(url, request_headers={"User-Agent": "AML-Agents/0.1"})
+            parsed = feedparser.parse(url, request_headers={"User-Agent": FEED_USER_AGENT})
             if parsed.bozo and parsed.bozo_exception:
                 statuses[label] = f"error: {type(parsed.bozo_exception).__name__}"
                 continue
