@@ -41941,3 +41941,373 @@
     \ have specified."
   input_tokens: 331
   output_tokens: 142
+- id: art-2026-08-29-d29c22
+  generated_at: '2026-08-29T19:46:34+00:00'
+  source_name: CoinDesk
+  source_url: https://www.coindesk.com/business/2026/08/28/ditch-digital-gold-bpi-study-suggests-everyday-americans-prefer-control-and-micro-investing
+  source_date: '2026-08-29'
+  title: 'Ditching ''digital gold'': BPI study suggests everyday Americans prefer
+    control and micro-investing'
+  jurisdiction: All jurisdictions
+  topic: AML enforcement
+  summary: The Bank Policy Institute's August 2026 survey finding that retail American
+    consumers prioritise granular control and incremental investment access over Bitcoin's
+    "digital gold" narrative carries direct implications for how financial institutions
+    structure their crypto-asset customer due diligence frameworks and product risk
+    classifications. The shift in stated consumer preference matters to compliance
+    functions because it signals a broadening of the crypto-asset user demographic
+    beyond the speculative, high-net-worth cohort that shaped early typologies.
+  full_article: "The Bank Policy Institute's August 2026 survey finding that retail\
+    \ American consumers prioritise granular control and incremental investment access\
+    \ over Bitcoin's \"digital gold\" narrative carries direct implications for how\
+    \ financial institutions structure their crypto-asset customer due diligence frameworks\
+    \ and product risk classifications.\n\nThe shift in stated consumer preference\
+    \ matters to compliance functions because it signals a broadening of the crypto-asset\
+    \ user demographic beyond the speculative, high-net-worth cohort that shaped early\
+    \ typologies. Micro-investing features \u2014 automated recurring purchases, fractional\
+    \ ownership, and round-up mechanisms \u2014 compress transaction sizes while dramatically\
+    \ increasing transaction frequency and counterparty volume. FinCEN's 2023 proposed\
+    \ rulemaking on convertible virtual currency and the FATF's updated Recommendation\
+    \ 15 guidance both flag transaction velocity and layering risk as key indicators\
+    \ regardless of individual ticket size; a high-volume, low-value profile does\
+    \ not reduce suspicious activity monitoring obligations, it reconfigures them.\n\
+    \nFor institutions operating under the Bank Secrecy Act and state money transmission\
+    \ licences, embedding crypto micro-investing within retail banking apps raises\
+    \ product-specific questions. Customer risk scoring models calibrated to legacy\
+    \ crypto buyer profiles \u2014 typically older, wealthier, self-directed \u2014\
+    \ may systematically underweight the risk presented by younger, mobile-first users\
+    \ making dozens of automated micro-purchases monthly. The aggregation problem\
+    \ is real: individually innocuous transactions can, in aggregate, constitute structuring\
+    \ or obscure the layering of illicit proceeds. Compliance officers should revisit\
+    \ whether their transaction monitoring rules apply adequate look-back windows\
+    \ and aggregation logic to these product architectures before launch, not after.\n\
+    \nFrom a supervisory perspective, the OCC's conditional crypto-activity framework\
+    \ and the FDIC's evolving Part 362 interpretations both require banks to demonstrate\
+    \ that novel product features are supported by commensurate risk management infrastructure.\
+    \ A consumer preference study does not alter that standard, but it does accelerate\
+    \ the commercial pressure on institutions to deploy products before governance\
+    \ frameworks catch up \u2014 a dynamic regulators have consistently identified\
+    \ as a precursor to enforcement action.\n\nThe broader trajectory suggests that\
+    \ crypto compliance programmes designed around store-of-value assumptions will\
+    \ require structural revision. As the retail use case migrates toward payment-adjacent,\
+    \ high-frequency micro-investment behaviour, the typologies, monitoring thresholds,\
+    \ and customer risk models built on the \"digital gold\" premise become progressively\
+    \ less fit for purpose."
+  input_tokens: 299
+  output_tokens: 515
+- id: art-2026-08-29-a59107
+  generated_at: '2026-08-29T19:46:50+00:00'
+  source_name: CoinDesk
+  source_url: https://www.coindesk.com/business/2026/08/29/swift-s-usd1-5-quadrillion-network-faces-a-blockchain-test
+  source_date: '2026-08-29'
+  title: "Swift\u2019s $1.5 quadrillion network faces a blockchain test"
+  jurisdiction: All jurisdictions
+  topic: Crypto / VASP
+  summary: "Swift's interbank messaging network, which underpins an estimated $1.\
+    \ 5 quadrillion in annual transaction value, is facing a structural test from\
+    \ blockchain-based settlement rails as financial institutions weigh whether distributed\
+    \ ledger technology can replicate\u2014or meaningfully improve upon\u2014the correspondent\
+    \ banking architecture that has anchored cross-border payments for five decades."
+  full_article: "Swift's interbank messaging network, which underpins an estimated\
+    \ $1.5 quadrillion in annual transaction value, is facing a structural test from\
+    \ blockchain-based settlement rails as financial institutions weigh whether distributed\
+    \ ledger technology can replicate\u2014or meaningfully improve upon\u2014the correspondent\
+    \ banking architecture that has anchored cross-border payments for five decades.\n\
+    \nThe pressure is not new, but its character has shifted. Earlier blockchain pilots,\
+    \ including Swift's own GPI initiative and the various R3 Corda experiments of\
+    \ the mid-2010s, largely concluded that incumbent rails were adequate with incremental\
+    \ improvement. What has changed is the maturation of tokenised deposit infrastructure,\
+    \ the emergence of regulated stablecoin frameworks under MiCA in the European\
+    \ Union and comparable regimes in Singapore and Hong Kong, and the willingness\
+    \ of central banks to progress wholesale CBDC programmes that could settle tokenised\
+    \ transactions without routing through Swift's messaging layer at all.\n\nFor\
+    \ compliance professionals, the competitive tension carries direct AML/CFT consequences.\
+    \ Swift's network, for all its inefficiencies, provides a relatively standardised\
+    \ conduit for transmitting originator and beneficiary data consistent with FATF\
+    \ Recommendation 16\u2014the Travel Rule\u2014and its implementing instruments\
+    \ including MAS Notice PSN02, the EU's Transfer of Funds Regulation, and equivalent\
+    \ rules in AUSTRAC's AML/CTF Act framework. Blockchain rails that fragment settlement\
+    \ across multiple ledgers, smart contract layers, or tokenised asset platforms\
+    \ create genuine uncertainty about where Travel Rule obligations attach, which\
+    \ entity qualifies as an ordering institution, and how beneficiary verification\
+    \ is discharged when intermediaries are replaced by code.\n\nJurisdictions are\
+    \ responding unevenly. Singapore's Project Guardian and the BIS Innovation Hub's\
+    \ Agora project are explicitly designing compliance logic into tokenised payment\
+    \ architecture. Others are moving faster on commercial deployment than on regulatory\
+    \ clarification, creating the arbitrage conditions that financial crime actors\
+    \ have historically exploited during infrastructure transitions.\n\nThe practical\
+    \ implication for MLROs and Heads of FCC is that institution-level risk assessments\
+    \ should already be stress-testing scenarios in which a material share of correspondent\
+    \ flows migrate to tokenised channels within a three-to-five year horizon. The\
+    \ question is not whether blockchain rails will carry significant interbank volume,\
+    \ but whether the compliance controls embedded in those rails will meet the same\
+    \ evidentiary standard that regulators currently expect from Swift-based transaction\
+    \ monitoring. The answer, at present, is jurisdiction-dependent and incomplete."
+  input_tokens: 290
+  output_tokens: 526
+- id: art-2026-08-29-59a43c
+  generated_at: '2026-08-29T19:46:58+00:00'
+  source_name: CoinDesk
+  source_url: https://www.coindesk.com/business/2026/08/29/the-next-trillion-dollar-currency-may-not-be-a-stablecoin-it-might-not-even-have-a-name-yet
+  source_date: '2026-08-29'
+  title: "The next trillion-dollar currency may not be a stablecoin \u2014 it might\
+    \ not even have a name yet"
+  jurisdiction: All jurisdictions
+  topic: Crypto / VASP
+  summary: "The source material provided contains no substantive reporting \u2014\
+    \ no named instruments, no issuers, no regulatory actions, no transaction data,\
+    \ and no attributed commentary \u2014 only a speculative headline and an empty\
+    \ summary field. Publishing an analysis article premised solely on that headline\
+    \ would require fabricating facts, figures, regulatory developments, or stakeholder\
+    \ positions that do not appear in the source, which would be misleading to an\
+    \ MLRO or supervisory audience that relies on accurate, verifiable information\
+    \ for compliance decision-making."
+  full_article: "The source material provided contains no substantive reporting \u2014\
+    \ no named instruments, no issuers, no regulatory actions, no transaction data,\
+    \ and no attributed commentary \u2014 only a speculative headline and an empty\
+    \ summary field. Publishing an analysis article premised solely on that headline\
+    \ would require fabricating facts, figures, regulatory developments, or stakeholder\
+    \ positions that do not appear in the source, which would be misleading to an\
+    \ MLRO or supervisory audience that relies on accurate, verifiable information\
+    \ for compliance decision-making.\n\nTo produce a rigorous piece meeting the editorial\
+    \ standard described \u2014 specific regulatory framework citations, balanced\
+    \ stakeholder perspectives, concrete facts \u2014 please provide the full article\
+    \ text or a substantive summary that includes at minimum: the instrument or asset\
+    \ class under discussion, any named entities or jurisdictions, referenced regulatory\
+    \ developments, and any data points cited by the original reporting."
+  input_tokens: 313
+  output_tokens: 178
+- id: art-2026-08-29-c5f956
+  generated_at: '2026-08-29T19:47:05+00:00'
+  source_name: SCMP business (Hong Kong)
+  source_url: https://www.scmp.com/news/hong-kong/law-and-crime/article/3365720/man-held-after-laundry-capsules-dumped-pond-killing-catfish-and-injuring-turtles?utm_source=rss_feed
+  source_date: '2026-08-29'
+  title: Man held after laundry capsules dumped into pond, killing catfish and injuring
+    turtles
+  jurisdiction: Hong Kong (JFIU)
+  topic: AML enforcement
+  summary: "The source material provided \u2014 a Hong Kong police matter involving\
+    \ laundry detergent capsules, a residential pond, and injured turtles \u2014 describes\
+    \ an environmental nuisance or animal cruelty incident with no discernible connection\
+    \ to financial crime, anti-money laundering regulation, counter-terrorist financing,\
+    \ or any adjacent compliance domain. There is no regulatory framework within scope\
+    \ \u2014 not FATF Recommendations, not MAS Notices, not OSCO, not Hong Kong's\
+    \ AMLO, not the Australian AML/CTF Act \u2014 that bears on this incident in any\
+    \ analytically honest way."
+  full_article: "The source material provided \u2014 a Hong Kong police matter involving\
+    \ laundry detergent capsules, a residential pond, and injured turtles \u2014 describes\
+    \ an environmental nuisance or animal cruelty incident with no discernible connection\
+    \ to financial crime, anti-money laundering regulation, counter-terrorist financing,\
+    \ or any adjacent compliance domain. There is no regulatory framework within scope\
+    \ \u2014 not FATF Recommendations, not MAS Notices, not OSCO, not Hong Kong's\
+    \ AMLO, not the Australian AML/CTF Act \u2014 that bears on this incident in any\
+    \ analytically honest way.\n\nWriting a financial-crime compliance article from\
+    \ this source would require fabricating a nexus that does not exist in the material.\
+    \ That would mislead the professional audience of MLROs, supervisors, and compliance\
+    \ officers the brief is intended to serve, and it would violate the standard of\
+    \ accuracy the specified editorial voice demands.\n\nIf you have a financial-crime\
+    \ or regulatory compliance news item you would like analysed for that audience,\
+    \ please share it and I will apply the full brief precisely."
+  input_tokens: 449
+  output_tokens: 229
+- id: art-2026-08-29-696f04
+  generated_at: '2026-08-29T19:47:12+00:00'
+  source_name: Channel News Asia business (Singapore)
+  source_url: https://www.channelnewsasia.com/sport/dortmund-cruise-win-elversberg-claim-historic-victory-in-bundesliga-6349731
+  source_date: '2026-08-29'
+  title: Dortmund cruise to win as Elversberg claim historic victory in Bundesliga
+  jurisdiction: Singapore (STRO)
+  topic: AML enforcement
+  summary: "The source material provided describes a Bundesliga football match result\
+    \ \u2014 content that falls outside the scope of financial crime, anti-money laundering,\
+    \ regulatory compliance, or any related subject matter on which I can produce\
+    \ authoritative analysis for an audience of MLROs, compliance officers, and AML\
+    \ supervisors. No financial crime or regulatory compliance angle exists in this\
+    \ source that would permit me to write a credible, accurate article in the requested\
+    \ style without fabricating facts, regulatory findings, or enforcement actions."
+  full_article: "The source material provided describes a Bundesliga football match\
+    \ result \u2014 content that falls outside the scope of financial crime, anti-money\
+    \ laundering, regulatory compliance, or any related subject matter on which I\
+    \ can produce authoritative analysis for an audience of MLROs, compliance officers,\
+    \ and AML supervisors.\n\nNo financial crime or regulatory compliance angle exists\
+    \ in this source that would permit me to write a credible, accurate article in\
+    \ the requested style without fabricating facts, regulatory findings, or enforcement\
+    \ actions. Producing such content would be misleading to a professional compliance\
+    \ audience and contrary to the standards of the publications referenced in the\
+    \ brief.\n\nIf you have a source article covering topics such as AML enforcement\
+    \ actions, FATF mutual evaluations, MAS supervisory expectations, suspicious transaction\
+    \ reporting trends, virtual asset regulation, trade-based money laundering, or\
+    \ related financial crime compliance matters, I am glad to produce the analysis."
+  input_tokens: 295
+  output_tokens: 191
+- id: art-2026-08-29-da0f55
+  generated_at: '2026-08-29T19:47:19+00:00'
+  source_name: Channel News Asia business (Singapore)
+  source_url: https://www.channelnewsasia.com/sport/striker-mcburnie-salutes-hull-citys-discipline-in-perfect-start-6349716
+  source_date: '2026-08-29'
+  title: Striker McBurnie salutes Hull City's discipline in perfect start
+  jurisdiction: Singapore (STRO)
+  topic: AML enforcement
+  summary: The source material provided does not contain financial crime, anti-money
+    laundering, regulatory, or compliance-related content. The referenced article
+    concerns a football match report involving Hull City striker McBurnie, which falls
+    outside the scope of financial crime journalism relevant to MLROs, compliance
+    professionals, or AML supervisors.
+  full_article: "The source material provided does not contain financial crime, anti-money\
+    \ laundering, regulatory, or compliance-related content. The referenced article\
+    \ concerns a football match report involving Hull City striker McBurnie, which\
+    \ falls outside the scope of financial crime journalism relevant to MLROs, compliance\
+    \ professionals, or AML supervisors.\n\nProducing an authoritative analysis article\
+    \ for that audience requires a factual basis in regulatory developments, enforcement\
+    \ actions, supervisory guidance, typologies, or related financial crime subject\
+    \ matter. Fabricating such content from an unrelated sports story would risk introducing\
+    \ misinformation into a professional compliance context, which could carry material\
+    \ consequences for practitioners who rely on accurate regulatory reporting.\n\n\
+    If you have a source article covering a relevant topic \u2014 such as a MAS enforcement\
+    \ notice, a FATF mutual evaluation, an OSCO prosecution, or a financial institution's\
+    \ AML failures \u2014 please share it and the analysis will follow."
+  input_tokens: 290
+  output_tokens: 193
+- id: art-2026-08-29-a0f818
+  generated_at: '2026-08-29T19:47:26+00:00'
+  source_name: Channel News Asia business (Singapore)
+  source_url: https://www.channelnewsasia.com/sport/lawrence-half-century-propels-england-towards-victory-over-pakistan-6349701
+  source_date: '2026-08-29'
+  title: Lawrence half-century propels England towards victory over Pakistan
+  jurisdiction: Singapore (STRO)
+  topic: AML enforcement
+  summary: "The source material provided does not contain financial crime, regulatory,\
+    \ or compliance-related content relevant to the intended audience of MLROs, compliance\
+    \ professionals, or AML supervisors. The Channel News Asia article cited concerns\
+    \ a cricket match between England and Pakistan \u2014 specifically a batting performance\
+    \ by a player named Lawrence \u2014 and contains no information pertaining to\
+    \ financial regulation, money laundering, sanctions, or related supervisory matters."
+  full_article: "The source material provided does not contain financial crime, regulatory,\
+    \ or compliance-related content relevant to the intended audience of MLROs, compliance\
+    \ professionals, or AML supervisors. The Channel News Asia article cited concerns\
+    \ a cricket match between England and Pakistan \u2014 specifically a batting performance\
+    \ by a player named Lawrence \u2014 and contains no information pertaining to\
+    \ financial regulation, money laundering, sanctions, or related supervisory matters.\n\
+    \nPublishing an analysis article on this subject in the voice and format described\
+    \ would require fabricating regulatory context, fictitious enforcement actions,\
+    \ or invented compliance implications, none of which would serve a professional\
+    \ audience and all of which could cause material harm if mistaken for factual\
+    \ reporting.\n\nIf you have a source article concerning financial crime enforcement,\
+    \ regulatory developments in Singapore or the broader Asia-Pacific region, MAS\
+    \ supervisory actions, FATF mutual evaluation outcomes, or related compliance\
+    \ matters, please share it and a properly framed analysis will be produced."
+  input_tokens: 283
+  output_tokens: 196
+- id: art-2026-08-29-421957
+  generated_at: '2026-08-29T19:47:34+00:00'
+  source_name: Channel News Asia business (Singapore)
+  source_url: https://www.channelnewsasia.com/sport/kolisi-kolbe-lead-south-africa-33-26-second-test-win-over-new-zealand-6349691
+  source_date: '2026-08-29'
+  title: Kolisi, Kolbe lead South Africa to 33-26 second test win over New Zealand
+  jurisdiction: Singapore (STRO)
+  topic: AML enforcement
+  summary: "The source material provided does not contain financial crime, anti-money\
+    \ laundering, regulatory, or compliance subject matter relevant to the intended\
+    \ audience of MLROs, compliance professionals, and AML supervisors. The Channel\
+    \ News Asia article describes a rugby union Test match result between South Africa\
+    \ and New Zealand \u2014 a sports report with no discernible connection to financial\
+    \ regulation, sanctions, proceeds of crime legislation, or supervisory policy."
+  full_article: "The source material provided does not contain financial crime, anti-money\
+    \ laundering, regulatory, or compliance subject matter relevant to the intended\
+    \ audience of MLROs, compliance professionals, and AML supervisors. The Channel\
+    \ News Asia article describes a rugby union Test match result between South Africa\
+    \ and New Zealand \u2014 a sports report with no discernible connection to financial\
+    \ regulation, sanctions, proceeds of crime legislation, or supervisory policy.\n\
+    \nProducing an analysis article framed around FATF Recommendations, MAS Notices,\
+    \ OSCO, or equivalent frameworks cannot be done responsibly without a factual\
+    \ regulatory or financial crime news hook. Doing so would require fabricating\
+    \ regulatory events, enforcement actions, or policy developments, which would\
+    \ be misleading to a professional compliance audience that relies on accurate,\
+    \ sourced reporting.\n\nIf you have a source article covering a relevant topic\
+    \ \u2014 such as an MAS enforcement action, a FATF mutual evaluation outcome,\
+    \ suspicious transaction reporting trends, virtual asset regulation, or trade-based\
+    \ money laundering guidance \u2014 please share it and a properly grounded analysis\
+    \ will follow."
+  input_tokens: 303
+  output_tokens: 225
+- id: art-2026-08-29-c5c035
+  generated_at: '2026-08-29T19:47:40+00:00'
+  source_name: Channel News Asia business (Singapore)
+  source_url: https://www.channelnewsasia.com/world/french-far-right-accuses-left-threatening-civil-peace-if-le-pen-wins-6349676
+  source_date: '2026-08-29'
+  title: French far right accuses left of threatening "civil peace" if Le Pen wins
+  jurisdiction: Singapore (STRO)
+  topic: AML enforcement
+  summary: "The source material provided describes a French domestic political dispute\
+    \ between far-right and left-wing factions regarding Marine Le Pen's electoral\
+    \ prospects \u2014 content that falls outside the scope of financial crime, anti-money\
+    \ laundering, regulatory compliance, or related supervisory matters. Producing\
+    \ an authoritative AML/financial crime analysis article from this source is not\
+    \ appropriate, as there is no substantive connection between the headline, summary,\
+    \ and the specialist subject matter this publication serves."
+  full_article: "The source material provided describes a French domestic political\
+    \ dispute between far-right and left-wing factions regarding Marine Le Pen's electoral\
+    \ prospects \u2014 content that falls outside the scope of financial crime, anti-money\
+    \ laundering, regulatory compliance, or related supervisory matters.\n\nProducing\
+    \ an authoritative AML/financial crime analysis article from this source is not\
+    \ appropriate, as there is no substantive connection between the headline, summary,\
+    \ and the specialist subject matter this publication serves. Attributing financial\
+    \ crime implications to a political news item without factual grounding would\
+    \ misrepresent both the source and the regulatory frameworks being referenced.\n\
+    \nIf you have a source article relating to AML enforcement actions, regulatory\
+    \ policy developments, sanctions designations, financial crime typologies, supervisory\
+    \ findings, or related compliance matters, I am glad to draft the analysis."
+  input_tokens: 295
+  output_tokens: 174
+- id: art-2026-08-29-fff813
+  generated_at: '2026-08-29T19:47:55+00:00'
+  source_name: Channel News Asia business (Singapore)
+  source_url: https://www.channelnewsasia.com/business/bessent-says-disorderly-yen-moves-can-destabilize-global-markets-6349631
+  source_date: '2026-08-29'
+  title: Bessent says disorderly yen moves can destabilize global markets
+  jurisdiction: Singapore (STRO)
+  topic: AML enforcement
+  summary: The United States Treasury Secretary Scott Bessent's public acknowledgement
+    that disorderly yen movements pose systemic risks to global markets carries immediate
+    implications for financial institutions managing cross-border exposure and transaction
+    monitoring thresholds calibrated to currency volatility assumptions. Bessent's
+    remarks arrive against a backdrop of persistent yen weakness that has periodically
+    breached levels prompting coordinated intervention by the Bank of Japan and Japan's
+    Ministry of Finance.
+  full_article: "The United States Treasury Secretary Scott Bessent's public acknowledgement\
+    \ that disorderly yen movements pose systemic risks to global markets carries\
+    \ immediate implications for financial institutions managing cross-border exposure\
+    \ and transaction monitoring thresholds calibrated to currency volatility assumptions.\n\
+    \nBessent's remarks arrive against a backdrop of persistent yen weakness that\
+    \ has periodically breached levels prompting coordinated intervention by the Bank\
+    \ of Japan and Japan's Ministry of Finance. The yen's trajectory since 2022 has\
+    \ tested the outer limits of G7 currency coordination frameworks, with the Plaza\
+    \ Accord era offering a distant but instructive precedent for how disorderly foreign\
+    \ exchange conditions can force multilateral policy responses. For compliance\
+    \ functions, sharp and rapid yen depreciation is not merely a treasury concern\u2014\
+    it recalibrates the domestic-currency equivalent of transaction reporting thresholds,\
+    \ affects the risk weighting of correspondent banking exposures, and can distort\
+    \ the typologies used to detect structuring and layering activity denominated\
+    \ in yen or involving Japanese counterparties.\n\nFrom a financial crime control\
+    \ perspective, episodes of acute currency instability historically correlate with\
+    \ elevated capital flight risk, informal value transfer activity, and increased\
+    \ use of trade-based mechanisms to move value across borders\u2014all areas where\
+    \ FATF Recommendation 14 on money or value transfer services and Recommendation\
+    \ 16 on wire transfers demand heightened scrutiny. Institutions operating under\
+    \ MAS Notice 626 or AUSTRAC's AML/CTF Act obligations with material Japanese customer\
+    \ books should review whether their automated monitoring systems remain fit for\
+    \ purpose when yen volatility compresses or distorts the statistical baselines\
+    \ underpinning behavioural alert thresholds.\n\nFor sovereign risk and country\
+    \ exposure assessments, a prolonged period of disorderly yen movement could also\
+    \ affect correspondent banking appetite for smaller Japanese regional financial\
+    \ institutions, potentially accelerating de-risking dynamics in a jurisdiction\
+    \ that is already subject to FATF's 2021 mutual evaluation findings on beneficial\
+    \ ownership transparency.\n\nWhether Bessent's statement presages coordinated\
+    \ G7 currency communication or reflects a unilateral signalling exercise aimed\
+    \ at Tokyo remains unclear. What is evident is that compliance leaders with Japanese\
+    \ exposure cannot treat this as a pure macroeconomic event\u2014the intersection\
+    \ of currency stress, capital movement, and transaction monitoring integrity demands\
+    \ that financial crime controls be reviewed in parallel with treasury hedging\
+    \ strategies."
+  input_tokens: 293
+  output_tokens: 505
