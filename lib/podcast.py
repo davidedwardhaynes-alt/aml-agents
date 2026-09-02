@@ -44,14 +44,34 @@ closest to NPR's *The Indicator from Planet Money*, *FT News Briefing*, and *Blo
 Surveillance Daybreak Asia*. Authoritative, conversational, specific. No marketing fluff. \
 No hedging where facts are clear. No words like "shocking" or "groundbreaking."
 
-TWO HOSTS — the script is a dialogue between two co-hosts:
+CORE PRINCIPLE — argue about the news, do not read it.
+This is a conversation, not a bulletin. If ALEX and JORDAN agree on everything, \
+listeners could get the same information from a press release. What they cannot get \
+from a press release is genuinely different professional readings of the same fact \
+pattern. Every episode should contain at least two moments of respectful disagreement, \
+push-back, or "yes but", where one host pressures the other's take. Not manufactured \
+theatre — real professional friction between two people who see the same story from \
+different angles. When they agree, they agree fast and move on; the airtime goes to \
+where the read diverges.
 
-ALEX is the lead host. Voice: UK male, broadcast-style, authoritative. Drives the \
-agenda. Introduces each story. Frames the regulatory significance.
+TWO HOSTS — distinct professional viewpoints, not interchangeable presenters:
 
-JORDAN is the practitioner co-host. Voice: UK female, warm, sharp. Translates \
-regulatory developments into operational implications for the listener. Asks Alex \
-follow-up questions to draw out detail. Provides the action items.
+ALEX is the lead host. Voice: UK male, broadcast-style, authoritative. Ex-regulator's \
+mindset — reads news through the lens of "what is the supervisor about to do about this, \
+and why now?" Interested in enforcement patterns, examiner priorities, supervisory \
+signalling. Tends to be measured and process-oriented. Sometimes too willing to give \
+regulators the benefit of the doubt — Jordan calls him on that.
+
+JORDAN is the practitioner co-host. Voice: UK female, warm, sharp. Front-line MLRO \
+mindset — reads news through the lens of "my Monday morning just got harder, in what \
+specific way?" Interested in operational impact, resourcing, control adjustments, \
+what to say to the board. Sometimes impatient with regulator framings — pushes for the \
+practical read. Occasionally openly sceptical when regulator communications don't match \
+inspection reality.
+
+The friction is professional, never personal. They finish each other's sentences when \
+they agree; they interrupt cleanly when they don't. Both are senior; neither is junior \
+to the other.
 
 FORMAT — the script MUST use these EXACT speaker tags, one per turn, on a new line:
 
@@ -101,30 +121,62 @@ exchanges Upbit, Bithumb, Coinone, and Korbit" rather than relying on commas alo
 - Read each sentence aloud in your head before writing the next. If it sounds \
 choppy, rewrite it.
 
-Flow (deliver as a dialogue alternating ALEX and JORDAN turns, no headings):
-1. ALEX opens with the welcome and frames the day. He says this is an audio overview of \
-today's most material APAC AML and financial-crime developments, and directs the listener \
-to amlagents dot streamlit dot app for the underlying detail, full obligation register, \
-news sources, and horizon scanning. JORDAN comes in with a short reaction ("Big day, \
-Alex.") and previews the agenda. The whole opening should fit inside the first 30 seconds.
-2. ALEX introduces the highest-impact news story. JORDAN asks at least one follow-up \
-question, then summarises the operational implication for listeners. Total 90-120 seconds \
-across 6-10 alternating turns.
-3. ALEX transitions to the second story; JORDAN drives the action item. Total 45-60 \
-seconds across 4-6 alternating turns.
-4. JORDAN introduces the third story (so the agenda alternates lead); ALEX adds the \
-read-across. Total 45-60 seconds across 4-6 alternating turns.
-5. ALEX moves to forward-looking what-to-watch. JORDAN closes each segment with one \
-or two concrete next steps for the listener's coming week. 45-60 seconds.
-6. JORDAN signs off with the prompt to visit amlagents dot streamlit dot app for full \
-detail. ALEX adds the final word. Natural, friendly sign-off.
+OPENING — vary the opening frame day-to-day. Do NOT default to "welcome to the AML \
+Agents Briefing" every episode; that gets stale fast for daily listeners. Pick ONE of \
+these opening frames based on what today's news actually looks like:
 
-ACTION ITEMS — this is a working briefing, not a news bulletin. The listener is an \
-MLRO, head of FCC, fraud lead, or AML supervisor with a busy morning. Every story \
-segment must give them at least one concrete action, suggestion, or next step they can \
-take today. JORDAN typically delivers the action items, prompted by a transition cue \
-from ALEX such as "So what should listeners do?" or "What's the read-across?". Be \
-specific:
+  A. THE LEAD STORY OPEN — go straight to the biggest development. \
+     "ALEX: HKMA settled with Standard Chartered on the correspondent-banking failings this morning, \
+     nineteen million Hong Kong dollars, and there are three things about the framing that matter. \
+     JORDAN: Before we get into that, I want to challenge whether the settlement quantum is the \
+     interesting number here at all. This is AML Agents Briefing for Wednesday the ninth."
+
+  B. THE THEMATIC THROUGH-LINE OPEN — spot a pattern across two or three of today's \
+     items and open on the pattern, not any one story. \
+     "JORDAN: Three separate items today all point to the same shift, which is regulators \
+     losing patience with governance failings in the second line. Alex, do you see the same thread? \
+     ALEX: I see it. Let's take them in order. Welcome to AML Agents Briefing for..."
+
+  C. THE DISAGREEMENT OPEN — pick a story where you and your co-host would honestly \
+     read it differently. Open on the disagreement. \
+     "ALEX: I want to disagree with the industry read on MAS's enforcement notice yesterday. \
+     JORDAN: Good, because I disagree with your disagreement. Where do you want to start? \
+     Welcome to AML Agents Briefing for..."
+
+  D. THE QUIET-DAY OPEN — when there is genuinely little material news. Do not \
+     pretend otherwise. Use the space for a deeper read on one item or a horizon scan. \
+     "ALEX: Not a heavy news day, which gives us space to do something we do not usually \
+     have time for, which is spend eight minutes on the FATF mutual-evaluation timeline for \
+     Malaysia. Jordan, why does this matter now? Welcome to AML Agents Briefing for..."
+
+Pick the frame that fits the actual news. Do not force any particular frame. Only mention \
+amlagents dot streamlit dot app ONCE in the entire episode, at the sign-off — not in the \
+opening. Listeners already know where to find you.
+
+BODY — the shape depends on the news:
+
+  If today has one clearly dominant story: spend three-quarters of the episode on it \
+  (deep read, disagreement, action items) and cover one or two smaller items at pace. \
+  Do not force three equal-weight stories where the news doesn't warrant it.
+
+  If today has three or more equally material items: cover them in sequence, alternating \
+  who leads each. Push for genuine variation in how each is framed — never the same \
+  "regulator issued X, here is what it means, here is your action" template three times \
+  in a row.
+
+  If today is thin on breaking news: pick one horizon-scanning item or one obligation \
+  falling due, and treat it with the depth a normal item would not get. Better a rich \
+  eight-minute treatment of one thing than four thin two-minute segments.
+
+Every story segment must contain at least one moment where ALEX and JORDAN disagree, \
+push back, or add a "yes, but" — see the CORE PRINCIPLE. If a story is genuinely \
+uncontested, name that and move on quickly.
+
+ACTION ITEMS — this is a working briefing, not a news bulletin. Every story segment \
+must give the listener at least one concrete action, suggestion, or next step they can \
+take today. JORDAN typically delivers the action items, prompted by ALEX with a \
+transition cue such as "So what should listeners do?" or "What's the read-across?". \
+Be specific:
 - Reference the role being addressed where it sharpens the action: "If you're the \
 MLRO at a virtual bank...", "For heads of fraud at an EMI...", "For AML/CTF compliance \
 officers running tranche-two readiness..."
@@ -137,8 +189,19 @@ ready for the December audit committee", "confirm your KYT vendor integration co
 both inbound and outbound flows."
 - For enforcement actions, draw the lesson: "the read-across for your bank is...", \
 "what regulators in your jurisdiction will look for next is..."
-- For the closing what-to-watch segment, JORDAN names two or three concrete next steps \
-listeners should take in the coming week.
+
+SIGN-OFF — vary the sign-off day-to-day, same as the opening. Do NOT default to the \
+same "visit amlagents dot streamlit dot app" boilerplate. Rotate between:
+
+  - JORDAN closing with a challenge back to listeners ("If any of that felt uncomfortably \
+    close to home, that's the point. See you tomorrow.")
+  - ALEX closing with a preview of what to watch tomorrow.
+  - JORDAN closing with a single sentence naming the thing to do before end-of-week.
+  - A back-and-forth close where the last exchange lands the take.
+
+Include amlagents dot streamlit dot app ONCE, in the sign-off, phrased as a natural \
+mention of where the full obligation register and source links live — not as a \
+marketing beat.
 
 Length: 900 to 1300 words total across both speakers (about 5 to 7 minutes spoken at \
 175 words per minute). MUST be at least 900 words. The dialogue-format and action-items \
@@ -434,6 +497,33 @@ def _synthesize_via_gtts(script: str) -> bytes | None:
         return None
 
 
+def _recent_episode_openings(n: int = 3) -> list[str]:
+    """Return the first 400 chars of each of the last n podcast scripts on
+    disk, newest first. Used to pass 'avoid these framings' context to the
+    prompt so the LLM does not open with the same greeting every day."""
+    from pathlib import Path as _Path
+    import json as _json
+
+    d = _Path(__file__).parent.parent / "data" / "podcasts"
+    if not d.exists():
+        return []
+    sidecars = sorted(
+        d.glob("2*-*-*.json"),
+        key=lambda p: p.stem,
+        reverse=True,
+    )[:n]
+    openings: list[str] = []
+    for p in sidecars:
+        try:
+            j = _json.loads(p.read_text())
+            script = (j.get("script") or "").strip()
+            if script:
+                openings.append(script[:400])
+        except Exception:
+            continue
+    return openings
+
+
 def _build_script(
     *,
     digest_text_summary: str,
@@ -459,14 +549,36 @@ def _build_script(
         return ("", {"input_tokens": 0, "output_tokens": 0})
 
     client = Anthropic(api_key=api_key)
+
+    # Recent-episode openings, passed to the prompt so the LLM can see what
+    # it opened with in the last 3 days and pick a different frame today.
+    # Addresses "the audio feels repetitive" feedback — the model was
+    # picking the safest opening every time without seeing what it had
+    # just said yesterday.
+    recent_context = ""
+    recent = _recent_episode_openings(n=3)
+    if recent:
+        blocks = []
+        for i, opening in enumerate(recent, 1):
+            blocks.append(f"[Episode T-{i} opened with:]\n{opening}\n")
+        recent_context = (
+            "\n\nRECENT EPISODES — the last three episodes opened as shown "
+            "below. Today's episode must NOT re-use any of these opening "
+            "framings, greetings, or first sentences. Pick a different "
+            "OPENING option from the four defined in your system prompt, "
+            "or invent a fresh one that fits today's news.\n\n"
+            + "\n---\n".join(blocks)
+        )
+
     user_prompt = (
         "Write today's *AML Agents Briefing* episode based on the digest "
         "summary below. The summary lists the highest-priority items from "
-        "news, obligations falling due, and horizon-scanning feeds. Keep the "
-        "episode 600-900 words. Output ONLY the spoken script — no host "
-        "instructions, no music cues, no episode metadata.\n\n"
+        "news, obligations falling due, and horizon-scanning feeds. Output "
+        "ONLY the spoken script — no host instructions, no music cues, no "
+        "episode metadata.\n\n"
         f"Digest summary for {dt.date.today().isoformat()}:\n\n"
         f"{digest_text_summary}"
+        f"{recent_context}"
     )
     try:
         resp = client.messages.create(
