@@ -210,6 +210,21 @@ Reference real regulatory frameworks (FATF Recommendations, MAS Notices, HKMA Gu
 the AMLA, the AML/CTF Act, Indonesia's Law Number 8 of 2010) with specificity. Use first \
 names and last initials for executives where appropriate.
 
+SOURCE CITATION — the digest summary you receive may include two special sections:
+
+  "=== REGULATION ASIA (last 24h) ===" — items sourced from Regulation Asia's paid
+  regulatory-intelligence service. When you use one, cite it explicitly on air:
+  "Regulation Asia reported this morning that…" or "in a Regulation Asia briefing
+  yesterday…". Do not paraphrase without attribution — the whole point of that
+  section is to signal to listeners that we're drawing on the most respected
+  independent APAC regulatory publication.
+
+  "=== CREDIBLE SOURCES ===" — a list of the authoritative regulator URLs
+  (MAS, HKMA, AUSTRAC, ASIC, etc.) for the jurisdictions touched by today's
+  news. When you introduce a regulator development, mention where it was
+  published: "in a notice posted to the MAS website" or "the update on
+  bnm.gov.my this morning". Never invent a source that isn't in either list.
+
 Output only the spoken script. No host instructions. No music cues. No stage directions. \
 No metadata. Pure spoken prose, ready for the microphone."""
 
@@ -232,6 +247,127 @@ class PodcastResult:
 # OpenAI keys are available, we write this so the audio player widget in
 # the app still has a file to point at.
 # ---------------------------------------------------------------------------
+
+# Phonetic substitutions applied to the script JUST BEFORE TTS synthesis.
+# Neural voices spell most acronyms letter-by-letter by default, which
+# sounds wrong for ones the compliance industry pronounces as words.
+# Substitutions only affect the TTS-bound copy — the sidecar transcript
+# keeps the original spelling for reading.
+#
+# When adding a new substitution, prefer simple English-letter phonetics
+# that the neural voice will say correctly without SSML coaching. Test
+# by listening to one episode after the change; if a word still sounds
+# wrong, adjust the spelling until it does. Hyphens between syllables
+# help the engine break the word correctly ("ay-pack" not "aypack").
+#
+# Ordered from longest to shortest match so multi-word acronyms match
+# before single-word ones (matters for FIU / KYT / KYC).
+PRONUNCIATION_MAP = {
+    # APAC region — the "as a word" acronyms
+    "APAC":    "ay-pack",          # not "ay-pee-ay-see"
+    "AUSTRAC": "Oz-track",         # Australian: "AWS-trak"
+    "AMLA":    "am-lah",           # "AM-lah" (Malaysian AML statute)
+    "AMLC":    "am-lick",          # Philippine AMLC
+    "AMLO":    "am-loh",           # Thai AMLO
+    "STRO":    "stroh",            # Singapore
+    "JAFIC":   "JAF-fik",          # Japan Financial Intelligence Center
+    "KoFIU":   "coffee-you",       # Korea Financial Intelligence Unit
+    "PPATK":   "pee-pat-kay",      # Indonesia
+    "FIED":    "feed",             # Malaysia's BNM Financial Intelligence Enforcement Div
+    "FIU":     "F-I-U",            # letter-by-letter with hyphens; otherwise engine mumbles
+    "OSFI":    "OS-fee",           # Canada equivalent (occasionally referenced)
+    # UN / FATF-family
+    "FATF":    "fat-eff",          # not "F-A-T-F" letter chain
+    "GAFI":    "gaf-ee",           # French acronym for FATF
+    "APG":     "A-P-G",            # Asia/Pacific Group on Money Laundering
+    "MENAFATF":"MENA fat-eff",     # MENA regional FATF-style body
+    # Regional supervisors + industry bodies
+    "ASIC":    "AY-sik",           # Australian Securities and Investments Commission
+    "APRA":    "AP-rah",           # Australian Prudential Regulation Authority
+    "ACCC":    "A-triple-C",       # Australian Competition and Consumer Commission
+    "OJK":     "O-J-K",            # Otoritas Jasa Keuangan (Indonesia)
+    "SEBI":    "SEE-bee",          # Securities and Exchange Board of India
+    "IRDAI":   "IR-dye",           # Insurance Regulatory and Development Authority of India
+    "NFRA":    "N-F-R-A",          # National Financial Reporting Authority (India)
+    "MPFA":    "M-P-F-A",          # Mandatory Provident Fund Authority (HK)
+    "HKMA":    "H-K-M-A",          # keep as letters; engine handles ok
+    "MAS":     "MASS",             # Monetary Authority of Singapore ("mass" is industry norm)
+    "BNM":     "B-N-M",
+    "IFSA":    "IF-sah",           # Islamic Financial Services Act (Malaysia)
+    "IFSB":    "I-F-S-B",          # Islamic Financial Services Board
+    "IOSCO":   "eye-OS-koh",       # not letter-by-letter
+    "IAIS":    "eye-A-I-S",
+    "IADI":    "eye-AH-dee",
+    "IFAC":    "EYE-fak",
+    "IFRS":    "I-F-R-S",          # letter-by-letter is standard here
+    # Currency codes engine sometimes spells letter-by-letter
+    "JPY":     "yen",
+    "KRW":     "Korean won",
+    "SGD":     "Singapore dollars",
+    "HKD":     "Hong Kong dollars",
+    "MYR":     "Malaysian ringgit",
+    "IDR":     "Indonesian rupiah",
+    "THB":     "Thai baht",
+    "PHP":     "Philippine pesos",
+    "INR":     "Indian rupees",
+    "AUD":     "Australian dollars",
+    "NZD":     "New Zealand dollars",
+    # Common typology / product acronyms
+    "TBML":    "T-B-M-L",          # Trade-based money laundering
+    "SMR":     "S-M-R",            # Suspicious matter report (AU)
+    "STR":     "S-T-R",            # Suspicious transaction report
+    "LTKM":    "L-T-K-M",          # Laporan transaksi keuangan mencurigakan (ID)
+    "SAR":     "S-A-R",            # Suspicious activity report (NZ / global)
+    "CTR":     "C-T-R",            # Currency transaction report
+    "TTR":     "T-T-R",            # Threshold transaction report (AU)
+    "IFTI":    "IFF-tee",          # International funds transfer instruction
+    "KYT":     "K-Y-T",            # Know your transaction
+    "PEP":     "pep",              # "pep" not "P-E-P"
+    "UBO":     "U-B-O",            # Ultimate beneficial owner
+    "SoW":     "source of wealth", # spelling out often clearer
+    "SoF":     "source of funds",
+    # DPRK / sanctions
+    "DPRK":    "D-P-R-K",
+    "OFAC":    "OH-fak",
+    "SDN":     "S-D-N",
+    # Legal-text artefacts
+    "vs.":     "versus",
+    "i.e.":    "that is",
+    "e.g.":    "for example",
+    "Q1":      "first quarter",
+    "Q2":      "second quarter",
+    "Q3":      "third quarter",
+    "Q4":      "fourth quarter",
+    "H1":      "first half",
+    "H2":      "second half",
+    "FY":      "financial year",
+}
+
+
+def _normalize_pronunciation(text: str) -> str:
+    """Word-boundary replace acronyms in PRONUNCIATION_MAP with their
+    phonetic equivalents. Case-sensitive on multi-letter acronyms so
+    'APAC' matches but 'Apac' (which the engine usually gets right)
+    does not. Applied AFTER _scrub_for_tts on the TTS-bound copy only —
+    the transcript keeps original spellings for on-screen reading."""
+    import re
+
+    if not text:
+        return text
+    out = text
+    # Sort by length (longest first) so multi-word acronyms match before
+    # their prefixes — e.g. "MENAFATF" before "FATF".
+    for acronym in sorted(PRONUNCIATION_MAP, key=len, reverse=True):
+        phonetic = PRONUNCIATION_MAP[acronym]
+        # \b doesn't recognise '.'; match those literally.
+        if "." in acronym or " " in acronym:
+            pattern = re.escape(acronym)
+        else:
+            pattern = r"\b" + re.escape(acronym) + r"\b"
+        out = re.sub(pattern, phonetic, out)
+    return out
+
+
 def _scrub_for_tts(text: str) -> str:
     """Strip TTS-hostile characters and normalise punctuation so the
     synthesised voice flows naturally.
@@ -337,9 +473,19 @@ def _silent_mp3_bytes(seconds: int = 5) -> bytes:
 #   - 2026-05-07: SoniaNeural sounded "a bit flat", swapped to Libby which
 #     has a warmer, more conversational delivery while keeping en-GB.
 #   - Both voices get a small rate boost (+5%) for conversational pace.
-EDGE_VOICE_ALEX = "en-GB-RyanNeural"    # UK male, lead host
-EDGE_VOICE_JORDAN = "en-GB-LibbyNeural"  # UK female, co-host (warmer than Sonia)
-EDGE_RATE = "+6%"                        # slightly faster than default for both
+# Voice choices tuned by user feedback over multiple iterations:
+#   - SoniaNeural sounded flat → swapped to Libby (en-GB).
+#   - Libby still robotic + accent felt "wrong for a two-host show" →
+#     swapped JORDAN to en-US-AvaMultilingualNeural. Ava is Microsoft's
+#     flagship conversational neural voice; the transatlantic pairing
+#     (UK Alex + US Jordan) is a well-established broadcast format
+#     (think FT Money Show, Bloomberg Daybreak Asia) that lifts the
+#     chemistry all by itself.
+#   - Rate raised from +6% to +10% so the delivery is conversational
+#     rather than newsreader-flat.
+EDGE_VOICE_ALEX = "en-GB-RyanNeural"                 # UK male, lead host
+EDGE_VOICE_JORDAN = "en-US-AvaMultilingualNeural"    # US female, most natural MS voice
+EDGE_RATE = "+10%"                                    # conversational pace
 
 # Map speaker tag → voice name. Extra aliases for robustness if Claude
 # slips into HOST/HOST-1 etc.
@@ -524,13 +670,84 @@ def _recent_episode_openings(n: int = 3) -> list[str]:
     return openings
 
 
+def _parse_episode_metadata(
+    raw: str,
+    *,
+    today: dt.date | None = None,
+) -> tuple[str, str, str, str]:
+    """Pull TITLE / SUMMARY / IMAGE_QUERY headers off the front of the
+    model output. Returns (title, summary, image_query, dialogue_only).
+    Falls back to date-based defaults if any header is absent so the
+    rest of the pipeline never breaks."""
+    import re
+
+    today = today or dt.date.today()
+    fb_title = f"AML Agents Briefing — {today.strftime('%A, %d %B %Y')}"
+    fb_summary = (
+        "Daily two-host APAC AML and financial-crime briefing. Alex and "
+        "Jordan cover the morning's most material regulator notices, "
+        "enforcement actions, obligations falling due, and horizon-scanning "
+        "items, with concrete action items for compliance leaders."
+    )
+    fb_query = "financial regulatory office"
+
+    if not raw:
+        return fb_title, fb_summary, fb_query, ""
+
+    body = raw
+    title = summary = image_query = ""
+
+    # TITLE: (single line)
+    m = re.match(
+        r"^[ \t]*TITLE[ \t]*:[ \t]*(.+?)[ \t]*$",
+        body.split("\n", 1)[0],
+        flags=re.IGNORECASE,
+    )
+    if m:
+        title = m.group(1).strip().strip('"').strip("'")
+        body = body.split("\n", 1)[1] if "\n" in body else ""
+
+    # SUMMARY: (may wrap; consume up to blank line or next SPEAKER/HEADER tag)
+    m = re.match(
+        r"^[ \t]*SUMMARY[ \t]*:[ \t]*(.+?)(?=\n\n|\n[A-Z_]+:)",
+        body,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if m:
+        summary = " ".join(m.group(1).strip().split())
+        body = body[m.end():].lstrip("\n")
+
+    # IMAGE_QUERY: (single line, lowercase 2-4 words)
+    m = re.match(
+        r"^[ \t]*IMAGE_QUERY[ \t]*:[ \t]*(.+?)[ \t]*$",
+        body.split("\n", 1)[0],
+        flags=re.IGNORECASE,
+    )
+    if m:
+        image_query = m.group(1).strip().strip('"').strip("'").lower()
+        body = body.split("\n", 1)[1] if "\n" in body else ""
+
+    return (
+        title or fb_title,
+        summary or fb_summary,
+        image_query or fb_query,
+        body.strip(),
+    )
+
+
 def _build_script(
     *,
     digest_text_summary: str,
     api_key: str | None,
-) -> tuple[str, dict[str, int]]:
-    """Generate the spoken script via Claude. Returns (script, usage_dict).
-    On any failure or missing key, returns a stub script + zeroed usage."""
+) -> tuple[str, str, str, str, dict[str, int]]:
+    """Generate the spoken script via Claude.
+
+    Returns (title, summary, image_query, dialogue, usage_dict).
+    Title / summary / image_query are pulled from the three header
+    lines Claude writes at the top of the response; the dialogue is
+    the speaker-tagged body underneath. Falls back to date-based
+    defaults when the model output is missing headers so the rest of
+    the pipeline never breaks."""
     if not api_key:
         stub = (
             "Welcome to the AML Agents Briefing. This is a stub episode — the "
@@ -541,12 +758,14 @@ def _build_script(
             "news, obligations, and horizon-scanning feeds you see in the app. "
             "Goodbye for now."
         )
-        return stub, {"input_tokens": 0, "output_tokens": 0}
+        t, s, iq, _ = _parse_episode_metadata("")
+        return t, s, iq, stub, {"input_tokens": 0, "output_tokens": 0}
 
     try:
         from anthropic import Anthropic  # local import — only needed here
     except Exception:
-        return ("", {"input_tokens": 0, "output_tokens": 0})
+        t, s, iq, _ = _parse_episode_metadata("")
+        return t, s, iq, "", {"input_tokens": 0, "output_tokens": 0}
 
     client = Anthropic(api_key=api_key)
 
@@ -573,9 +792,23 @@ def _build_script(
     user_prompt = (
         "Write today's *AML Agents Briefing* episode based on the digest "
         "summary below. The summary lists the highest-priority items from "
-        "news, obligations falling due, and horizon-scanning feeds. Output "
-        "ONLY the spoken script — no host instructions, no music cues, no "
-        "episode metadata.\n\n"
+        "news, obligations falling due, and horizon-scanning feeds.\n\n"
+        "Output exactly:\n"
+        "  Line 1: TITLE: <punchy 6-12 word episode title that names the "
+        "lead story specifically, e.g. \"HKMA settles with StanChart for "
+        "correspondent-bank failings\">\n"
+        "  Line 2: SUMMARY: <2-3 sentence description of THIS episode's "
+        "content, max 350 chars, that a listener would read in their "
+        "podcast app before tapping play>\n"
+        "  Line 3: IMAGE_QUERY: <2-4 word stock-photo search query, "
+        "lowercase, e.g. \"regulator press conference\" or \"trader "
+        "screen frustrated\">\n"
+        "  Line 4: blank line\n"
+        "  Lines 5+: the ALEX / JORDAN dialogue per the system-prompt "
+        "format and length rules.\n\n"
+        "The three header lines must NOT appear inside the spoken "
+        "dialogue — they are metadata for the podcast platform and the "
+        "cover-image fetcher only.\n\n"
         f"Digest summary for {dt.date.today().isoformat()}:\n\n"
         f"{digest_text_summary}"
         f"{recent_context}"
@@ -606,7 +839,8 @@ def _build_script(
             f"Script too short ({len(text)} chars; expected ≥1500). "
             "Refusing to ship a degraded podcast — investigate upstream."
         )
-    return text, {
+    title, summary, image_query, dialogue = _parse_episode_metadata(text)
+    return title, summary, image_query, dialogue, {
         "input_tokens": resp.usage.input_tokens,
         "output_tokens": resp.usage.output_tokens,
     }
@@ -667,7 +901,7 @@ def _synthesize_audio(
         # can label correctly.
         was_dialogue = bool(_split_dialogue_turns(script))
         voice_tag = (
-            "edge:dialogue:Ryan+Libby"
+            "edge:dialogue:Ryan+Ava"
             if was_dialogue
             else "edge:en-GB-RyanNeural"
         )
@@ -696,15 +930,17 @@ def generate_daily_podcast(
     anthropic_key = anthropic_key or os.getenv("ANTHROPIC_API_KEY")
     openai_key = openai_key or os.getenv("OPENAI_API_KEY")
 
-    script, usage = _build_script(
+    title, summary, image_query, script, usage = _build_script(
         digest_text_summary=digest_summary,
         api_key=anthropic_key,
     )
     # Scrub the script for TTS — strip section dividers, em-dashes, markdown,
     # asterisks, ellipses and other characters that gTTS reads literally or
-    # that produce awkward pauses. The transcript shown in the app uses the
-    # ORIGINAL `script`; only `script_for_tts` is sent to the synthesizer.
-    script_for_tts = _scrub_for_tts(script)
+    # that produce awkward pauses. Then normalise industry acronyms so the
+    # engine says "ay-pack" not "A-P-A-C", "Oz-track" not "A-U-S-T-R-A-C",
+    # etc. The transcript shown in the app uses the ORIGINAL `script`; only
+    # `script_for_tts` is sent to the synthesizer.
+    script_for_tts = _normalize_pronunciation(_scrub_for_tts(script))
     audio_bytes, is_stub, voice_used = _synthesize_audio(
         script_for_tts, api_key=openai_key
     )
@@ -727,12 +963,13 @@ def generate_daily_podcast(
     sidecar_path = PODCAST_DIR / f"{today.isoformat()}.json"
     mp3_path.write_bytes(audio_bytes)
 
-    title = f"AML Agents Briefing — {today.strftime('%A, %d %B %Y')}"
     duration_estimate = max(60, int(len(script.split()) / 175 * 60))
 
     sidecar: dict[str, Any] = {
         "date": today.isoformat(),
         "title": title,
+        "summary": summary,
+        "image_query": image_query,
         "duration_seconds": duration_estimate,
         "script": script,
         "script_chars": len(script),

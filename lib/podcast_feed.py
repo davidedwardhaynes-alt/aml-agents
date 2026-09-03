@@ -109,19 +109,39 @@ def _episode_item(sidecar_path: Path) -> str | None:
     file_size = mp3_path.stat().st_size
     mp3_url = f"{GITHUB_RAW_BASE}/{date_iso}.mp3"
 
-    # Episode summary — pull the script's first paragraph, strip speaker tags.
-    script = (meta.get("script") or "").strip()
-    summary = script.split("\n", 1)[0] if script else title
-    if summary.startswith("ALEX:") or summary.startswith("JORDAN:"):
-        summary = summary.split(":", 1)[1].strip()
-    if len(summary) > 300:
-        summary = summary[:297] + "..."
+    # Episode summary — prefer the per-episode `summary` field Claude
+    # writes as an explicit metadata header for this episode; fall back
+    # to the script's lead paragraph for older sidecars that don't have
+    # the field.
+    summary = (meta.get("summary") or "").strip()
+    if not summary:
+        script = (meta.get("script") or "").strip()
+        summary = script.split("\n", 1)[0] if script else title
+        if summary.startswith("ALEX:") or summary.startswith("JORDAN:"):
+            summary = summary.split(":", 1)[1].strip()
+    if len(summary) > 600:
+        summary = summary[:597] + "..."
+
+    # Subtitle (iTunes short-tag convention ≤80 chars) — use the title
+    # abbreviated so each episode shows its own content, not a generic
+    # show tagline.
+    subtitle = title if len(title) <= 80 else title[:77] + "..."
+
+    # Per-episode cover image — if data/podcasts/<date>.jpg was
+    # generated, point itunes:image at it; otherwise fall back to the
+    # show-level cover.
+    ep_jpg = sidecar_path.with_suffix(".jpg")
+    if ep_jpg.exists():
+        image_url = f"{GITHUB_RAW_BASE}/{date_iso}.jpg"
+    else:
+        image_url = COVER_ART_URL
 
     return f"""    <item>
       <title>{_esc(title)}</title>
       <description>{_esc(summary)}</description>
       <itunes:summary>{_esc(summary)}</itunes:summary>
-      <itunes:subtitle>Daily APAC AML and financial-crime briefing</itunes:subtitle>
+      <itunes:subtitle>{_esc(subtitle)}</itunes:subtitle>
+      <itunes:image href="{_esc(image_url)}"/>
       <itunes:author>{_esc(PODCAST_AUTHOR)}</itunes:author>
       <itunes:duration>{duration}</itunes:duration>
       <itunes:explicit>false</itunes:explicit>

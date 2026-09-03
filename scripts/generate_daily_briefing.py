@@ -70,6 +70,31 @@ def _compose_summary(today: dt.date) -> tuple[str, list[tuple[str, str, str]]]:
         )
         headlines.append(("News", it.title, (it.summary or "")[:240]))
 
+    # Regulation Asia articles — the region's most-cited independent
+    # regulatory-intelligence publication. Silent no-op when the API
+    # key / authenticated-feed URL isn't set; when configured, the last
+    # 24h of articles get injected as a dedicated section so the podcast
+    # hosts can reference them by title + attribution.
+    try:
+        from lib.regulation_asia import fetch_recent_articles, configured_transport
+        ra_items = fetch_recent_articles(since_hours=24, max_items=6)
+        if ra_items:
+            text_parts.append(
+                f"\n=== REGULATION ASIA (last 24h, transport={configured_transport()}) ==="
+            )
+            for it in ra_items:
+                jur = it.jurisdiction or "APAC"
+                text_parts.append(
+                    f"- [{it.published} | {jur}] {it.title}\n"
+                    f"  {(it.summary or '')[:280]}\n"
+                    f"  Source: Regulation Asia — {it.url}"
+                )
+                headlines.append(("Regulation Asia", it.title, (it.summary or "")[:240]))
+    except Exception as e:
+        # Non-fatal — cron stays green.
+        import sys
+        sys.stderr.write(f"[regulation_asia] adapter failed: {e}\n")
+
     # Imminent obligations (next 60 days, top 3 by date)
     cutoff = (today + dt.timedelta(days=60)).isoformat()
     obs = [
@@ -93,6 +118,40 @@ def _compose_summary(today: dt.date) -> tuple[str, list[tuple[str, str, str]]]:
             f"  {(it.summary or '')[:240]}"
         )
         headlines.append(("Horizon", it.title, (it.summary or "")[:240]))
+
+    # Credible-source citation context — for the jurisdictions touched
+    # by today's news + obligations + horizon items, list the top
+    # authoritative regulator URLs from lib/regulator_sources.py. The
+    # podcast prompt uses these so ALEX and JORDAN can cite specific
+    # regulators ("MAS just published a Notice 626 amendment on their
+    # website...") rather than hand-waving generalities.
+    try:
+        from lib.regulator_sources import sources_for
+        touched: dict[str, None] = {}
+        for it in list(news[:4]) + list(horizon[:3]):
+            jur_label = str(getattr(it, "jurisdiction", "")).strip()
+            # Strip any bracketed suffix like " (STRO)" for lookup
+            jur = jur_label.split(" (")[0].strip()
+            if jur:
+                touched[jur] = None
+        for o in obs[:3]:
+            jur = str(o.jurisdiction).split(" (")[0].strip()
+            if jur:
+                touched[jur] = None
+
+        if touched:
+            text_parts.append("\n=== CREDIBLE SOURCES (cite these when discussing today's stories) ===")
+            for jur in list(touched)[:6]:  # cap to 6 jurisdictions for prompt length
+                sources = sources_for(jur)
+                if not sources:
+                    continue
+                text_parts.append(f"[{jur}]")
+                for name, url in sources[:5]:  # top 5 per jurisdiction
+                    text_parts.append(f"  - {name}: {url}")
+    except Exception:
+        # Non-fatal if the catalogue module isn't importable; podcast
+        # still generates from news + obligations + horizon alone.
+        pass
 
     return "\n".join(text_parts), headlines
 
