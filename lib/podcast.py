@@ -264,7 +264,11 @@ class PodcastResult:
 # before single-word ones (matters for FIU / KYT / KYC).
 PRONUNCIATION_MAP = {
     # APAC region — the "as a word" acronyms
-    "APAC":    "ay-pack",          # not "ay-pee-ay-see"
+    # Spelled out rather than phoneticised, on David's call: "ay-pack"
+    # is how the industry says it, but "Asia Pacific" is unambiguous to
+    # every engine and to a listener who has never heard the acronym.
+    # This is the TTS copy only — the on-screen transcript keeps "APAC".
+    "APAC":    "Asia Pacific",     # never "ay-pee-ay-see"
     "AUSTRAC": "Oz-track",         # Australian: "AWS-trak"
     "AMLA":    "am-lah",           # "AM-lah" (Malaysian AML statute)
     "AMLC":    "am-lick",          # Philippine AMLC
@@ -485,7 +489,13 @@ def _silent_mp3_bytes(seconds: int = 5) -> bytes:
 #     rather than newsreader-flat.
 EDGE_VOICE_ALEX = "en-GB-RyanNeural"                 # UK male, lead host
 EDGE_VOICE_JORDAN = "en-US-AvaMultilingualNeural"    # US female, most natural MS voice
-EDGE_RATE = "+10%"                                    # conversational pace
+# Was +10%, which David listened back and called 15% too fast. Slowing
+# by 15% from 1.10x lands at 0.935x, so -7%. The earlier note below
+# about +6% sounding "newsreader-flat" was about intonation, not pace —
+# the fix for flat delivery is the dialogue format, not the speed dial.
+# Override with EDGE_RATE_OVERRIDE ("-5%", "+0%") to retune without a
+# code change.
+EDGE_RATE = os.getenv("EDGE_RATE_OVERRIDE", "-7%")    # measured listening pace
 
 # Map speaker tag → voice name. Extra aliases for robustness if Claude
 # slips into HOST/HOST-1 etc.

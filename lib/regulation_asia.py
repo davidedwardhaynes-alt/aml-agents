@@ -51,7 +51,29 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import Any
 
-DEFAULT_JSON_ENDPOINT = "https://www.regulationasia.com/api/v1/articles"
+DEFAULT_JSON_ENDPOINT = "https://api.regulationasia.com/api/articles"
+
+# Regulation Asia issues the key into their own .env, which we read in
+# place rather than copying: one copy of the secret, their file unedited,
+# and nothing sensitive in a file that syncs to iCloud. Matches how
+# regasia-drafter and regasia-daily source the same key.
+RA_ENV_FILE = (
+    "~/Library/Mobile Documents/com~apple~CloudDocs/script/.env"
+)
+RA_ENV_KEY_NAME = "API_KEY"
+
+# The API caps `limit` at 100 and has no `since` parameter — it returns
+# newest-first and we window by date on our side.
+API_MAX_LIMIT = 100
+
+# Article bodies run ~5,300 chars on average and up to ~23,000. The cap
+# exists so one long article can't dominate a prompt, but it belongs to
+# the *caller's* budget, not to the fetch: the 5-minute podcast prompt
+# trims to 900 chars of its own accord, while the long-form briefing
+# wants everything. Defaulting high and letting a caller clamp is the
+# right way round — the old 4,000 default silently discarded 37% of a
+# typical day's source material before anyone could ask for it.
+CONTENT_CHAR_CAP = int(os.getenv("REGULATION_ASIA_CONTENT_CAP", "24000"))
 UA = (
     "AML-Agents-Daily/1.0 (+https://trustsphere.ai; "
     "regulation-asia-subscriber)"
@@ -63,31 +85,126 @@ DEFAULT_TIMEOUT = 20
 class RegulationAsiaItem:
     title: str
     url: str
-    summary: str
+    summary: str              # short teaser (~1-2 sentences, from `excerpt`)
     published: str            # ISO date; may be empty
     author: str = ""
     tags: list[str] | None = None
     jurisdiction: str = ""    # inferred from tags where possible
+    content: str = ""         # FULL article body — populated by the API's
+                              # `content` field. Podcast prompt uses this
+                              # for richer context beyond the summary.
+    topics: list[str] | None = None
+                              # Flattened category/subcategory strings from
+                              # the API's structured `topics` list —
+                              # e.g. ["Financial Crime / KYC & CDD",
+                              # "AI, Technology & Data / Cybersecurity"].
 
 
 # --------------------------------------------------------------------
 # Configuration probe
 # --------------------------------------------------------------------
+def _resolve_api_key() -> str:
+    """Return the Regulation Asia API key, preferring an explicit env
+    var and falling back to RA's own .env file.
+
+    The env var wins so CI and one-off runs can override without
+    touching the file. The file fallback is what makes the cron work
+    unattended on David's Mac, where the key only ever lives in RA's
+    .env."""
+    for var in ("REGULATION_ASIA_API_KEY", "RA_API_KEY"):
+        val = (os.getenv(var) or "").strip()
+        if val:
+            return val
+
+    path = os.path.expanduser(
+        os.getenv("REGULATION_ASIA_ENV_FILE", RA_ENV_FILE)
+    )
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                name, _, value = line.partition("=")
+                if name.strip() == RA_ENV_KEY_NAME:
+                    return value.strip().strip("'\"")
+    except OSError:
+        # Missing or unreadable (macOS sandboxing can block iCloud reads
+        # from a cron context) — caller falls through to another
+        # transport rather than raising.
+        pass
+    return ""
+
+
 def is_configured() -> bool:
-    """True when either an API key or an authenticated feed URL is set."""
+    """True when any transport is configured (API key, authenticated
+    feed URL, or a local sample JSON path for offline testing)."""
     return bool(
-        os.getenv("REGULATION_ASIA_API_KEY")
+        _resolve_api_key()
         or os.getenv("REGULATION_ASIA_FEED_URL")
+        or os.getenv("REGULATION_ASIA_SAMPLE_PATH")
     )
 
 
 def configured_transport() -> str:
-    """Return which transport will be used ('api', 'rss', or 'none')."""
-    if os.getenv("REGULATION_ASIA_API_KEY"):
+    """Return which transport will be used ('api', 'rss', 'sample',
+    or 'none'). The 'sample' transport reads from a local JSON file
+    pointed at by REGULATION_ASIA_SAMPLE_PATH — useful for CI + demos
+    when you don't want to hit the paid API on every cron run."""
+    if _resolve_api_key():
         return "api"
     if os.getenv("REGULATION_ASIA_FEED_URL"):
         return "rss"
+    if os.getenv("REGULATION_ASIA_SAMPLE_PATH"):
+        return "sample"
     return "none"
+
+
+def _fetch_via_sample(since_iso: str, max_items: int) -> list[RegulationAsiaItem]:
+    """Load articles from a local JSON file. The file should match the
+    Regulation Asia v1 API response shape: `{"articles": [...], "total": N}`
+    OR be a bare list of article dicts. Ignored silently if the path
+    isn't set or the file is unreadable."""
+    path = os.getenv("REGULATION_ASIA_SAMPLE_PATH")
+    if not path:
+        return []
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except Exception as e:
+        import sys
+        sys.stderr.write(f"[regulation_asia] sample file unreadable: {e}\n")
+        return []
+
+    rows: list[dict] = []
+    if isinstance(data, dict):
+        rows = data.get("articles") or data.get("results") or data.get("data") or []
+    elif isinstance(data, list):
+        rows = data
+
+    since_date = ""
+    try:
+        since_date = dt.datetime.fromisoformat(
+            since_iso.replace("Z", "+00:00")
+        ).date().isoformat()
+    except Exception:
+        pass
+
+    items: list[RegulationAsiaItem] = []
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        item = _normalise_api_row(r)
+        if not item:
+            continue
+        # Filter to items on/after since_date; if either date is empty
+        # keep the item (fail-open — sample files may be small).
+        if since_date and item.published and item.published < since_date:
+            continue
+        items.append(item)
+        if len(items) >= max_items:
+            break
+    return items
 
 
 # --------------------------------------------------------------------
@@ -100,9 +217,47 @@ def _http_get_json(url: str, headers: dict[str, str]) -> Any:
     return json.loads(raw)
 
 
+def _flatten_topics(raw_topics: Any) -> list[str]:
+    """Regulation Asia's `topics` field is a list of dicts:
+        [{"category": "Financial Crime",
+          "subcategory": ["KYC & CDD", "Sanctions"]}, ...]
+    Flatten to human-readable strings for downstream use:
+        ["Financial Crime / KYC & CDD",
+         "Financial Crime / Sanctions",
+         ...]
+    Falls back gracefully on any unexpected shape."""
+    out: list[str] = []
+    if not raw_topics:
+        return out
+    if isinstance(raw_topics, str):
+        return [raw_topics]
+    for t in raw_topics:
+        if isinstance(t, str):
+            out.append(t)
+            continue
+        if not isinstance(t, dict):
+            continue
+        cat = str(t.get("category") or "").strip()
+        subs = t.get("subcategory") or t.get("subcategories") or []
+        if isinstance(subs, str):
+            subs = [subs]
+        subs = [str(s).strip() for s in subs if str(s).strip()]
+        if cat and subs:
+            for s in subs:
+                out.append(f"{cat} / {s}")
+        elif cat:
+            out.append(cat)
+    return out
+
+
 def _normalise_api_row(row: dict) -> RegulationAsiaItem | None:
     """Coerce one JSON row into RegulationAsiaItem. Return None on
-    obviously-broken rows so downstream code can skip cleanly."""
+    obviously-broken rows so downstream code can skip cleanly.
+
+    Handles the actual Regulation Asia v1 API schema:
+      {title, url, excerpt, content, published_at,
+       topics: [{category, subcategory: [...]}], tags: [...]}
+    plus more permissive aliases for RSS-derived rows."""
     title = str(row.get("title") or row.get("headline") or "").strip()
     url = str(row.get("url") or row.get("link") or row.get("permalink") or "").strip()
     if not title or not url:
@@ -119,6 +274,15 @@ def _normalise_api_row(row: dict) -> RegulationAsiaItem | None:
     summary = re.sub(r"<[^>]+>", " ", summary)
     summary = re.sub(r"\s+", " ", summary).strip()
 
+    # Full article body — Regulation Asia's `content` field averages
+    # ~5,300 chars, up to ~23,000. Kept whole by default; see
+    # CONTENT_CHAR_CAP for why the trimming decision sits with callers.
+    content = str(row.get("content") or row.get("body") or "").strip()
+    content = re.sub(r"<[^>]+>", " ", content)
+    content = re.sub(r"\s+", " ", content).strip()
+    if CONTENT_CHAR_CAP and len(content) > CONTENT_CHAR_CAP:
+        content = content[: CONTENT_CHAR_CAP - 3] + "..."
+
     published_raw = (
         row.get("published_at")
         or row.get("date_published")
@@ -128,10 +292,19 @@ def _normalise_api_row(row: dict) -> RegulationAsiaItem | None:
     )
     published = ""
     try:
-        # ISO-8601 first
-        published = dt.datetime.fromisoformat(
-            str(published_raw).replace("Z", "+00:00")
-        ).date().isoformat()
+        # ISO-8601 first — the Regulation Asia API returns millisecond-
+        # precision timestamps like "2026-08-25T03:10:18.481000Z".
+        # fromisoformat() on 3.9 can't handle 'Z'; also stumbles on the
+        # 6-digit microseconds — normalise both explicitly.
+        s = str(published_raw).strip().replace("Z", "+00:00")
+        # Split off fractional seconds beyond the ISO 3.9-parseable form
+        m = re.match(
+            r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(\.\d+)?(.*)$",
+            s,
+        )
+        if m:
+            s = m.group(1) + m.group(3)
+        published = dt.datetime.fromisoformat(s).date().isoformat()
     except Exception:
         # RFC-2822 fallback (RSS-style dates)
         try:
@@ -146,8 +319,10 @@ def _normalise_api_row(row: dict) -> RegulationAsiaItem | None:
         tags = [tags]
     tags = [str(t).strip() for t in tags if str(t).strip()]
 
-    # Infer APAC jurisdiction from tags
-    jurisdiction = _infer_jurisdiction(tags + [title])
+    topics = _flatten_topics(row.get("topics"))
+
+    # Infer APAC jurisdiction from tags + topics + title
+    jurisdiction = _infer_jurisdiction(tags + topics + [title])
 
     return RegulationAsiaItem(
         title=title,
@@ -157,22 +332,28 @@ def _normalise_api_row(row: dict) -> RegulationAsiaItem | None:
         author=str(row.get("author") or row.get("byline") or "").strip(),
         tags=tags,
         jurisdiction=jurisdiction,
+        content=content,
+        topics=topics,
     )
 
 
 def _fetch_via_api(since_iso: str, max_items: int) -> list[RegulationAsiaItem]:
-    api_key = os.getenv("REGULATION_ASIA_API_KEY")
+    api_key = _resolve_api_key()
     if not api_key:
         return []
     base = os.getenv("REGULATION_ASIA_API_URL", DEFAULT_JSON_ENDPOINT)
-    params = urllib.parse.urlencode({
-        "since": since_iso,
-        "limit": max_items,
-        "order": "desc",
-    })
+
+    # The API takes `limit` only — no `since`, no `order`. It returns
+    # newest-first, so ask for a window wide enough that the since_iso
+    # cut below still has candidates left after filtering. Publishing
+    # runs 25-50 articles/day, so a 24h ask of 6 items off an unfiltered
+    # newest-first feed would be fine, but a 7-day ask would silently
+    # truncate — hence pulling the full page and trimming locally.
+    limit = min(API_MAX_LIMIT, max(max_items, 100))
+    params = urllib.parse.urlencode({"limit": limit})
     url = f"{base}?{params}"
     headers = {
-        "Authorization": f"Bearer {api_key}",
+        "X-API-Key": api_key,
         "Accept": "application/json",
         "User-Agent": UA,
     }
@@ -201,13 +382,25 @@ def _fetch_via_api(since_iso: str, max_items: int) -> list[RegulationAsiaItem]:
     else:
         rows = []
 
+    # Window by date on our side, since the API has no `since`. Rows
+    # carry a full timestamp but _normalise_api_row reduces it to a
+    # date, so the comparison is date-to-date. Undated rows are dropped
+    # rather than kept: this feed mixes promotional and evergreen pages
+    # in with the news, and an undated item can't honestly be called
+    # part of "the last N hours".
+    cutoff_date = since_iso[:10]
     items: list[RegulationAsiaItem] = []
-    for r in rows[:max_items]:
+    for r in rows:
         if not isinstance(r, dict):
             continue
         item = _normalise_api_row(r)
-        if item:
-            items.append(item)
+        if not item or not item.published:
+            continue
+        if item.published < cutoff_date:
+            continue
+        items.append(item)
+        if len(items) >= max_items:
+            break
     return items
 
 
@@ -291,13 +484,31 @@ _APAC_KEYWORDS = {
 }
 
 
+_KEYWORD_PATTERNS = {
+    jur: re.compile(
+        r"\b(?:" + "|".join(re.escape(k.strip()) for k in kws) + r")\b"
+    )
+    for jur, kws in _APAC_KEYWORDS.items()
+}
+
+
 def _infer_jurisdiction(text_bits: list[str]) -> str:
-    """Best-effort jurisdiction inference from tags + title."""
+    """Best-effort jurisdiction inference from tags + topics + title.
+
+    Two rules earn their keep here. Matching is word-bounded, because
+    several of the keywords are two- and three-letter regulator
+    acronyms that otherwise match inside ordinary words — Malaysia's
+    "sc" hit "Scaled-Back", New Zealand's "dia" hit "India". And the
+    winner is the jurisdiction with the *most* hits rather than the
+    first one in dict order, so a genuine cluster ("India", "SEBI",
+    "INR") beats a single incidental acronym."""
     hay = " ".join(t.lower() for t in text_bits)
-    for jur, kws in _APAC_KEYWORDS.items():
-        if any(k in hay for k in kws):
-            return jur
-    return ""
+    best, best_score = "", 0
+    for jur, pattern in _KEYWORD_PATTERNS.items():
+        score = len(pattern.findall(hay))
+        if score > best_score:
+            best, best_score = jur, score
+    return best
 
 
 def fetch_recent_articles(
@@ -307,8 +518,9 @@ def fetch_recent_articles(
 ) -> list[RegulationAsiaItem]:
     """Fetch Regulation Asia articles published in the last N hours.
 
-    Uses the JSON API if REGULATION_ASIA_API_KEY is set; otherwise
-    falls back to the authenticated RSS feed at REGULATION_ASIA_FEED_URL.
+    Uses the JSON API when a key is resolvable (env var, or RA's own
+    .env file); otherwise falls back to the authenticated RSS feed at
+    REGULATION_ASIA_FEED_URL.
     Returns [] silently if neither is configured or the fetch fails —
     the daily-briefing script keeps running on its other feeds."""
     if not is_configured():
@@ -319,4 +531,6 @@ def fetch_recent_articles(
     items = _fetch_via_api(since, max_items)
     if not items:
         items = _fetch_via_rss(since, max_items)
+    if not items:
+        items = _fetch_via_sample(since, max_items)
     return items

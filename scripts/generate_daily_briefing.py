@@ -52,72 +52,182 @@ from lib.video import generate_daily_video  # noqa: E402
 
 
 def _compose_summary(today: dt.date) -> tuple[str, list[tuple[str, str, str]]]:
-    """Return (free-form text summary for Claude, headline triples for video)."""
+    """Return (free-form text summary for Claude, headline triples for video).
+
+    SOURCE PRIMACY (per user feedback 2026-05-07: "some content is not
+    accurate or current, please validate the source material — start
+    using the Regulation Asia API or other trusted regulatory sources"):
+
+    Regulation Asia's subscription API is the PRIMARY factual source
+    when configured. Local seed data becomes fallback / background
+    context only. This ensures every episode is anchored on verified,
+    dated regulatory coverage from a credible publisher.
+
+    FRESHNESS POLICY (same user feedback, plus "podcasts reference 2024
+    obligations — this is too old"): items older than 90 days are
+    filtered out unless they're High/Critical priority overdue
+    obligations that are STILL actionable this week. The prompt also
+    tells Claude to speak in the present and forward-looking voice —
+    no 'last year', no 'a previous cycle'."""
     headlines: list[tuple[str, str, str]] = []
     text_parts: list[str] = []
 
-    # Top news (up to 4)
+    # =============================================================
+    # PRIMARY SOURCE — Regulation Asia (credible publisher, dated)
+    # =============================================================
+    ra_items = []
+    ra_transport = "none"
+    try:
+        from lib.regulation_asia import (
+            fetch_recent_articles,
+            configured_transport,
+        )
+        ra_transport = configured_transport()
+        # Widen the window to 120 hours (5 days) so the podcast has
+        # enough material even on quiet news days. RA publishes 50-60
+        # articles per day so this typically returns dozens of items.
+        ra_items = fetch_recent_articles(since_hours=120, max_items=40)
+    except Exception as e:
+        import sys as _sys
+        _sys.stderr.write(f"[regulation_asia] adapter failed: {e}\n")
+
+    if ra_items:
+        text_parts.append(
+            f"=== REGULATION ASIA — PRIMARY SOURCE (last 5 days, transport={ra_transport}) ==="
+        )
+        text_parts.append(
+            "The podcast must anchor on these dated regulatory-intelligence "
+            "items. Prefer them for the lead story and supporting segments; "
+            "cite them with 'Regulation Asia' attribution where natural."
+        )
+        # Cap at the top 8 for the digest so we stay inside a workable
+        # token budget for the model, but keep more headlines for the
+        # video slides.
+        for it in ra_items[:8]:
+            jur = it.jurisdiction or "APAC"
+            topics = ", ".join((it.topics or [])[:3])
+            topic_line = f"  Topics: {topics}\n" if topics else ""
+            context_snippet = ""
+            if it.content:
+                ctx = it.content[:900]
+                context_snippet = f"  Context: {ctx}\n"
+            text_parts.append(
+                f"- [{it.published} | {jur}] {it.title}\n"
+                f"  {(it.summary or '')[:280]}\n"
+                f"{topic_line}"
+                f"{context_snippet}"
+                f"  Source: Regulation Asia — {it.url}"
+            )
+        for it in ra_items[:6]:
+            headlines.append(
+                ("Regulation Asia", it.title, (it.summary or "")[:240])
+            )
+    else:
+        # RA is unavailable — signal fallback mode explicitly so the
+        # cron log makes it obvious why the episode is thinner.
+        text_parts.append(
+            f"[REGULATION ASIA UNAVAILABLE — transport={ra_transport}. "
+            f"Falling back to seed news only. Configure REGULATION_ASIA_API_KEY "
+            f"in GitHub Actions secrets to restore the primary source.]"
+        )
+
+    # =============================================================
+    # FALLBACK — seed news (background context only when RA is present,
+    # primary source when RA is absent)
+    # =============================================================
     news, _ = news_items_for(
         jurisdiction="All jurisdictions",
         topic="All topics",
         include_live=False,
     )
-    text_parts.append("=== TOP NEWS ===")
-    for it in news[:4]:
+    # Freshness cap — 90 days
+    fresh_floor = (today - dt.timedelta(days=90)).isoformat()
+    fresh_news = [it for it in news if not it.date or it.date >= fresh_floor]
+    label = "SEED NEWS (background context)" if ra_items else "TOP NEWS"
+    text_parts.append(f"\n=== {label} — last 90 days ===")
+    for it in fresh_news[:4]:
         text_parts.append(
             f"- [{it.date} | {it.jurisdiction} | {it.topic}] {it.title}\n"
             f"  {(it.summary or '')[:280]}"
         )
-        headlines.append(("News", it.title, (it.summary or "")[:240]))
+        if not ra_items:
+            headlines.append(("News", it.title, (it.summary or "")[:240]))
 
-    # Regulation Asia articles — the region's most-cited independent
-    # regulatory-intelligence publication. Silent no-op when the API
-    # key / authenticated-feed URL isn't set; when configured, the last
-    # 24h of articles get injected as a dedicated section so the podcast
-    # hosts can reference them by title + attribution.
-    try:
-        from lib.regulation_asia import fetch_recent_articles, configured_transport
-        ra_items = fetch_recent_articles(since_hours=24, max_items=6)
-        if ra_items:
-            text_parts.append(
-                f"\n=== REGULATION ASIA (last 24h, transport={configured_transport()}) ==="
-            )
-            for it in ra_items:
-                jur = it.jurisdiction or "APAC"
-                text_parts.append(
-                    f"- [{it.published} | {jur}] {it.title}\n"
-                    f"  {(it.summary or '')[:280]}\n"
-                    f"  Source: Regulation Asia — {it.url}"
-                )
-                headlines.append(("Regulation Asia", it.title, (it.summary or "")[:240]))
-    except Exception as e:
-        # Non-fatal — cron stays green.
-        import sys
-        sys.stderr.write(f"[regulation_asia] adapter failed: {e}\n")
+    # =============================================================
+    # Obligations — active + still-actionable overdue only
+    # =============================================================
+    soon_cutoff = (today + dt.timedelta(days=90)).isoformat()
+    legacy_floor = (today - dt.timedelta(days=180)).isoformat()
 
-    # Imminent obligations (next 60 days, top 3 by date)
-    cutoff = (today + dt.timedelta(days=60)).isoformat()
-    obs = [
-        o for o in load_obligations()
-        if o.due_date and o.due_date <= cutoff and o.status != "Closed"
+    all_obs = load_obligations()
+    upcoming = [
+        o for o in all_obs
+        if o.due_date and fresh_floor <= o.due_date <= soon_cutoff
+        and o.status != "Closed"
     ]
-    obs.sort(key=lambda o: (o.due_date, o.jurisdiction))
-    text_parts.append("\n=== OBLIGATIONS DUE (next 60d) ===")
-    for o in obs[:3]:
-        text_parts.append(
-            f"- [{o.due_date} | {o.jurisdiction}] {o.title} — {o.description}"
-        )
-        headlines.append(("Obligation due", o.title, o.description or ""))
+    upcoming.sort(key=lambda o: (o.due_date, o.jurisdiction))
+    overdue_actionable = [
+        o for o in all_obs
+        if o.due_date
+        and legacy_floor <= o.due_date < today.isoformat()
+        and o.status != "Closed"
+        and getattr(o, "priority", "Standard") in ("Critical", "High")
+    ]
+    overdue_actionable.sort(key=lambda o: o.due_date, reverse=True)
 
-    # Top horizon items
+    text_parts.append("\n=== ACTIVE OBLIGATIONS (next 90 days) ===")
+    if upcoming:
+        for o in upcoming[:3]:
+            text_parts.append(
+                f"- [{o.due_date} | {o.jurisdiction} | "
+                f"{getattr(o, 'priority', 'Standard')}] {o.title} — {o.description}"
+            )
+            headlines.append(("Obligation due", o.title, o.description or ""))
+    else:
+        text_parts.append("- (no items due in the window)")
+
+    if overdue_actionable:
+        text_parts.append(
+            "\n=== STILL-ACTIONABLE OVERDUE (last 6 months, Critical/High only) ==="
+        )
+        for o in overdue_actionable[:2]:
+            text_parts.append(
+                f"- [{o.due_date} | {o.jurisdiction} | "
+                f"{getattr(o, 'priority', 'Standard')}] {o.title} — {o.description}"
+            )
+            headlines.append(("Overdue", o.title, o.description or ""))
+
+    # =============================================================
+    # Horizon — filtered to fresh items only
+    # =============================================================
     horizon, _ = all_items_for_jurisdiction(jurisdiction=None, include_live=False)
-    text_parts.append("\n=== HORIZON SCANNING ===")
-    for it in horizon[:3]:
+    fresh_horizon = [
+        it for it in horizon if not it.date or it.date >= fresh_floor
+    ]
+    text_parts.append("\n=== HORIZON SCANNING (last 90 days) ===")
+    for it in fresh_horizon[:3]:
         text_parts.append(
             f"- [{it.date} | {it.jurisdiction} | {it.impact}] {it.title}\n"
             f"  {(it.summary or '')[:240]}"
         )
         headlines.append(("Horizon", it.title, (it.summary or "")[:240]))
+
+    # =============================================================
+    # Freshness + attribution directive to the host
+    # =============================================================
+    text_parts.append(
+        f"\n=== DIRECTIVE FOR THE HOST ===\n"
+        f"Today is {today.isoformat()}. Speak in the present tense and "
+        f"forward-looking voice. Do NOT dwell on stale 2024-cycle items "
+        f"unless they are explicitly listed under 'STILL-ACTIONABLE "
+        f"OVERDUE'. Avoid phrases like 'last year', 'a previous cycle', "
+        f"or 'back in 2024'. Anchor each story on the Regulation Asia "
+        f"items above where possible; when you reference an RA article, "
+        f"a natural attribution like 'as Regulation Asia reported earlier "
+        f"this week' or 'per Regulation Asia's coverage' lets the "
+        f"listener trace the source. Never fabricate a story or a "
+        f"detail that isn't in the digest above."
+    )
 
     # Credible-source citation context — for the jurisdictions touched
     # by today's news + obligations + horizon items, list the top
